@@ -1,0 +1,53 @@
+project_name: NengoLMU
+pkg_name: lmu
+repo_name: abr/lmu
+description: Legendre Memory Units
+
+copyright_start: 2019
+
+license_rst: {}
+
+contributing_rst: {}
+
+contributors_rst: {}
+
+setup_py:
+  install_req:  
+    - nengolib>=0.5.1
+    - tensorflow>=2.0.0
+  docs_req:
+    - matplotlib>=3.0.2
+    - IPython>=7.2.0
+    - notebook>=5.7.4
+    - seaborn>=0.9.0
+  optional_req:
+    - scipy
+  classifiers:
+    - "Development Status :: 3 - Alpha"
+    - "Framework :: Nengo"
+    - "Intended Audience :: Science/Research"
+    - "License :: Free for non-commercial use"
+    - "Operating System :: OS Independent"
+    - "Programming Language :: Python "
+    - "Programming Language :: Python :: 3.5"
+    - "Programming Language :: Python :: 3.6"
+    - "Programming Language :: Python :: 3.7"
+    - "Topic :: Scientific/Engineering "
+    - "Topic :: Scientific/Engineering :: Artificial Intelligence"
+
+setup_cfg: {}
+
+travis_yml:
+  python: 3.6
+  jobs:
+    - script: static
+  pypi_user: arvoelke
+  slack_notifications: "vv0lGEj/xNMFSZDbFsdoMJyEcr9BO8p43KUefmgHfjIQtodZqXdesLl+XJcXW0jxCJlNyy3H8LHYP/mEGJpIsK+tQ7dxlWscLjSGWfcoNiZGy4a1Jp4fF+MZyYvIGlTRJqxrazIrj73tGFptVr2XDE74eO0Z9YaVSJVQw4twEDrWFEAq4foWxV30SkcXfdCkhBwX+43CJyuGE3YFDD/+03me/mdccjNRqCfJ0lURRk7H5tcztryrZy2gpwHV+W73raGTybxlP1xEa1hyLYJO40eH/JfeqBqIDxa5m61Aw+BH/HJ5ZLNlTEUyUB6p7kcIYO9lyko5TY3QSqlX9pK+tK+2DojDlzI97QwgQVbx4WvTJ1JEidfgRqNcTlJOG16RvlyxQjW1u3/QV67bmINus470qQqzIBbdLfM70v+E5Ga/bk+Gk1Z29btB7DxXt4z9dH9z3NXTOLhDpH5WZzpcatrbfSrgMzKtxC+z6oLfDzzio9Fx20RiuHv3P8GtXyyR9WkelMH9GVi7xUBHVCveRVVhNKL555u7NbP5TI6Jc9NZqf7OtrNsRKIY4MfGc9KKjYa+Ks+3PT+yQZ8u/ZMMddMTv73nzLH0pU715/CBl1hQGkKkopukGtKbCpdc666PnRrFy9l21hBqSNqLo/FGPF/Yqr+yTXhuhBhvNZnvFQU=" 
+  deploy_dists:
+    - sdist
+    - bdist_wheel
+
+ci_scripts:
+  - template: static
+
+codecov_yml: {}
