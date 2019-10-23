@@ -1,0 +1,25 @@
+from setuptools import setup
+
+setup(name='lmu',
+      version='0.1',
+      description='Legendre Memory Units',
+      url='https://github.com/abr/neurips2019/',
+      author='Applied Brain Research',
+      author_email='info@appliedbrainresearch.com',
+      packages=['lmu'],
+      install_requires=[
+          'keras>=2.2.4',
+          'tensorflow>=1.12.0,<2',
+          'torch>=1.1.0',
+          'scikit-learn>=0.20.1',
+          'matplotlib>=3.0.2',
+          'IPython>=7.2.0',
+          'notebook>=5.7.4',
+          'seaborn>=0.9.0',
+          'numpy>=1.15.4',
+          'scipy<1.3.0',
+          'nengolib>=0.5.1',
+          'nengo>=2.8.0,<3.0',
+          'phased-lstm-keras',
+      ],
+      zip_safe=False)
