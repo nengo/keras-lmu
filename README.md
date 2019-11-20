@@ -8,7 +8,7 @@ A single `LMUCell` expresses the following computational graph in Keras as an RN
 
 ![Computational graph](https://i.imgur.com/IJGUVg6.png)
 
-The discretized `(A, B)` matrices are initialized according to the LMU's mathematical derivation with respect to some chosen window length, θ. Backpropagation can be used to learn this time-scale, or fine-tune `(A, B)`, if necessary. By default the coupling between the hidden state (`h`) and the memory vector (`m`) is trained via backpropagation, while the dynamics of the memory remain fixed ([see paper for details](http://compneuro.uwaterloo.ca/publications/voelker2019lmu.html)).
+The discretized `(A, B)` matrices are initialized according to the LMU's mathematical derivation with respect to some chosen window length, θ. Backpropagation can be used to learn this time-scale, or fine-tune `(A, B)`, if necessary. By default the coupling between the hidden state (`h`) and the memory vector (`m`) is trained via backpropagation, while the dynamics of the memory remain fixed ([see paper for details](https://papers.nips.cc/paper/9689-legendre-memory-units-continuous-time-representation-in-recurrent-neural-networks.pdf)).
 
 This repository includes a pre-trained Keras/TensorFlow model, located at `models/psMNIST-standard.hdf5`, which obtains the current best-known psMNIST result of **97.15%**.
 
