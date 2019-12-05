@@ -40,9 +40,12 @@ Models will be saved to the `models` directory and figures to the `figures` dire
 
 A neuromorphic example deployed on Loihi is located at `neuromorphic/loihi_lmu.py`. This requires running `pip install -r neuromorphic/requirements.txt`. If a Loihi board is connected to your computer then it should be automatically detected and used. Otherwise, a detailed hardware emulator is run in software. 
 
----
-
-Please cite as:
+## Nengo Examples
+ - [Spiking LMUs in Nengo (with online learning)](https://www.nengo.ai/nengo/examples/learning/lmu.html)
+ - [Spiking LMUs in Nengo Loihi (with online learning)](https://www.nengo.ai/nengo-loihi/examples/lmu.html)
+ - [LMUs in NengoDL (reproducing SotA on psMNIST)](https://www.nengo.ai/nengo-dl/examples/lmu.html)
+ 
+## Citation
 ```
 @inproceedings{voelker2019lmu,
   title={Legendre Memory Units: Continuous-Time Representation in Recurrent Neural Networks},
