@@ -54,6 +54,7 @@ A neuromorphic example deployed on Loihi is located at `neuromorphic/loihi_lmu.p
   title={Legendre Memory Units: Continuous-Time Representation in Recurrent Neural Networks},
   author={Aaron R. Voelker and Ivana Kaji\'c and Chris Eliasmith},
   booktitle={Advances in Neural Information Processing Systems},
+  pages={15544--15553},
   year={2019}
 }
 ```
