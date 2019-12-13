@@ -25,6 +25,8 @@ We recommend Python 3.6+ and a computer with:
 To reproduce all experiments / training / figures:
 
 ```
+git clone --recurse-submodules https://github.com/abr/neurips2019 lmu
+cd lmu
 pip install -e .
 python figures/legendre-basis.py
 python figures/poisson-performance.py
