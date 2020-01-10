@@ -71,6 +71,7 @@ class LMUCell(Layer):
                  hidden_kernel_initializer='glorot_normal',
                  memory_kernel_initializer='glorot_normal',
                  hidden_activation='tanh',
+                 include_bias=False,
                  **kwargs):
         super().__init__(**kwargs)
 
@@ -103,6 +104,7 @@ class LMUCell(Layer):
             memory_kernel_initializer)
 
         self.hidden_activation = activations.get(hidden_activation)
+        self.include_bias = include_bias
 
         self._realizer_result = realizer(
             factory(theta=theta, order=self.order))
@@ -173,6 +175,13 @@ class LMUCell(Layer):
             initializer=self.memory_kernel_initializer,
             trainable=self.trainable_memory_kernel)
 
+        if self.include_bias:
+            self.bias = self.add_weight(
+                name='bias',
+                shape=(1, self.units),
+                initializer=Constant(0),
+                trainable=True)
+
         self.AT = self.add_weight(
             name='AT',
             shape=(self.order, self.order),
@@ -199,7 +208,8 @@ class LMUCell(Layer):
         h = self.hidden_activation(
              K.dot(inputs, self.input_kernel) +
              K.dot(h, self.hidden_kernel) +
-             K.dot(m, self.memory_kernel))
+             K.dot(m, self.memory_kernel) +
+             self.bias if self.include_bias else 0)
 
         return h, [h, m]
 
