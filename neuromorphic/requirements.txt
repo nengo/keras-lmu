@@ -1,3 +1,0 @@
-nengo==2.8.0
-nengolib==0.5.2
-nengo-loihi==0.7.0
