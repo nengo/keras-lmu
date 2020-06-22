@@ -19,8 +19,8 @@ Release history
    - Removed
    - Fixed
 
-0.1.0 (unreleased)
-==================
+0.1.0 (June 22, 2020)
+=====================
 
 Initial release of LMU 0.1.0! Supports Python 3.5+.
 
