@@ -11,6 +11,8 @@ contributing_rst: {}
 
 contributors_rst: {}
 
+manifest_in: {}
+
 setup_py:
   install_req:  
     - nengolib>=0.5.1
@@ -49,5 +51,6 @@ travis_yml:
 
 ci_scripts:
   - template: static
+  - template: deploy
 
 codecov_yml: {}
