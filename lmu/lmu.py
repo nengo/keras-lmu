@@ -113,7 +113,7 @@ class LMUCell(Layer):
         self.input_kernel_initializer = initializers.get(input_kernel_initializer)
         self.hidden_kernel_initializer = initializers.get(hidden_kernel_initializer)
         self.memory_kernel_initializer = initializers.get(memory_kernel_initializer)
-        
+
         self.input_encoders_regularizer = regularizers.get(input_encoders_regularizer)
         self.hidden_encoders_regularizer = regularizers.get(hidden_encoders_regularizer)
         self.memory_encoders_regularizer = regularizers.get(memory_encoders_regularizer)
@@ -123,7 +123,7 @@ class LMUCell(Layer):
         self.bias_regularizer = regularizers.get(bias_regularizer)
 
         self.hidden_activation = activations.get(hidden_activation)
-        
+
         self.include_bias = include_bias
 
         self._realizer_result = realizer(factory(theta=theta, order=self.order))
@@ -219,8 +219,7 @@ class LMUCell(Layer):
                 regularizer=self.bias_regularizer,
                 trainable=True,
             )
-        
-        
+
         self.AT = self.add_weight(
             name="AT",
             shape=(self.order, self.order),
