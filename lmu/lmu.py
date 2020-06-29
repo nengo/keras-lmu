@@ -213,7 +213,7 @@ class LMUCell(Layer):
 
         if self.include_bias:
             self.bias = self.add_weight(
-                name='bias',
+                name="bias",
                 shape=(1, self.units),
                 initializer=Constant(0),
                 regularizer=self.bias_regularizer,
@@ -255,7 +255,9 @@ class LMUCell(Layer):
             K.dot(inputs, self.input_kernel)
             + K.dot(h, self.hidden_kernel)
             + K.dot(m, self.memory_kernel)
-            + self.bias if self.include_bias else 0
+            + self.bias
+            if self.include_bias
+            else 0
         )
 
         return h, [h, m]
@@ -295,7 +297,7 @@ class LMUCell(Layer):
                 memory_kernel_regularizer=self.memory_kernel_regularizer,
                 hidden_activation=self.hidden_activation,
                 include_bias=self.include_bias,
-                bias_regularizer=self.bias_regularizer
+                bias_regularizer=self.bias_regularizer,
             )
         )
 
