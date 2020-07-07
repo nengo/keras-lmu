@@ -38,6 +38,10 @@ docs_req = [
     "IPython>=7.2.0",
     "notebook>=5.7.4",
     "seaborn>=0.9.0",
+    "sphinx>=1.8",
+    "nbsphinx",
+    "nengo_sphinx_theme>=1.2.0",
+    "numpydoc>=0.6",
 ]
 optional_req = [
     "scipy",
@@ -50,7 +54,7 @@ setup(
     author="Applied Brain Research",
     author_email="info@appliedbrainresearch.com",
     packages=find_packages(),
-    url="https://www.nengo.ai/lmu",
+    url="https://appliedbrainresearch.com/lmu",
     include_package_data=False,
     license="Free for non-commercial use",
     description="Legendre Memory Units",

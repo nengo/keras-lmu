@@ -22,14 +22,17 @@ Release history
 0.1.1 (unreleased)
 ==================
 
+**Added**
+
+- Added documentation for package description, installation, usage, API, examples,
+  and project information. (`#20 <https://github.com/abr/lmu/pull/20>`__)
 - Added LMU FFT cell variant and auto-switching LMU class
   (`#21 <https://github.com/abr/lmu/pull/21>`__)
-
 
 0.1.0 (June 22, 2020)
 =====================
 
-Initial release of LMU 0.1.0! Supports Python 3.5+.
+Initial release of NengoLMU 0.1.0! Supports Python 3.5+.
 
 The API is considered unstable; parts are likely to change in the future.
 

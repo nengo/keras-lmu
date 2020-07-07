@@ -22,12 +22,20 @@ env:
     - SCRIPT="test"
     - TEST_ARGS=""
     - BRANCH_NAME="${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}"
+    - PIP_USE_FEATURE="2020-resolver"
 
 jobs:
   include:
   -
     env:
       SCRIPT="static"
+  -
+    env:
+      SCRIPT="docs"
+    addons:
+      apt:
+        packages:
+          - pandoc
   - stage: deploy
     if: branch =~ ^release-candidate-* OR tag =~ ^v[0-9]*
     env: SCRIPT="deploy"
