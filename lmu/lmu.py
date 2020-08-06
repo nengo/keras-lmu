@@ -8,7 +8,11 @@ import numpy as np
 from tensorflow.keras import backend as K
 from tensorflow.keras import activations, initializers
 from tensorflow.keras.initializers import Constant, Initializer
-from tensorflow.keras.layers import Layer
+from tensorflow.keras.initializers import (
+    Identity as ID,
+)  # to avoid conflict with nengolib import
+from tensorflow.keras.layers import Layer, RNN
+import tensorflow as tf
 
 from nengolib.signal import Identity, cont2discrete
 from nengolib.synapses import LegendreDelay
@@ -669,3 +673,291 @@ class LMUCellGating(Layer):
         )
 
         return h, [h, m]
+
+
+class LMU(Layer):
+    def __init__(
+        self,
+        units,
+        order,
+        theta,  # relative to dt=1
+        method="zoh",
+        realizer=Identity(),  # TODO: Deprecate?
+        factory=LegendreDelay,  # TODO: Deprecate?
+        memory_to_memory=True,
+        hidden_to_memory=True,
+        hidden_to_hidden=True,
+        trainable_input_encoders=True,
+        trainable_hidden_encoders=True,
+        trainable_memory_encoders=True,
+        trainable_input_kernel=True,
+        trainable_hidden_kernel=True,
+        trainable_memory_kernel=True,
+        trainable_A=False,
+        trainable_B=False,
+        input_encoders_initializer="lecun_uniform",
+        hidden_encoders_initializer="lecun_uniform",
+        memory_encoders_initializer=Constant(0),  # 'lecun_uniform',
+        input_kernel_initializer="glorot_normal",
+        hidden_kernel_initializer="glorot_normal",
+        memory_kernel_initializer="glorot_normal",
+        hidden_activation="tanh",
+        return_sequences=False,
+        force_FFT=False,
+        force_RNN=False,
+        **kwargs
+    ):
+
+        self.units = units
+        self.order = order
+        self.theta = theta
+        self.method = method
+        self.realizer = realizer
+        self.factory = factory
+        self.memory_to_memory = memory_to_memory
+        self.hidden_to_memory = hidden_to_memory
+        self.hidden_to_hidden = hidden_to_hidden
+        self.trainable_input_encoders = trainable_input_encoders
+        self.trainable_hidden_encoders = trainable_hidden_encoders
+        self.trainable_memory_encoders = trainable_memory_encoders
+        self.trainable_input_kernel = trainable_input_kernel
+        self.trainable_hidden_kernel = trainable_hidden_kernel
+        self.trainable_memory_kernel = trainable_memory_kernel
+        self.trainable_A = trainable_A
+        self.trainable_B = trainable_B
+        self.input_encoders_initializer = input_encoders_initializer
+        self.hidden_encoders_initializer = hidden_encoders_initializer
+        self.memory_encoders_initializer = memory_encoders_initializer
+        self.input_kernel_initializer = input_kernel_initializer
+        self.hidden_kernel_initializer = hidden_kernel_initializer
+        self.memory_kernel_initializer = memory_kernel_initializer
+        self.hidden_activation = hidden_activation
+        self.return_sequences = return_sequences
+        self.force_FFT = force_FFT
+        self.force_RNN = force_RNN
+
+        super().__init__(**kwargs)
+
+        if self.force_FFT or self.fft_check():
+            print("FFT layer")
+            self.lmu_layer = FFTLayer(
+                units=self.units,
+                order=self.order,
+                theta=self.theta,  # relative to dt=1
+                trainable_input_encoders=self.trainable_input_encoders,
+                trainable_input_kernel=self.trainable_input_kernel,
+                trainable_hidden_kernel=self.trainable_hidden_kernel,
+                trainable_memory_kernel=self.trainable_memory_kernel,
+                input_encoders_initializer=self.input_encoders_initializer,
+                input_kernel_initializer=self.input_kernel_initializer,
+                memory_kernel_initializer=self.memory_kernel_initializer,
+                hidden_activation=self.hidden_activation,
+                return_sequences=self.return_sequences,
+            )
+        else:
+            print("RNN layer")
+            self.lmu_layer = RNN(
+                LMUCell(
+                    units=self.units,
+                    order=self.order,
+                    theta=self.theta,  # relative to dt=1
+                    method=self.method,
+                    realizer=self.realizer,  # TODO: Deprecate?
+                    factory=self.factory,  # TODO: Deprecate?
+                    trainable_input_encoders=self.trainable_input_encoders,
+                    trainable_hidden_encoders=self.trainable_hidden_encoders,
+                    trainable_memory_encoders=self.trainable_memory_encoders,
+                    trainable_input_kernel=self.trainable_input_kernel,
+                    trainable_hidden_kernel=self.trainable_hidden_kernel,
+                    trainable_memory_kernel=self.trainable_memory_kernel,
+                    trainable_A=self.trainable_A,
+                    trainable_B=self.trainable_B,
+                    input_encoders_initializer=self.input_encoders_initializer,
+                    hidden_encoders_initializer=self.hidden_encoders_initializer,
+                    memory_encoders_initializer=self.memory_encoders_initializer,  # 'lecun_uniform',
+                    input_kernel_initializer=self.input_kernel_initializer,
+                    hidden_kernel_initializer=self.hidden_kernel_initializer,
+                    memory_kernel_initializer=self.memory_kernel_initializer,
+                    hidden_activation=self.hidden_activation,
+                ),
+                return_sequences=self.return_sequences,
+            )
+
+    def call(self, inputs):
+        return self.lmu_layer.call(inputs)
+
+    def build(self, input_shape):
+        self.lmu_layer.build(input_shape)
+        # input_dims = input_shape[-1]
+        # seq_length = input_shape[-2]
+        self.built = True
+
+    def fft_check(self):
+        return not (
+            self.memory_to_memory or self.hidden_to_memory or self.hidden_to_hidden
+        )
+
+    def get_config(self):
+
+        config = super().get_config()
+        config.update(
+            dict(
+                units=self.units,
+                order=self.order,
+                theta=self.theta,
+                method=self.method,
+                factor=self.factory,
+                memory_to_memory=self.memory_to_memory,
+                hidden_to_memory=self.hidden_to_memory,
+                hidden_to_hidden=self.hidden_to_hidden,
+                trainable_input_encoders=self.trainable_input_encoders,
+                trainable_hidden_encoders=self.trainable_hidden_encoders,
+                trainable_memory_encoders=self.trainable_memory_encoders,
+                trainable_input_kernel=self.trainable_input_kernel,
+                trainable_hidden_kernel=self.trainable_hidden_kernel,
+                trainable_memory_kernel=self.trainable_memory_kernel,
+                trainable_A=self.trainable_A,
+                trainable_B=self.trainable_B,
+                input_encorders_initializer=self.input_encoders_initializer,
+                hidden_encoders_initializer=self.hidden_encoders_initializer,
+                memory_encoders_initializer=self.memory_encoders_initializer,
+                input_kernel_initializer=self.input_kernel_initializer,
+                hidden_kernel_initializer=self.hidden_kernel_initializer,
+                memory_kernel_initializer=self.memory_kernel_initializer,
+                hidden_activation=self.hidden_activation,
+                return_sequences=self.return_sequences,
+                force_FFT=self.force_FFT,
+                force_RNN=self.force_RNN,
+            )
+        )
+
+        return config
+
+
+class FFTLayer(Layer):
+    def __init__(
+        self,
+        units,
+        order,
+        theta,  # relative to dt=1
+        trainable_input_encoders=True,
+        trainable_input_kernel=True,
+        trainable_hidden_kernel=True,
+        trainable_memory_kernel=True,
+        input_encoders_initializer="lecun_uniform",
+        input_kernel_initializer="glorot_normal",
+        memory_kernel_initializer="glorot_normal",
+        hidden_activation="tanh",
+        return_sequences=True,
+        **kwargs
+    ):
+
+        super().__init__(**kwargs)
+
+        self.units = units
+        self.order = order
+        self.theta = theta
+
+        self.trainable_input_encoders = trainable_input_encoders
+        self.trainable_input_kernel = trainable_input_kernel
+        self.trainable_memory_kernel = trainable_memory_kernel
+
+        self.input_encoders_initializer = initializers.get(input_encoders_initializer)
+        self.input_kernel_initializer = initializers.get(input_kernel_initializer)
+        self.memory_kernel_initializer = initializers.get(memory_kernel_initializer)
+
+        self.hidden_activation = activations.get(hidden_activation)
+
+        self.return_sequences = return_sequences
+
+        self.output_size = self.units
+
+    def build(self, input_shape):
+        self.seq_length = input_shape[-2]
+        input_dim = input_shape[-1]
+
+        self.input_encoders = self.add_weight(
+            name="input_encoders",
+            shape=(input_dim, 1),
+            initializer=self.input_encoders_initializer,
+            trainable=self.trainable_input_encoders,
+        )
+
+        self.input_kernel = self.add_weight(
+            name="input_kernel",
+            shape=(input_dim, self.units),
+            initializer=self.input_kernel_initializer,
+            trainable=self.trainable_input_kernel,
+        )
+
+        self.memory_kernel = self.add_weight(
+            name="memory_kernel",
+            shape=(self.order, self.units),
+            initializer=self.memory_kernel_initializer,
+            trainable=self.trainable_memory_kernel,
+        )
+
+        self.impulse_response = self.get_impulse_response()
+
+        self.built = True
+
+    def call(self, inputs):
+
+        u = tf.matmul(inputs, self.input_encoders, name="input_encoder_mult")
+        u = tf.transpose(u, perm=[0, 2, 1])
+
+        input_padding = tf.constant([[0, 0], [0, 0], [0, 2 * self.seq_length]])
+        fft_input = tf.signal.rfft(tf.pad(u, input_padding, name="input_pad"))
+
+        response_padding = tf.constant([[0, 0], [0, 2 * self.seq_length]])
+        fft_response = tf.signal.rfft(
+            tf.pad(self.impulse_response, response_padding, name="response_pad")
+        )
+
+        ## fft(input_response) * fft(input) Elementwise
+        result = fft_input * fft_response
+
+        if self.return_sequences == True:
+            m = tf.signal.irfft(result)[:, :, : self.seq_length]
+            m = tf.transpose(m, perm=[0, 2, 1])
+            x = inputs
+        else:
+            m = tf.signal.irfft(result)[:, :, self.seq_length - 1]
+            x = inputs[:, self.seq_length - 1, :]
+
+        return self.hidden_activation(
+            tf.matmul(m, self.memory_kernel) + tf.matmul(x, self.input_kernel)
+        )
+
+    def get_impulse_response(self):
+
+        delay_layer = RNN(
+            LMUCell(
+                units=self.order,
+                order=self.order,
+                theta=self.theta,  # relative to dt=1
+                trainable_input_encoders=False,
+                trainable_hidden_encoders=False,
+                trainable_memory_encoders=False,
+                trainable_input_kernel=False,
+                trainable_hidden_kernel=False,
+                trainable_memory_kernel=False,
+                trainable_A=False,
+                trainable_B=False,
+                input_encoders_initializer=Constant(1),
+                hidden_encoders_initializer=Constant(0),
+                memory_encoders_initializer=Constant(0),
+                input_kernel_initializer=Constant(0),
+                hidden_kernel_initializer=Constant(0),
+                memory_kernel_initializer=ID(),
+                hidden_activation="linear",
+            ),
+            return_sequences=True,
+        )
+
+        impulse = tf.reshape(
+            tf.eye(self.seq_length, 1, dtype=tf.dtypes.float64), (1, self.seq_length, 1)
+        )
+
+        impulse_response = tf.squeeze(tf.transpose(delay_layer(impulse)), [-1])
+        return impulse_response
