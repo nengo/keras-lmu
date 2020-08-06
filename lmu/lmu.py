@@ -8,7 +8,11 @@ import numpy as np
 from tensorflow.keras import backend as K
 from tensorflow.keras import activations, initializers
 from tensorflow.keras.initializers import Constant, Initializer
-from tensorflow.keras.layers import Layer
+from tensorflow.keras.initializers import (
+    Identity as ID,
+)  # Redefinition to avoid conflict with nengolib import
+from tensorflow.keras.layers import Layer, RNN
+import tensorflow as tf
 
 from nengolib.signal import Identity, cont2discrete
 from nengolib.synapses import LegendreDelay
@@ -30,31 +34,12 @@ class Legendre(Initializer):
 
 
 class LMUCell(Layer):
-    """A layer of trainable low-dimensional delay systems.
+    """
+    Cell class for the LMU layer.
 
-    Each unit buffers its encoded input
-    by internally representing a low-dimensional
-    (i.e., compressed) version of the input window.
-
-    Nonlinear decodings of this representation
-    provide computations across the window, such
-    as its derivative, energy, median value, etc (*).
-    Note that decoders can span across all of the units.
-
-    By default the window lengths are trained via backpropagation,
-    as well as the encoding and decoding weights.
-
-    Optionally, the state-space matrices that implement
-    the low-dimensional delay system can be trained as well,
-    but these are shared across all of the units in the layer.
-
-    (*) Voelker and Eliasmith (2018). Improving spiking dynamical
-    networks: Accurate delays, higher-order synapses, and time cells.
-    Neural Computation, 30(3): 569-609.
-
-    (*) Voelker and Eliasmith. "Methods and systems for implementing
-    dynamic neural networks." U.S. Patent Application No. 15/243,223.
-    Filing date: 2016-08-22.
+    This class processes one step within the whole time sequence input. Use the ``LMU``
+    class to create a recurrent Keras layer to process the whole sequence. Calling
+    ``LMU()`` is equivalent to doing ``RNN(LMUCell())``.
     """
 
     def __init__(
@@ -238,7 +223,7 @@ class LMUCell(Layer):
                 order=self.order,
                 theta=self.theta,
                 method=self.method,
-                factor=self.factory,
+                factory=self.factory,
                 trainable_input_encoders=self.trainable_input_encoders,
                 trainable_hidden_encoders=self.trainable_hidden_encoders,
                 trainable_memory_encoders=self.trainable_memory_encoders,
@@ -669,3 +654,401 @@ class LMUCellGating(Layer):
         )
 
         return h, [h, m]
+
+
+class LMUCellFFT(Layer):
+    """
+    Cell class for the FFT variant of the LMU cell.
+
+    This class assumes no recurrent connections are desired.
+
+    Produces the output of the delay system by evaluating the convolution of the input
+    sequence with the impulse response from the LMU cell. The convolution operation is
+    calculated using the fast Fourier transform (FFT).
+    """
+
+    def __init__(
+        self,
+        units,
+        order,
+        theta,  # relative to dt=1
+        trainable_input_encoders=True,
+        trainable_input_kernel=True,
+        trainable_memory_kernel=True,
+        input_encoders_initializer="lecun_uniform",
+        input_kernel_initializer="glorot_normal",
+        memory_kernel_initializer="glorot_normal",
+        hidden_activation="tanh",
+        return_sequences=True,
+        **kwargs
+    ):
+        super().__init__(**kwargs)
+
+        self.units = units
+        self.order = order
+        self.theta = theta
+
+        self.trainable_input_encoders = trainable_input_encoders
+        self.trainable_input_kernel = trainable_input_kernel
+        self.trainable_memory_kernel = trainable_memory_kernel
+
+        self.input_encoders_initializer = initializers.get(input_encoders_initializer)
+        self.input_kernel_initializer = initializers.get(input_kernel_initializer)
+        self.memory_kernel_initializer = initializers.get(memory_kernel_initializer)
+
+        self.hidden_activation = activations.get(hidden_activation)
+
+        self.return_sequences = return_sequences
+
+        self.output_size = self.units
+
+    def build(self, input_shape):
+        """
+        Initializes various network parameters.
+        """
+
+        self.seq_length = input_shape[-2]
+        input_dim = input_shape[-1]
+
+        self.input_encoders = self.add_weight(
+            name="input_encoders",
+            shape=(input_dim, 1),
+            initializer=self.input_encoders_initializer,
+            trainable=self.trainable_input_encoders,
+        )
+
+        self.input_kernel = self.add_weight(
+            name="input_kernel",
+            shape=(input_dim, self.units),
+            initializer=self.input_kernel_initializer,
+            trainable=self.trainable_input_kernel,
+        )
+
+        self.memory_kernel = self.add_weight(
+            name="memory_kernel",
+            shape=(self.order, self.units),
+            initializer=self.memory_kernel_initializer,
+            trainable=self.trainable_memory_kernel,
+        )
+
+        # Get the impulse response of the LMU cell
+        self.get_impulse_response()
+
+        self.built = True
+
+    def call(self, inputs):
+        """
+        Logic for convolution between the encoded input and the impulse response.
+        """
+
+        # Apply input encoders
+        u = tf.matmul(inputs, self.input_encoders, name="input_encoder_mult")
+        # FFT requires shape (batch, 1, timesteps)
+        u = tf.transpose(u, perm=[0, 2, 1])
+
+        # Pad sequences to avoid circular convolution
+        input_padding = tf.constant([[0, 0], [0, 0], [0, 2 * self.seq_length]])
+        # Perform the FFT
+        fft_input = tf.signal.rfft(tf.pad(u, input_padding, name="input_pad"))
+
+        response_padding = tf.constant([[0, 0], [0, 2 * self.seq_length]])
+        fft_response = tf.signal.rfft(
+            tf.pad(self.impulse_response, response_padding, name="response_pad")
+        )
+
+        # Elementwise product of FFT (broadcasting done automatically)
+        result = fft_input * fft_response
+
+        # Inverse FFT
+        m = tf.signal.irfft(result)
+        if self.return_sequences:
+            # If return_sequences, return the whole sequence
+            m = m[:, :, : self.seq_length]
+            m = tf.transpose(m, perm=[0, 2, 1])
+            x = inputs
+        else:
+            # Otherwise, just return the last item in the sequence
+            m = m[:, :, self.seq_length - 1]
+            x = inputs[:, self.seq_length - 1, :]
+
+        # Pass through hidden activation function
+        h = self.hidden_activation(
+            tf.matmul(m, self.memory_kernel) + tf.matmul(x, self.input_kernel)
+        )
+        return h
+
+    def get_impulse_response(self):
+        """
+        Obtains impulse response of delay system.
+        """
+
+        delay_layer = RNN(
+            LMUCell(
+                units=self.order,
+                order=self.order,
+                theta=self.theta,
+                trainable_input_encoders=False,
+                trainable_hidden_encoders=False,
+                trainable_memory_encoders=False,
+                trainable_input_kernel=False,
+                trainable_hidden_kernel=False,
+                trainable_memory_kernel=False,
+                trainable_A=False,
+                trainable_B=False,
+                input_encoders_initializer=Constant(1),
+                hidden_encoders_initializer=Constant(0),
+                memory_encoders_initializer=Constant(0),
+                input_kernel_initializer=Constant(0),
+                hidden_kernel_initializer=Constant(0),
+                memory_kernel_initializer=ID(),
+                hidden_activation="linear",
+            ),
+            return_sequences=True,
+        )
+
+        impulse = tf.reshape(tf.eye(self.seq_length, 1), (1, self.seq_length, 1))
+
+        self.impulse_response = tf.squeeze(tf.transpose(delay_layer(impulse)), [-1])
+        # Note: Shape of impulse_response is (order, timesteps)
+
+    def get_config(self):
+        """
+        Overrides the tensorflow get_config function.
+        """
+        config = super().get_config()
+        config.update(
+            dict(
+                units=self.units,
+                order=self.order,
+                theta=self.theta,
+                trainable_input_encoders=self.trainable_input_encoders,
+                trainable_input_kernel=self.trainable_input_kernel,
+                trainable_memory_kernel=self.trainable_memory_kernel,
+                input_encorders_initializer=self.input_encoders_initializer,
+                input_kernel_initializer=self.input_kernel_initializer,
+                memory_kernel_initializer=self.memory_kernel_initializer,
+                hidden_activation=self.hidden_activation,
+                return_sequences=self.return_sequences,
+            )
+        )
+
+
+class LMU(Layer):
+    """
+    A layer of trainable low-dimensional delay systems.
+
+    Each unit buffers its encoded input by internally representing a low-dimensional
+    (i.e., compressed) version of the input window.
+
+    Nonlinear decodings of this representation provide computations across the window,
+    such as its derivative, energy, median value, etc (*). Note that decoders can span
+    across all of the units.
+
+    By default the window lengths are trained via backpropagation, as well as the
+    encoding and decoding weights.
+
+    Optionally, the state-space matrices that implement the low-dimensional delay
+    system can be trained as well, but these are shared across all of the units in the
+    layer.
+
+    Based on the occurrence of the recurrent connections, this layer will choose
+    different implementations of evaluating the delay system.
+
+    If any recurrent connections are enabled, evaluation will occur sequentially with a
+    Keras RNN layer using the ``LMUCell`` cell class.
+    If all recurrent connections are disabled, evaluation of the delay system will be
+    computed as the convolution of the input sequence with the impulse response of
+    the LMU cell, using the ``LMUCellFFT`` cell class.
+
+    (*) Voelker and Eliasmith (2018). Improving spiking dynamical
+    networks: Accurate delays, higher-order synapses, and time cells.
+    Neural Computation, 30(3): 569-609.
+
+    (*) Voelker and Eliasmith. "Methods and systems for implementing
+    dynamic neural networks." U.S. Patent Application No. 15/243,223.
+    Filing date: 2016-08-22.
+
+    """
+
+    def __init__(
+        self,
+        units,
+        order,
+        theta,  # relative to dt=1
+        method="zoh",
+        realizer=Identity(),  # TODO: Deprecate?
+        factory=LegendreDelay,  # TODO: Deprecate?
+        memory_to_memory=True,
+        hidden_to_memory=True,
+        hidden_to_hidden=True,
+        trainable_input_encoders=True,
+        trainable_hidden_encoders=True,
+        trainable_memory_encoders=True,
+        trainable_input_kernel=True,
+        trainable_hidden_kernel=True,
+        trainable_memory_kernel=True,
+        trainable_A=False,
+        trainable_B=False,
+        input_encoders_initializer="lecun_uniform",
+        hidden_encoders_initializer="lecun_uniform",
+        memory_encoders_initializer=Constant(0),  # 'lecun_uniform',
+        input_kernel_initializer="glorot_normal",
+        hidden_kernel_initializer="glorot_normal",
+        memory_kernel_initializer="glorot_normal",
+        hidden_activation="tanh",
+        return_sequences=False,
+        **kwargs
+    ):
+        # Note: Setting memory_to_memory, hidden_to_memory, and hidden_to_hidden to
+        # False doesn't actually remove the connections, but only initializes the
+        # weights to be zero and non-trainable (when using the LMUCell).
+        # This behaviour may change pending a future API decision.
+
+        self.units = units
+        self.order = order
+        self.theta = theta
+        self.method = method
+        self.realizer = realizer
+        self.factory = factory
+        self.memory_to_memory = memory_to_memory
+        self.hidden_to_memory = hidden_to_memory
+        self.hidden_to_hidden = hidden_to_hidden
+        self.trainable_input_encoders = trainable_input_encoders
+        self.trainable_hidden_encoders = (
+            trainable_hidden_encoders if hidden_to_memory else False
+        )
+        self.trainable_memory_encoders = (
+            trainable_memory_encoders if memory_to_memory else False
+        )
+        self.trainable_input_kernel = trainable_input_kernel
+        self.trainable_hidden_kernel = (
+            trainable_hidden_kernel if hidden_to_hidden else False
+        )
+        self.trainable_memory_kernel = trainable_memory_kernel
+        self.trainable_A = trainable_A
+        self.trainable_B = trainable_B
+        self.input_encoders_initializer = input_encoders_initializer
+        self.hidden_encoders_initializer = (
+            hidden_encoders_initializer if hidden_to_memory else Constant(0)
+        )
+        self.memory_encoders_initializer = (
+            memory_encoders_initializer if memory_to_memory else Constant(0)
+        )
+        self.input_kernel_initializer = input_kernel_initializer
+        self.hidden_kernel_initializer = (
+            hidden_kernel_initializer if hidden_to_hidden else Constant(0)
+        )
+        self.memory_kernel_initializer = memory_kernel_initializer
+        self.hidden_activation = hidden_activation
+        self.return_sequences = return_sequences
+
+        super().__init__(**kwargs)
+
+        if self.fft_check():
+            self.lmu_layer = LMUCellFFT(
+                units=self.units,
+                order=self.order,
+                theta=self.theta,
+                trainable_input_encoders=self.trainable_input_encoders,
+                trainable_input_kernel=self.trainable_input_kernel,
+                trainable_memory_kernel=self.trainable_memory_kernel,
+                input_encoders_initializer=self.input_encoders_initializer,
+                input_kernel_initializer=self.input_kernel_initializer,
+                memory_kernel_initializer=self.memory_kernel_initializer,
+                hidden_activation=self.hidden_activation,
+                return_sequences=self.return_sequences,
+            )
+        else:
+            self.lmu_layer = RNN(
+                LMUCell(
+                    units=self.units,
+                    order=self.order,
+                    theta=self.theta,
+                    method=self.method,
+                    realizer=self.realizer,
+                    factory=self.factory,
+                    trainable_input_encoders=self.trainable_input_encoders,
+                    trainable_hidden_encoders=self.trainable_hidden_encoders,
+                    trainable_memory_encoders=self.trainable_memory_encoders,
+                    trainable_input_kernel=self.trainable_input_kernel,
+                    trainable_hidden_kernel=self.trainable_hidden_kernel,
+                    trainable_memory_kernel=self.trainable_memory_kernel,
+                    trainable_A=self.trainable_A,
+                    trainable_B=self.trainable_B,
+                    input_encoders_initializer=self.input_encoders_initializer,
+                    hidden_encoders_initializer=self.hidden_encoders_initializer,
+                    memory_encoders_initializer=self.memory_encoders_initializer,
+                    input_kernel_initializer=self.input_kernel_initializer,
+                    hidden_kernel_initializer=self.hidden_kernel_initializer,
+                    memory_kernel_initializer=self.memory_kernel_initializer,
+                    hidden_activation=self.hidden_activation,
+                ),
+                return_sequences=self.return_sequences,
+            )
+
+    def call(self, inputs):
+        """
+        Calls the layer with inputs.
+        """
+        return self.lmu_layer.call(inputs)
+
+    def build(self, input_shape):
+        """
+        Initializes network parameters.
+        """
+
+        self.lmu_layer.build(input_shape)
+
+        self.built = True
+
+    def fft_check(self):
+        """
+        Checks if recurrent connections are enabled to
+        automatically switch to FFT.
+        """
+        # Note: Only the flags are checked here. The alternative would be to check the
+        # weight initializers and trainiable flag settings, however it is cumbersome
+        # to check against all initializers forms that initialize the recurrent weights
+        # to 0.
+        #
+        # These flags used below exist in other LMUCell implementations, and will be
+        # brought forward in a future API decisions.
+        return not (
+            self.memory_to_memory or self.hidden_to_memory or self.hidden_to_hidden
+        )
+
+    def get_config(self):
+        """
+        Overrides the tensorflow get_config function.
+        """
+        config = super().get_config()
+        config.update(
+            dict(
+                units=self.units,
+                order=self.order,
+                theta=self.theta,
+                method=self.method,
+                factory=self.factory,
+                memory_to_memory=self.memory_to_memory,
+                hidden_to_memory=self.hidden_to_memory,
+                hidden_to_hidden=self.hidden_to_hidden,
+                trainable_input_encoders=self.trainable_input_encoders,
+                trainable_hidden_encoders=self.trainable_hidden_encoders,
+                trainable_memory_encoders=self.trainable_memory_encoders,
+                trainable_input_kernel=self.trainable_input_kernel,
+                trainable_hidden_kernel=self.trainable_hidden_kernel,
+                trainable_memory_kernel=self.trainable_memory_kernel,
+                trainable_A=self.trainable_A,
+                trainable_B=self.trainable_B,
+                input_encorders_initializer=self.input_encoders_initializer,
+                hidden_encoders_initializer=self.hidden_encoders_initializer,
+                memory_encoders_initializer=self.memory_encoders_initializer,
+                input_kernel_initializer=self.input_kernel_initializer,
+                hidden_kernel_initializer=self.hidden_kernel_initializer,
+                memory_kernel_initializer=self.memory_kernel_initializer,
+                hidden_activation=self.hidden_activation,
+                return_sequences=self.return_sequences,
+            )
+        )
+
+        return config

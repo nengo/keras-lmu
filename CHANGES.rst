@@ -22,6 +22,8 @@ Release history
 0.1.1 (unreleased)
 ==================
 
+- Added LMU FFT cell variant and auto-switching LMU class
+  (`#21 <https://github.com/abr/lmu/pull/21>`__)
 
 
 0.1.0 (June 22, 2020)
