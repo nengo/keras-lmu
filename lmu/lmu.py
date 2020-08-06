@@ -676,6 +676,10 @@ class LMUCellGating(Layer):
 
 
 class LMU(Layer):
+    """
+    Wrapper class for automatic selection of FFT when no recurrent connection present
+    """
+
     def __init__(
         self,
         units,
@@ -703,10 +707,11 @@ class LMU(Layer):
         memory_kernel_initializer="glorot_normal",
         hidden_activation="tanh",
         return_sequences=False,
-        force_FFT=False,
-        force_RNN=False,
         **kwargs
     ):
+        # Note: memory_to_memory, hidden_to_memory, and hidden_to_hidden don't remove the connections,
+        # but initialize the weights to be zero, and non-trainable.
+        # Waiting on API decisions before moving forward with modifying the LMUCell
 
         self.units = units
         self.order = order
@@ -718,27 +723,37 @@ class LMU(Layer):
         self.hidden_to_memory = hidden_to_memory
         self.hidden_to_hidden = hidden_to_hidden
         self.trainable_input_encoders = trainable_input_encoders
-        self.trainable_hidden_encoders = trainable_hidden_encoders
-        self.trainable_memory_encoders = trainable_memory_encoders
+        self.trainable_hidden_encoders = (
+            trainable_hidden_encoders if hidden_to_memory else False
+        )
+        self.trainable_memory_encoders = (
+            trainable_memory_encoders if memory_to_memory else False
+        )
         self.trainable_input_kernel = trainable_input_kernel
-        self.trainable_hidden_kernel = trainable_hidden_kernel
+        self.trainable_hidden_kernel = (
+            trainable_hidden_kernel if hidden_to_hidden else False
+        )
         self.trainable_memory_kernel = trainable_memory_kernel
         self.trainable_A = trainable_A
         self.trainable_B = trainable_B
         self.input_encoders_initializer = input_encoders_initializer
-        self.hidden_encoders_initializer = hidden_encoders_initializer
-        self.memory_encoders_initializer = memory_encoders_initializer
+        self.hidden_encoders_initializer = (
+            hidden_encoders_initializer if hidden_to_memory else Constant(0)
+        )
+        self.memory_encoders_initializer = (
+            memory_encoders_initializer if memory_to_memory else Constant(0)
+        )
         self.input_kernel_initializer = input_kernel_initializer
-        self.hidden_kernel_initializer = hidden_kernel_initializer
+        self.hidden_kernel_initializer = (
+            hidden_kernel_initializer if hidden_to_hidden else Constant(0)
+        )
         self.memory_kernel_initializer = memory_kernel_initializer
         self.hidden_activation = hidden_activation
         self.return_sequences = return_sequences
-        self.force_FFT = force_FFT
-        self.force_RNN = force_RNN
 
         super().__init__(**kwargs)
 
-        if self.force_FFT or self.fft_check():
+        if self.fft_check():
             print("FFT layer")
             self.lmu_layer = FFTLayer(
                 units=self.units,
@@ -774,7 +789,7 @@ class LMU(Layer):
                     trainable_B=self.trainable_B,
                     input_encoders_initializer=self.input_encoders_initializer,
                     hidden_encoders_initializer=self.hidden_encoders_initializer,
-                    memory_encoders_initializer=self.memory_encoders_initializer,  # 'lecun_uniform',
+                    memory_encoders_initializer=self.memory_encoders_initializer,
                     input_kernel_initializer=self.input_kernel_initializer,
                     hidden_kernel_initializer=self.hidden_kernel_initializer,
                     memory_kernel_initializer=self.memory_kernel_initializer,
@@ -784,21 +799,32 @@ class LMU(Layer):
             )
 
     def call(self, inputs):
+        """
+        Calls the layer with inputs
+        """
         return self.lmu_layer.call(inputs)
 
     def build(self, input_shape):
+        """
+        Initializes network parameters.
+        """
+
         self.lmu_layer.build(input_shape)
-        # input_dims = input_shape[-1]
-        # seq_length = input_shape[-2]
+
         self.built = True
 
     def fft_check(self):
+        """
+        Checks if conditions for FFT are satisfied
+        """
         return not (
             self.memory_to_memory or self.hidden_to_memory or self.hidden_to_hidden
         )
 
     def get_config(self):
-
+        """
+        Overrides the tensorflow get_config function.
+        """
         config = super().get_config()
         config.update(
             dict(
@@ -826,8 +852,6 @@ class LMU(Layer):
                 memory_kernel_initializer=self.memory_kernel_initializer,
                 hidden_activation=self.hidden_activation,
                 return_sequences=self.return_sequences,
-                force_FFT=self.force_FFT,
-                force_RNN=self.force_RNN,
             )
         )
 
@@ -835,6 +859,10 @@ class LMU(Layer):
 
 
 class FFTLayer(Layer):
+    """
+    Implementation of LMU using convolution using FFT 
+    """
+
     def __init__(
         self,
         units,
@@ -873,6 +901,10 @@ class FFTLayer(Layer):
         self.output_size = self.units
 
     def build(self, input_shape):
+        """
+        Initializes network parameters
+        """
+
         self.seq_length = input_shape[-2]
         input_dim = input_shape[-1]
 
@@ -897,15 +929,23 @@ class FFTLayer(Layer):
             trainable=self.trainable_memory_kernel,
         )
 
+        # make this a non-trainable weight?
         self.impulse_response = self.get_impulse_response()
 
         self.built = True
 
     def call(self, inputs):
+        """
+        Logic for convolution between the encoded input and the impulse response
+        """
 
+        # Apply input encoders
         u = tf.matmul(inputs, self.input_encoders, name="input_encoder_mult")
+        # fft requires shape (batch, 1, timesteps)
         u = tf.transpose(u, perm=[0, 2, 1])
 
+        # Pad sequences to avoid circular convolution
+        # Performs FFT
         input_padding = tf.constant([[0, 0], [0, 0], [0, 2 * self.seq_length]])
         fft_input = tf.signal.rfft(tf.pad(u, input_padding, name="input_pad"))
 
@@ -914,10 +954,11 @@ class FFTLayer(Layer):
             tf.pad(self.impulse_response, response_padding, name="response_pad")
         )
 
-        ## fft(input_response) * fft(input) Elementwise
+        # Elementwise product of FFT (tf is handling broadcasting here)
         result = fft_input * fft_response
 
-        if self.return_sequences == True:
+        # Inverse FFT
+        if self.return_sequences:
             m = tf.signal.irfft(result)[:, :, : self.seq_length]
             m = tf.transpose(m, perm=[0, 2, 1])
             x = inputs
@@ -925,11 +966,15 @@ class FFTLayer(Layer):
             m = tf.signal.irfft(result)[:, :, self.seq_length - 1]
             x = inputs[:, self.seq_length - 1, :]
 
-        return self.hidden_activation(
+        h = self.hidden_activation(
             tf.matmul(m, self.memory_kernel) + tf.matmul(x, self.input_kernel)
         )
+        return h
 
     def get_impulse_response(self):
+        """
+        Obtains impulse response of delay net
+        """
 
         delay_layer = RNN(
             LMUCell(
@@ -960,4 +1005,5 @@ class FFTLayer(Layer):
         )
 
         impulse_response = tf.squeeze(tf.transpose(delay_layer(impulse)), [-1])
+        # shape (order, timesteps)
         return impulse_response
