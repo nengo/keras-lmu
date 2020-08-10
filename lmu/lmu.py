@@ -758,7 +758,7 @@ class LMU(Layer):
             self.lmu_layer = FFTLayer(
                 units=self.units,
                 order=self.order,
-                theta=self.theta,  # relative to dt=1
+                theta=self.theta,
                 trainable_input_encoders=self.trainable_input_encoders,
                 trainable_input_kernel=self.trainable_input_kernel,
                 trainable_hidden_kernel=self.trainable_hidden_kernel,
@@ -775,10 +775,10 @@ class LMU(Layer):
                 LMUCell(
                     units=self.units,
                     order=self.order,
-                    theta=self.theta,  # relative to dt=1
+                    theta=self.theta,
                     method=self.method,
-                    realizer=self.realizer,  # TODO: Deprecate?
-                    factory=self.factory,  # TODO: Deprecate?
+                    realizer=self.realizer,
+                    factory=self.factory,
                     trainable_input_encoders=self.trainable_input_encoders,
                     trainable_hidden_encoders=self.trainable_hidden_encoders,
                     trainable_memory_encoders=self.trainable_memory_encoders,
@@ -929,8 +929,7 @@ class FFTLayer(Layer):
             trainable=self.trainable_memory_kernel,
         )
 
-        # make this a non-trainable weight?
-        self.impulse_response = self.get_impulse_response()
+        self.get_impulse_response()
 
         self.built = True
 
@@ -948,22 +947,23 @@ class FFTLayer(Layer):
         # Performs FFT
         input_padding = tf.constant([[0, 0], [0, 0], [0, 2 * self.seq_length]])
         fft_input = tf.signal.rfft(tf.pad(u, input_padding, name="input_pad"))
-
+        
         response_padding = tf.constant([[0, 0], [0, 2 * self.seq_length]])
         fft_response = tf.signal.rfft(
             tf.pad(self.impulse_response, response_padding, name="response_pad")
         )
 
-        # Elementwise product of FFT (tf is handling broadcasting here)
+        # Elementwise product of FFT (broadcasting done automatically)
         result = fft_input * fft_response
 
         # Inverse FFT
+        m = tf.signal.irfft(result)
         if self.return_sequences:
-            m = tf.signal.irfft(result)[:, :, : self.seq_length]
+            m = m[:, :, : self.seq_length]
             m = tf.transpose(m, perm=[0, 2, 1])
             x = inputs
         else:
-            m = tf.signal.irfft(result)[:, :, self.seq_length - 1]
+            m = m[:, :, self.seq_length - 1]
             x = inputs[:, self.seq_length - 1, :]
 
         h = self.hidden_activation(
@@ -980,7 +980,7 @@ class FFTLayer(Layer):
             LMUCell(
                 units=self.order,
                 order=self.order,
-                theta=self.theta,  # relative to dt=1
+                theta=self.theta,
                 trainable_input_encoders=False,
                 trainable_hidden_encoders=False,
                 trainable_memory_encoders=False,
@@ -1004,6 +1004,6 @@ class FFTLayer(Layer):
             tf.eye(self.seq_length, 1, dtype=tf.dtypes.float64), (1, self.seq_length, 1)
         )
 
-        impulse_response = tf.squeeze(tf.transpose(delay_layer(impulse)), [-1])
+        self.impulse_response = tf.squeeze(tf.transpose(delay_layer(impulse)), [-1])
         # shape (order, timesteps)
-        return impulse_response
+
