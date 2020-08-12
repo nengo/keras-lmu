@@ -709,8 +709,8 @@ class LMU(Layer):
         return_sequences=False,
         **kwargs
     ):
-        # Note: memory_to_memory, hidden_to_memory, and hidden_to_hidden don't remove the connections,
-        # but initialize the weights to be zero, and non-trainable.
+        # Note: memory_to_memory, hidden_to_memory, and hidden_to_hidden don't remove
+        # the connections, but initialize the weights to be zero, and non-trainable.
         # Waiting on API decisions before moving forward with modifying the LMUCell
 
         self.units = units
@@ -819,7 +819,7 @@ class LMU(Layer):
         """
         # Only checking flags here.Alternative would be checking weight initializers and
         # trainability however difficult to compare initializers
-        # These flags exist in other LMUCell inplementations, awaiting future api
+        # These flags exist in other LMUCell implementations, awaiting future api
         # decisions.
         return not (
             self.memory_to_memory or self.hidden_to_memory or self.hidden_to_hidden
