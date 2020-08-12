@@ -815,8 +815,12 @@ class LMU(Layer):
 
     def fft_check(self):
         """
-        Checks if conditions for FFT are satisfied
+        Checks if conditions for FFT are satisfied.
         """
+        # Only checking flags here.Alternative would be checking weight initializers and
+        # trainability however difficult to compare initializers
+        # These flags exist in other LMUCell inplementations, awaiting future api
+        # decisions.
         return not (
             self.memory_to_memory or self.hidden_to_memory or self.hidden_to_hidden
         )
@@ -860,7 +864,7 @@ class LMU(Layer):
 
 class FFTLayer(Layer):
     """
-    Implementation of LMU using convolution using FFT 
+    Implementation of LMU using convolution using FFT
     """
 
     def __init__(
@@ -947,7 +951,7 @@ class FFTLayer(Layer):
         # Performs FFT
         input_padding = tf.constant([[0, 0], [0, 0], [0, 2 * self.seq_length]])
         fft_input = tf.signal.rfft(tf.pad(u, input_padding, name="input_pad"))
-        
+
         response_padding = tf.constant([[0, 0], [0, 2 * self.seq_length]])
         fft_response = tf.signal.rfft(
             tf.pad(self.impulse_response, response_padding, name="response_pad")
@@ -1006,4 +1010,3 @@ class FFTLayer(Layer):
 
         self.impulse_response = tf.squeeze(tf.transpose(delay_layer(impulse)), [-1])
         # shape (order, timesteps)
-
