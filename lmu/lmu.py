@@ -754,7 +754,6 @@ class LMU(Layer):
         super().__init__(**kwargs)
 
         if self.fft_check():
-            print("FFT layer")
             self.lmu_layer = FFTLayer(
                 units=self.units,
                 order=self.order,
@@ -770,7 +769,6 @@ class LMU(Layer):
                 return_sequences=self.return_sequences,
             )
         else:
-            print("RNN layer")
             self.lmu_layer = RNN(
                 LMUCell(
                     units=self.units,
