@@ -1002,9 +1002,7 @@ class FFTLayer(Layer):
             return_sequences=True,
         )
 
-        impulse = tf.reshape(
-            tf.eye(self.seq_length, 1), (1, self.seq_length, 1)
-        )
+        impulse = tf.reshape(tf.eye(self.seq_length, 1), (1, self.seq_length, 1))
 
         self.impulse_response = tf.squeeze(tf.transpose(delay_layer(impulse)), [-1])
         # shape (order, timesteps)
