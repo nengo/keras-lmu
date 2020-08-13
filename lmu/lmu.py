@@ -754,7 +754,7 @@ class LMU(Layer):
         super().__init__(**kwargs)
 
         if self.fft_check():
-            self.lmu_layer = FFTLayer(
+            self.lmu_layer = LMUCellFFT(
                 units=self.units,
                 order=self.order,
                 theta=self.theta,
@@ -860,7 +860,7 @@ class LMU(Layer):
         return config
 
 
-class FFTLayer(Layer):
+class LMUCellFFT(Layer):
     """
     Implementation of LMU using convolution using FFT
     """
