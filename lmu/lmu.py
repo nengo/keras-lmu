@@ -815,9 +815,9 @@ class LMU(Layer):
         """
         Checks if conditions for FFT are satisfied.
         """
-        # Only checking flags here.Alternative would be checking weight initializers and
+        # Only checking flags here. Alternative would be checking weight initializers and
         # trainability however difficult to compare initializers
-        # These flags exist in other LMUCell implementations, awaiting future api
+        # These flags exist in other LMUCell implementations, awaiting future API
         # decisions.
         return not (
             self.memory_to_memory or self.hidden_to_memory or self.hidden_to_hidden
@@ -904,7 +904,7 @@ class LMUCellFFT(Layer):
 
     def build(self, input_shape):
         """
-        Initializes network parameters
+        Initializes various network parameters.
         """
 
         self.seq_length = input_shape[-2]
