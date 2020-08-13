@@ -34,31 +34,14 @@ class Legendre(Initializer):
 
 
 class LMUCell(Layer):
-    """A layer of trainable low-dimensional delay systems.
+    """Cell class for the LMU layer.
 
-    Each unit buffers its encoded input
-    by internally representing a low-dimensional
-    (i.e., compressed) version of the input window.
-
-    Nonlinear decodings of this representation
-    provide computations across the window, such
-    as its derivative, energy, median value, etc (*).
-    Note that decoders can span across all of the units.
-
-    By default the window lengths are trained via backpropagation,
-    as well as the encoding and decoding weights.
-
-    Optionally, the state-space matrices that implement
-    the low-dimensional delay system can be trained as well,
-    but these are shared across all of the units in the layer.
-
-    (*) Voelker and Eliasmith (2018). Improving spiking dynamical
-    networks: Accurate delays, higher-order synapses, and time cells.
-    Neural Computation, 30(3): 569-609.
-
-    (*) Voelker and Eliasmith. "Methods and systems for implementing
-    dynamic neural networks." U.S. Patent Application No. 15/243,223.
-    Filing date: 2016-08-22.
+    This class processes one step within the whole time sequence input, whereas
+    LMU processes the whole sequence.
+q
+    RNN(LMUCell) is equivalent to LMU() when any of the recurrent connections are
+    enabled. That is, one of memory_to_memory, hidden_to_memory, or hidden_to_hidden
+    are True.
     """
 
     def __init__(
@@ -677,7 +660,42 @@ class LMUCellGating(Layer):
 
 class LMU(Layer):
     """
-    Wrapper class for automatic selection of FFT when no recurrent connection present
+    A layer of trainable low-dimensional delay systems.
+
+    Each unit buffers its encoded input
+    by internally representing a low-dimensional
+    (i.e., compressed) version of the input window.
+
+    Nonlinear decodings of this representation
+    provide computations across the window, such
+    as its derivative, energy, median value, etc (*).
+    Note that decoders can span across all of the units.
+
+    By default the window lengths are trained via backpropagation,
+    as well as the encoding and decoding weights.
+
+    Optionally, the state-space matrices that implement
+    the low-dimensional delay system can be trained as well,
+    but these are shared across all of the units in the layer.
+
+    Based on the occurance of the recurrent connections, this
+    layer will choose different implementations of evaluating
+    the delay system.
+
+    If any recurrent connections are enabled, evaluation will occur
+    sequentially with a Keras RNN layer.
+    If all recurrent connections are disabled, the convolution of the
+    input sequence with the impulse response will be performed
+    using a fast Fourier transform.
+
+    (*) Voelker and Eliasmith (2018). Improving spiking dynamical
+    networks: Accurate delays, higher-order synapses, and time cells.
+    Neural Computation, 30(3): 569-609.
+
+    (*) Voelker and Eliasmith. "Methods and systems for implementing
+    dynamic neural networks." U.S. Patent Application No. 15/243,223.
+    Filing date: 2016-08-22.
+
     """
 
     def __init__(
@@ -709,8 +727,9 @@ class LMU(Layer):
         return_sequences=False,
         **kwargs
     ):
-        # Note: memory_to_memory, hidden_to_memory, and hidden_to_hidden don't remove
-        # the connections, but initialize the weights to be zero, and non-trainable.
+        # Note: Setting memory_to_memory, hidden_to_memory, and hidden_to_hidden to
+        # false don't remove the connections, but initialize the weights to be zero,
+        # and non-trainable in the case of using the LMUCell.
         # Waiting on API decisions before moving forward with modifying the LMUCell
 
         self.units = units
@@ -798,7 +817,7 @@ class LMU(Layer):
 
     def call(self, inputs):
         """
-        Calls the layer with inputs
+        Calls the layer with inputs.
         """
         return self.lmu_layer.call(inputs)
 
@@ -813,10 +832,11 @@ class LMU(Layer):
 
     def fft_check(self):
         """
-        Checks if conditions for FFT are satisfied.
+        Checks if recurrent connections are enabled to
+        automatically switch to FFT.
         """
-        # Only checking flags here. Alternative would be checking weight initializers and
-        # trainability however difficult to compare initializers
+        # Only checking flags here. Alternative would be checking weight initializers
+        # and trainability however difficult to compare initializers
         # These flags exist in other LMUCell implementations, awaiting future API
         # decisions.
         return not (
@@ -862,7 +882,14 @@ class LMU(Layer):
 
 class LMUCellFFT(Layer):
     """
-    Implementation of LMU using convolution using FFT
+    Layer class for the LMU layer.
+
+    This class assumes no recurrent connections are
+    desired.
+
+    Produces the output of the delay system by evaluating
+    the convolution of the input sequence and the
+    impulse response with a fast Fourier transform.
     """
 
     def __init__(
@@ -937,7 +964,7 @@ class LMUCellFFT(Layer):
 
     def call(self, inputs):
         """
-        Logic for convolution between the encoded input and the impulse response
+        Logic for convolution between the encoded input and the impulse response.
         """
 
         # Apply input encoders
@@ -975,7 +1002,7 @@ class LMUCellFFT(Layer):
 
     def get_impulse_response(self):
         """
-        Obtains impulse response of delay net
+        Obtains impulse response of delay system.
         """
 
         delay_layer = RNN(
