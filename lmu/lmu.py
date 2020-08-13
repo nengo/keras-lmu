@@ -678,7 +678,7 @@ class LMU(Layer):
     the low-dimensional delay system can be trained as well,
     but these are shared across all of the units in the layer.
 
-    Based on the occurance of the recurrent connections, this
+    Based on the occurrence of the recurrent connections, this
     layer will choose different implementations of evaluating
     the delay system.
 
