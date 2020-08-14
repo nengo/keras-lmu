@@ -10,7 +10,7 @@ from tensorflow.keras import activations, initializers
 from tensorflow.keras.initializers import Constant, Initializer
 from tensorflow.keras.initializers import (
     Identity as ID,
-)  # to avoid conflict with nengolib import
+)  # Redefinition to avoid conflict with nengolib import
 from tensorflow.keras.layers import Layer, RNN
 import tensorflow as tf
 
@@ -34,14 +34,12 @@ class Legendre(Initializer):
 
 
 class LMUCell(Layer):
-    """Cell class for the LMU layer.
+    """
+    Cell class for the LMU layer.
 
-    This class processes one step within the whole time sequence input, whereas
-    `LMU` processes the whole sequence.
-
-    `RNN(LMUCell)` is equivalent to `LMU()` when any of the recurrent connections are
-    enabled. That is, one of memory_to_memory, hidden_to_memory, or hidden_to_hidden
-    are True.
+    This class processes one step within the whole time sequence input. Use the ``LMU``
+    class to create a recurrent Keras layer to process the whole sequence. Calling
+    ``LMU()`` is equivalent to doing ``RNN(LMUCell())``.
     """
 
     def __init__(
@@ -225,7 +223,7 @@ class LMUCell(Layer):
                 order=self.order,
                 theta=self.theta,
                 method=self.method,
-                factor=self.factory,
+                factory=self.factory,
                 trainable_input_encoders=self.trainable_input_encoders,
                 trainable_hidden_encoders=self.trainable_hidden_encoders,
                 trainable_memory_encoders=self.trainable_memory_encoders,
@@ -413,7 +411,7 @@ class LMUCellODE(Layer):
         eM = K.tf.linalg.expm(self.dt * M)
         return (
             K.transpose(eM[: self.order, : self.order]),
-            K.reshape(eM[: self.order, self.order :], self.B.shape),
+            K.reshape(eM[: self.order, self.order:], self.B.shape),
         )
 
     def call(self, inputs, states):
@@ -658,35 +656,209 @@ class LMUCellGating(Layer):
         return h, [h, m]
 
 
+class LMUCellFFT(Layer):
+    """
+    Cell class for the FFT variant of the LMU cell.
+
+    This class assumes no recurrent connections are desired.
+
+    Produces the output of the delay system by evaluating the convolution of the input
+    sequence with the impulse response from the LMU cell. The convolution operation is
+    calculated using the fast Fourier transform (FFT).
+    """
+
+    def __init__(
+        self,
+        units,
+        order,
+        theta,  # relative to dt=1
+        trainable_input_encoders=True,
+        trainable_input_kernel=True,
+        trainable_memory_kernel=True,
+        input_encoders_initializer="lecun_uniform",
+        input_kernel_initializer="glorot_normal",
+        memory_kernel_initializer="glorot_normal",
+        hidden_activation="tanh",
+        return_sequences=True,
+        **kwargs
+    ):
+        super().__init__(**kwargs)
+
+        self.units = units
+        self.order = order
+        self.theta = theta
+
+        self.trainable_input_encoders = trainable_input_encoders
+        self.trainable_input_kernel = trainable_input_kernel
+        self.trainable_memory_kernel = trainable_memory_kernel
+
+        self.input_encoders_initializer = initializers.get(input_encoders_initializer)
+        self.input_kernel_initializer = initializers.get(input_kernel_initializer)
+        self.memory_kernel_initializer = initializers.get(memory_kernel_initializer)
+
+        self.hidden_activation = activations.get(hidden_activation)
+
+        self.return_sequences = return_sequences
+
+        self.output_size = self.units
+
+    def build(self, input_shape):
+        """
+        Initializes various network parameters.
+        """
+
+        self.seq_length = input_shape[-2]
+        input_dim = input_shape[-1]
+
+        self.input_encoders = self.add_weight(
+            name="input_encoders",
+            shape=(input_dim, 1),
+            initializer=self.input_encoders_initializer,
+            trainable=self.trainable_input_encoders,
+        )
+
+        self.input_kernel = self.add_weight(
+            name="input_kernel",
+            shape=(input_dim, self.units),
+            initializer=self.input_kernel_initializer,
+            trainable=self.trainable_input_kernel,
+        )
+
+        self.memory_kernel = self.add_weight(
+            name="memory_kernel",
+            shape=(self.order, self.units),
+            initializer=self.memory_kernel_initializer,
+            trainable=self.trainable_memory_kernel,
+        )
+
+        # Get the impulse response of the LMU cell
+        self.get_impulse_response()
+
+        self.built = True
+
+    def call(self, inputs):
+        """
+        Logic for convolution between the encoded input and the impulse response.
+        """
+
+        # Apply input encoders
+        u = tf.matmul(inputs, self.input_encoders, name="input_encoder_mult")
+        # FFT requires shape (batch, 1, timesteps)
+        u = tf.transpose(u, perm=[0, 2, 1])
+
+        # Pad sequences to avoid circular convolution
+        input_padding = tf.constant([[0, 0], [0, 0], [0, 2 * self.seq_length]])
+        # Perform the FFT
+        fft_input = tf.signal.rfft(tf.pad(u, input_padding, name="input_pad"))
+
+        response_padding = tf.constant([[0, 0], [0, 2 * self.seq_length]])
+        fft_response = tf.signal.rfft(
+            tf.pad(self.impulse_response, response_padding, name="response_pad")
+        )
+
+        # Elementwise product of FFT (broadcasting done automatically)
+        result = fft_input * fft_response
+
+        # Inverse FFT
+        m = tf.signal.irfft(result)
+        if self.return_sequences:
+            # If return_sequences, return the whole sequence
+            m = m[:, :, : self.seq_length]
+            m = tf.transpose(m, perm=[0, 2, 1])
+            x = inputs
+        else:
+            # Otherwise, just return the last item in the sequence
+            m = m[:, :, self.seq_length - 1]
+            x = inputs[:, self.seq_length - 1, :]
+
+        # Pass through hidden activation function
+        h = self.hidden_activation(
+            tf.matmul(m, self.memory_kernel) + tf.matmul(x, self.input_kernel)
+        )
+        return h
+
+    def get_impulse_response(self):
+        """
+        Obtains impulse response of delay system.
+        """
+
+        delay_layer = RNN(
+            LMUCell(
+                units=self.order,
+                order=self.order,
+                theta=self.theta,
+                trainable_input_encoders=False,
+                trainable_hidden_encoders=False,
+                trainable_memory_encoders=False,
+                trainable_input_kernel=False,
+                trainable_hidden_kernel=False,
+                trainable_memory_kernel=False,
+                trainable_A=False,
+                trainable_B=False,
+                input_encoders_initializer=Constant(1),
+                hidden_encoders_initializer=Constant(0),
+                memory_encoders_initializer=Constant(0),
+                input_kernel_initializer=Constant(0),
+                hidden_kernel_initializer=Constant(0),
+                memory_kernel_initializer=ID(),
+                hidden_activation="linear",
+            ),
+            return_sequences=True,
+        )
+
+        impulse = tf.reshape(tf.eye(self.seq_length, 1), (1, self.seq_length, 1))
+
+        self.impulse_response = tf.squeeze(tf.transpose(delay_layer(impulse)), [-1])
+        # Note: Shape of impulse_response is (order, timesteps)
+
+    def get_config(self):
+        """
+        Overrides the tensorflow get_config function.
+        """
+        config = super().get_config()
+        config.update(
+            dict(
+                units=self.units,
+                order=self.order,
+                theta=self.theta,
+                trainable_input_encoders=self.trainable_input_encoders,
+                trainable_input_kernel=self.trainable_input_kernel,
+                trainable_memory_kernel=self.trainable_memory_kernel,
+                input_encorders_initializer=self.input_encoders_initializer,
+                input_kernel_initializer=self.input_kernel_initializer,
+                memory_kernel_initializer=self.memory_kernel_initializer,
+                hidden_activation=self.hidden_activation,
+                return_sequences=self.return_sequences,
+            )
+        )
+
+
 class LMU(Layer):
     """
     A layer of trainable low-dimensional delay systems.
 
-    Each unit buffers its encoded input
-    by internally representing a low-dimensional
+    Each unit buffers its encoded input by internally representing a low-dimensional
     (i.e., compressed) version of the input window.
 
-    Nonlinear decodings of this representation
-    provide computations across the window, such
-    as its derivative, energy, median value, etc (*).
-    Note that decoders can span across all of the units.
+    Nonlinear decodings of this representation provide computations across the window,
+    such as its derivative, energy, median value, etc (*). Note that decoders can span
+    across all of the units.
 
-    By default the window lengths are trained via backpropagation,
-    as well as the encoding and decoding weights.
+    By default the window lengths are trained via backpropagation, as well as the
+    encoding and decoding weights.
 
-    Optionally, the state-space matrices that implement
-    the low-dimensional delay system can be trained as well,
-    but these are shared across all of the units in the layer.
+    Optionally, the state-space matrices that implement the low-dimensional delay
+    system can be trained as well, but these are shared across all of the units in the
+    layer.
 
-    Based on the occurrence of the recurrent connections, this
-    layer will choose different implementations of evaluating
-    the delay system.
+    Based on the occurrence of the recurrent connections, this layer will choose
+    different implementations of evaluating the delay system.
 
-    If any recurrent connections are enabled, evaluation will occur
-    sequentially with a Keras RNN layer.
-    If all recurrent connections are disabled, the convolution of the
-    input sequence with the impulse response will be performed
-    using a fast Fourier transform (FFT).
+    If any recurrent connections are enabled, evaluation will occur sequentially with a
+    Keras RNN layer using the ``LMUCell`` cell class.
+    If all recurrent connections are disabled, evaluation of the delay system will be
+    computed as the convolution of the input sequence with the impulse response of
+    the LMU cell, using the ``LMUCellFFT`` cell class.
 
     (*) Voelker and Eliasmith (2018). Improving spiking dynamical
     networks: Accurate delays, higher-order synapses, and time cells.
@@ -728,9 +900,9 @@ class LMU(Layer):
         **kwargs
     ):
         # Note: Setting memory_to_memory, hidden_to_memory, and hidden_to_hidden to
-        # false don't remove the connections, but initialize the weights to be zero,
-        # and non-trainable in the case of using the LMUCell.
-        # Waiting on API decisions before moving forward with modifying the LMUCell
+        # False doesn't actually remove the connections, but only initializes the
+        # weights to be zero and non-trainable (when using the LMUCell).
+        # This behaviour may change pending a future API decision.
 
         self.units = units
         self.order = order
@@ -835,10 +1007,13 @@ class LMU(Layer):
         Checks if recurrent connections are enabled to
         automatically switch to FFT.
         """
-        # Only checking flags here. Alternative would be checking weight initializers
-        # and trainability however difficult to compare initializers
-        # These flags exist in other LMUCell implementations, awaiting future API
-        # decisions.
+        # Note: Only the flags are checked here. The alternative would be to check the
+        # weight initializers and trainiable flag settings, however it is cumbersome
+        # to check against all initializers forms that initialize the recurrent weights
+        # to 0.
+        #
+        # These flags used below exist in other LMUCell implementations, and will be
+        # brought foward in a future API decisions.
         return not (
             self.memory_to_memory or self.hidden_to_memory or self.hidden_to_hidden
         )
@@ -854,7 +1029,7 @@ class LMU(Layer):
                 order=self.order,
                 theta=self.theta,
                 method=self.method,
-                factor=self.factory,
+                factory=self.factory,
                 memory_to_memory=self.memory_to_memory,
                 hidden_to_memory=self.hidden_to_memory,
                 hidden_to_hidden=self.hidden_to_hidden,
@@ -878,159 +1053,3 @@ class LMU(Layer):
         )
 
         return config
-
-
-class LMUCellFFT(Layer):
-    """
-    Layer class for the LMU layer.
-
-    This class assumes no recurrent connections are
-    desired.
-
-    Produces the output of the delay system by evaluating
-    the convolution of the input sequence with the
-    impulse response from the LMU cell using a
-    fast Fourier transform.
-    """
-
-    def __init__(
-        self,
-        units,
-        order,
-        theta,  # relative to dt=1
-        trainable_input_encoders=True,
-        trainable_input_kernel=True,
-        trainable_hidden_kernel=True,
-        trainable_memory_kernel=True,
-        input_encoders_initializer="lecun_uniform",
-        input_kernel_initializer="glorot_normal",
-        memory_kernel_initializer="glorot_normal",
-        hidden_activation="tanh",
-        return_sequences=True,
-        **kwargs
-    ):
-
-        super().__init__(**kwargs)
-
-        self.units = units
-        self.order = order
-        self.theta = theta
-
-        self.trainable_input_encoders = trainable_input_encoders
-        self.trainable_input_kernel = trainable_input_kernel
-        self.trainable_memory_kernel = trainable_memory_kernel
-
-        self.input_encoders_initializer = initializers.get(input_encoders_initializer)
-        self.input_kernel_initializer = initializers.get(input_kernel_initializer)
-        self.memory_kernel_initializer = initializers.get(memory_kernel_initializer)
-
-        self.hidden_activation = activations.get(hidden_activation)
-
-        self.return_sequences = return_sequences
-
-        self.output_size = self.units
-
-    def build(self, input_shape):
-        """
-        Initializes various network parameters.
-        """
-
-        self.seq_length = input_shape[-2]
-        input_dim = input_shape[-1]
-
-        self.input_encoders = self.add_weight(
-            name="input_encoders",
-            shape=(input_dim, 1),
-            initializer=self.input_encoders_initializer,
-            trainable=self.trainable_input_encoders,
-        )
-
-        self.input_kernel = self.add_weight(
-            name="input_kernel",
-            shape=(input_dim, self.units),
-            initializer=self.input_kernel_initializer,
-            trainable=self.trainable_input_kernel,
-        )
-
-        self.memory_kernel = self.add_weight(
-            name="memory_kernel",
-            shape=(self.order, self.units),
-            initializer=self.memory_kernel_initializer,
-            trainable=self.trainable_memory_kernel,
-        )
-
-        self.get_impulse_response()
-
-        self.built = True
-
-    def call(self, inputs):
-        """
-        Logic for convolution between the encoded input and the impulse response.
-        """
-
-        # Apply input encoders
-        u = tf.matmul(inputs, self.input_encoders, name="input_encoder_mult")
-        # fft requires shape (batch, 1, timesteps)
-        u = tf.transpose(u, perm=[0, 2, 1])
-
-        # Pad sequences to avoid circular convolution
-        # Performs FFT
-        input_padding = tf.constant([[0, 0], [0, 0], [0, 2 * self.seq_length]])
-        fft_input = tf.signal.rfft(tf.pad(u, input_padding, name="input_pad"))
-
-        response_padding = tf.constant([[0, 0], [0, 2 * self.seq_length]])
-        fft_response = tf.signal.rfft(
-            tf.pad(self.impulse_response, response_padding, name="response_pad")
-        )
-
-        # Elementwise product of FFT (broadcasting done automatically)
-        result = fft_input * fft_response
-
-        # Inverse FFT
-        m = tf.signal.irfft(result)
-        if self.return_sequences:
-            m = m[:, :, : self.seq_length]
-            m = tf.transpose(m, perm=[0, 2, 1])
-            x = inputs
-        else:
-            m = m[:, :, self.seq_length - 1]
-            x = inputs[:, self.seq_length - 1, :]
-
-        h = self.hidden_activation(
-            tf.matmul(m, self.memory_kernel) + tf.matmul(x, self.input_kernel)
-        )
-        return h
-
-    def get_impulse_response(self):
-        """
-        Obtains impulse response of delay system.
-        """
-
-        delay_layer = RNN(
-            LMUCell(
-                units=self.order,
-                order=self.order,
-                theta=self.theta,
-                trainable_input_encoders=False,
-                trainable_hidden_encoders=False,
-                trainable_memory_encoders=False,
-                trainable_input_kernel=False,
-                trainable_hidden_kernel=False,
-                trainable_memory_kernel=False,
-                trainable_A=False,
-                trainable_B=False,
-                input_encoders_initializer=Constant(1),
-                hidden_encoders_initializer=Constant(0),
-                memory_encoders_initializer=Constant(0),
-                input_kernel_initializer=Constant(0),
-                hidden_kernel_initializer=Constant(0),
-                memory_kernel_initializer=ID(),
-                hidden_activation="linear",
-            ),
-            return_sequences=True,
-        )
-
-        impulse = tf.reshape(tf.eye(self.seq_length, 1), (1, self.seq_length, 1))
-
-        self.impulse_response = tf.squeeze(tf.transpose(delay_layer(impulse)), [-1])
-        # shape (order, timesteps)
