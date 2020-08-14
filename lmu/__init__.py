@@ -6,8 +6,8 @@ from .lmu import (
     LMUCell,
     LMUCellODE,
     LMUCellGating,
+    LMUCellFFT,
     LMU,
-    FFTLayer,
 )
 
 from .version import version as __version__

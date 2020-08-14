@@ -411,7 +411,7 @@ class LMUCellODE(Layer):
         eM = K.tf.linalg.expm(self.dt * M)
         return (
             K.transpose(eM[: self.order, : self.order]),
-            K.reshape(eM[: self.order, self.order:], self.B.shape),
+            K.reshape(eM[: self.order, self.order :], self.B.shape),
         )
 
     def call(self, inputs, states):
@@ -951,7 +951,6 @@ class LMU(Layer):
                 theta=self.theta,
                 trainable_input_encoders=self.trainable_input_encoders,
                 trainable_input_kernel=self.trainable_input_kernel,
-                trainable_hidden_kernel=self.trainable_hidden_kernel,
                 trainable_memory_kernel=self.trainable_memory_kernel,
                 input_encoders_initializer=self.input_encoders_initializer,
                 input_kernel_initializer=self.input_kernel_initializer,
@@ -1013,7 +1012,7 @@ class LMU(Layer):
         # to 0.
         #
         # These flags used below exist in other LMUCell implementations, and will be
-        # brought foward in a future API decisions.
+        # brought forward in a future API decisions.
         return not (
             self.memory_to_memory or self.hidden_to_memory or self.hidden_to_hidden
         )
