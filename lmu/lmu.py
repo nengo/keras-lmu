@@ -37,9 +37,9 @@ class LMUCell(Layer):
     """Cell class for the LMU layer.
 
     This class processes one step within the whole time sequence input, whereas
-    LMU processes the whole sequence.
-q
-    RNN(LMUCell) is equivalent to LMU() when any of the recurrent connections are
+    `LMU` processes the whole sequence.
+
+    `RNN(LMUCell)` is equivalent to `LMU()` when any of the recurrent connections are
     enabled. That is, one of memory_to_memory, hidden_to_memory, or hidden_to_hidden
     are True.
     """
@@ -686,7 +686,7 @@ class LMU(Layer):
     sequentially with a Keras RNN layer.
     If all recurrent connections are disabled, the convolution of the
     input sequence with the impulse response will be performed
-    using a fast Fourier transform.
+    using a fast Fourier transform (FFT).
 
     (*) Voelker and Eliasmith (2018). Improving spiking dynamical
     networks: Accurate delays, higher-order synapses, and time cells.
@@ -888,8 +888,9 @@ class LMUCellFFT(Layer):
     desired.
 
     Produces the output of the delay system by evaluating
-    the convolution of the input sequence and the
-    impulse response with a fast Fourier transform.
+    the convolution of the input sequence with the
+    impulse response from the LMU cell using a
+    fast Fourier transform.
     """
 
     def __init__(
