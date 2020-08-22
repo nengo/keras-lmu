@@ -28,7 +28,7 @@ Both the kernels, **W**, and the encoders, **e**, are learned. Intuitively, the 
 Nengo Examples
 --------------
 
-* `Spiking LMUs in Nengo (with online learning) <https://www.nengo.ai/nengo/examples/learning/lmu.html>`_
+* `LMUs in Nengo (with online learning) <https://www.nengo.ai/nengo/examples/learning/lmu.html>`_
 * `Spiking LMUs in Nengo Loihi (with online learning) <https://www.nengo.ai/nengo-loihi/examples/lmu.html>`_
 * `LMUs in NengoDL (reproducing SotA on psMNIST) <https://www.nengo.ai/nengo-dl/examples/lmu.html>`_
 

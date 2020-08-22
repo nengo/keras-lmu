@@ -18,3 +18,10 @@ you can look through the example below:
    :maxdepth: 1
 
    examples/psMNIST
+
+The LMU cell has also been implemented in other Nengo packages. You can find these
+implementations by following the links below.
+
+.. include:: ../README.rst
+   :start-line: 30
+   :end-line: 33
