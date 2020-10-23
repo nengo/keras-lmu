@@ -30,23 +30,23 @@ root = os.path.dirname(os.path.realpath(__file__))
 version = runpy.run_path(os.path.join(root, "lmu", "version.py"))["version"]
 
 install_req = [
-    "nengolib>=0.5.1",
-    "tensorflow>=2.0.0",
+    "scipy",
+    "tensorflow>=2.1.0",
 ]
 docs_req = [
     "matplotlib>=3.0.2",
-    "IPython>=7.2.0",
-    "notebook>=5.7.4",
+    "jupyter>=1.0.0",
     "seaborn>=0.9.0",
     "sphinx>=1.8",
-    "nbsphinx",
+    "nbsphinx>=0.3.5",
     "nengo_sphinx_theme>=1.2.0",
     "numpydoc>=0.6",
 ]
-optional_req = [
-    "scipy",
+optional_req = []
+tests_req = [
+    "pytest>=6.1.0",
+    "pytest-rng>=1.0.0",
 ]
-tests_req = []
 
 setup(
     name="lmu",
@@ -54,7 +54,7 @@ setup(
     author="Applied Brain Research",
     author_email="info@appliedbrainresearch.com",
     packages=find_packages(),
-    url="https://appliedbrainresearch.com/lmu",
+    url="https://www.appliedbrainresearch.com/lmu",
     include_package_data=False,
     license="Free for non-commercial use",
     description="Legendre Memory Units",
@@ -67,7 +67,7 @@ setup(
         "optional": optional_req,
         "tests": tests_req,
     },
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Framework :: Nengo",
@@ -75,9 +75,9 @@ setup(
         "License :: Free for non-commercial use",
         "Operating System :: OS Independent",
         "Programming Language :: Python ",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering ",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],

@@ -3,3 +3,5 @@ lmu.egg-info
 *.swp
 *.ipynb_checkpoints
 __pycache__
+/.idea
+/docs/_build

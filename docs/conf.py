@@ -14,12 +14,14 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.todo",
-    "sphinx.ext.viewcode",
     "nbsphinx",
     "nengo_sphinx_theme",
     "nengo_sphinx_theme.ext.backoff",
     "nengo_sphinx_theme.ext.redirects",
+    "nengo_sphinx_theme.ext.sourcelinks",
+    "notfound.extension",
     "numpydoc",
+    "nengo_sphinx_theme.ext.autoautosummary",
 ]
 
 # -- sphinx.ext.autodoc
@@ -30,12 +32,14 @@ autodoc_member_order = "bysource"  # default is alphabetical
 # -- sphinx.ext.doctest
 doctest_global_setup = """
 import lmu
+import numpy as np
+import tensorflow as tf
 """
 
 # -- sphinx.ext.intersphinx
 intersphinx_mapping = {
     "nengo": ("https://www.nengo.ai/nengo/", None),
-    "numpy": ("https://docs.scipy.org/doc/numpy", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
     "python": ("https://docs.python.org/3", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
 }
@@ -43,11 +47,28 @@ intersphinx_mapping = {
 # -- sphinx.ext.todo
 todo_include_todos = True
 
+# -- nbsphinx
+nbsphinx_timeout = -1
+
+# -- notfound.extension
+notfound_template = "404.html"
+notfound_urls_prefix = "/lmu/"
+
 # -- numpydoc config
 numpydoc_show_class_members = False
 
-# -- nbsphinx
-nbsphinx_timeout = -1
+# -- nengo_sphinx_theme.ext.autoautosummary
+autoautosummary_change_modules = {
+    "lmu": [
+        "lmu.layers.LMUCell",
+        "lmu.layers.LMU",
+        "lmu.layers.LMUFFT",
+    ],
+}
+
+# -- nengo_sphinx_theme.ext.sourcelinks
+sourcelinks_module = "lmu"
+sourcelinks_url = "https://github.com/abr/lmu"
 
 # -- sphinx
 nitpicky = True
@@ -83,7 +104,7 @@ html_favicon = os.path.join("_static", "favicon.ico")
 html_theme_options = {
     "nengo_logo": "general-full-light.svg",
     "nengo_logo_color": "#a8acaf",
-    "analytics_id": "UA-41658423-2",
+    "tagmanager_id": "GTM-KWCR2HN",
 }
 html_redirects = [
     ("getting_started.html", "getting-started.html"),

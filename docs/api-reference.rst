@@ -9,35 +9,7 @@ API reference
 LMU Layers
 ==========
 
-.. autosummary::
-   :nosignatures:
+.. automodule:: lmu.layers
 
-   lmu.LMU
-
-.. autoclass:: lmu.LMU
-
-
-LMU Cells
-=========
-
-.. autosummary::
-   :nosignatures:
-
-   lmu.LMUCell
-   lmu.LMUCellFFT
-
-.. autoclass:: lmu.LMUCell
-
-.. autoclass:: lmu.LMUCellFFT
-
-.. _api-reference-li:
-
-Legendre Initializer
-====================
-
-.. autosummary::
-   :nosignatures
-
-   lmu.Legendre
-
-.. autoclass:: lmu.Legendre
+    .. autoautosummary:: lmu.layers
+        :nosignatures:
