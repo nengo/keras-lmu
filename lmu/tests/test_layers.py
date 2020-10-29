@@ -341,3 +341,46 @@ def test_dropout(dropout, recurrent_dropout, fft):
     y0 = lmu(np.ones((32, 10, 64)), training=False).numpy()
     y1 = lmu(np.ones((32, 10, 64)), training=False).numpy()
     assert np.allclose(y0, y1)
+
+
+@pytest.mark.parametrize(
+    "hidden_cell",
+    (tf.keras.layers.SimpleRNNCell(units=10), tf.keras.layers.Dense(units=10), None),
+)
+def test_skip_connection(rng, hidden_cell):
+    memory_d = 4
+    order = 16
+    n_steps = 10
+    input_d = 32
+
+    inp = tf.keras.Input(shape=(n_steps, input_d))
+    input_enc = rng.uniform(0, 1, size=(input_d, memory_d))
+
+    lmu = layers.LMUCell(
+        memory_d=memory_d,
+        order=order,
+        theta=n_steps,
+        kernel_initializer=tf.initializers.constant(input_enc),
+        hidden_cell=hidden_cell,
+        input_to_hidden=True,
+    )
+    out = tf.keras.layers.RNN(
+        lmu,
+        return_sequences=True,
+    )(inp)
+
+    assert (
+        out.shape[-1] == (memory_d * order + input_d)
+        if hidden_cell is None
+        else (hidden_cell.units)
+    )
+    assert (
+        lmu.hidden_output_size == (memory_d * order + input_d)
+        if hidden_cell is None
+        else (hidden_cell.units)
+    )
+    assert (
+        lmu.output_size == (memory_d * order + input_d)
+        if hidden_cell is None
+        else (hidden_cell.units)
+    )
