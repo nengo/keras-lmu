@@ -101,7 +101,11 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
         self.B = None
 
         if self.hidden_cell is None:
-            self.hidden_output_size = self.memory_d * self.order
+            # if input_to_hidden=True then we can't determine the output size
+            # until build time
+            self.hidden_output_size = (
+                None if input_to_hidden else self.memory_d * self.order
+            )
             self.hidden_state_size = []
         elif hasattr(self.hidden_cell, "state_size"):
             self.hidden_output_size = self.hidden_cell.output_size
@@ -138,12 +142,11 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
 
         super().build(input_shape)
 
-        enc_d = input_shape[-1]
-
         if self.input_to_hidden and self.hidden_cell is None:
-            self.hidden_output_size += input_shape[-1]
+            self.hidden_output_size = self.memory_d * self.order + input_shape[-1]
             self.output_size = self.hidden_output_size
 
+        enc_d = input_shape[-1]
         if self.hidden_to_memory:
             enc_d += self.hidden_output_size
 

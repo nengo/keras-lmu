@@ -354,33 +354,21 @@ def test_skip_connection(rng, hidden_cell):
     input_d = 32
 
     inp = tf.keras.Input(shape=(n_steps, input_d))
-    input_enc = rng.uniform(0, 1, size=(input_d, memory_d))
 
     lmu = layers.LMUCell(
         memory_d=memory_d,
         order=order,
         theta=n_steps,
-        kernel_initializer=tf.initializers.constant(input_enc),
         hidden_cell=hidden_cell,
         input_to_hidden=True,
     )
-    out = tf.keras.layers.RNN(
-        lmu,
-        return_sequences=True,
-    )(inp)
+    assert lmu.output_size == (None if hidden_cell is None else 10)
 
-    assert (
-        out.shape[-1] == (memory_d * order + input_d)
-        if hidden_cell is None
-        else (hidden_cell.units)
+    out = tf.keras.layers.RNN(lmu)(inp)
+
+    output_size = (
+        (memory_d * order + input_d) if hidden_cell is None else hidden_cell.units
     )
-    assert (
-        lmu.hidden_output_size == (memory_d * order + input_d)
-        if hidden_cell is None
-        else (hidden_cell.units)
-    )
-    assert (
-        lmu.output_size == (memory_d * order + input_d)
-        if hidden_cell is None
-        else (hidden_cell.units)
-    )
+    assert out.shape[-1] == output_size
+    assert lmu.hidden_output_size == output_size
+    assert lmu.output_size == output_size
