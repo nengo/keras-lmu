@@ -1,12 +1,8 @@
 """LMU provides a package for deep learning with Legendre Memory Units."""
 
-from .lmu import (
-    Legendre,
-    InputScaled,
+from .layers import (
     LMUCell,
-    LMUCellODE,
-    LMUCellGating,
-    LMUCellFFT,
+    LMUFFT,
     LMU,
 )
 

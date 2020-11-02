@@ -14,21 +14,21 @@ contributors_rst: {}
 manifest_in: {}
 
 setup_py:
-  url: https://appliedbrainresearch.com/lmu
+  python_requires: ">=3.6"
   install_req:
-    - nengolib>=0.5.1
-    - tensorflow>=2.0.0
+    - scipy
+    - tensorflow>=2.1.0
+  tests_req:
+    - pytest>=6.1.0
+    - pytest-rng>=1.0.0
   docs_req:
     - matplotlib>=3.0.2
-    - IPython>=7.2.0
-    - notebook>=5.7.4
+    - jupyter>=1.0.0
     - seaborn>=0.9.0
     - sphinx>=1.8
-    - nbsphinx
+    - nbsphinx>=0.3.5
     - nengo_sphinx_theme>=1.2.0
     - numpydoc>=0.6
-  optional_req:
-    - scipy
   classifiers:
     - "Development Status :: 3 - Alpha"
     - "Framework :: Nengo"
@@ -36,9 +36,9 @@ setup_py:
     - "License :: Free for non-commercial use"
     - "Operating System :: OS Independent"
     - "Programming Language :: Python "
-    - "Programming Language :: Python :: 3.5"
     - "Programming Language :: Python :: 3.6"
     - "Programming Language :: Python :: 3.7"
+    - "Programming Language :: Python :: 3.8"
     - "Topic :: Scientific/Engineering "
     - "Topic :: Scientific/Engineering :: Artificial Intelligence"
 
@@ -47,17 +47,43 @@ setup_cfg: {}
 docs_conf_py:
   intersphinx_mapping:
     scipy: "https://docs.scipy.org/doc/scipy/reference"
-  analytics_id: UA-41658423-2
+  tagmanager_id: GTM-KWCR2HN
   html_redirects:
     getting_started.html: getting-started.html
+  autoautosummary_change_modules:
+    lmu:
+      - lmu.layers.LMUCell
+      - lmu.layers.LMU
+      - lmu.layers.LMUFFT
+  extensions:
+    - nengo_sphinx_theme.ext.autoautosummary
+  doctest_setup:
+    - import numpy as np
+    - import tensorflow as tf
 
 travis_yml:
-  python: 3.6
+  python: 3.8
+  global_vars:
+    TF_VERSION: tensorflow
   jobs:
     - script: static
+    - script: test
+    - script: test
+      env:
+        TF_VERSION: tensorflow==2.1.0
+      python: 3.6
     - script: docs
+    - script: examples
   pypi_user: arvoelke
-  slack_notifications: "vv0lGEj/xNMFSZDbFsdoMJyEcr9BO8p43KUefmgHfjIQtodZqXdesLl+XJcXW0jxCJlNyy3H8LHYP/mEGJpIsK+tQ7dxlWscLjSGWfcoNiZGy4a1Jp4fF+MZyYvIGlTRJqxrazIrj73tGFptVr2XDE74eO0Z9YaVSJVQw4twEDrWFEAq4foWxV30SkcXfdCkhBwX+43CJyuGE3YFDD/+03me/mdccjNRqCfJ0lURRk7H5tcztryrZy2gpwHV+W73raGTybxlP1xEa1hyLYJO40eH/JfeqBqIDxa5m61Aw+BH/HJ5ZLNlTEUyUB6p7kcIYO9lyko5TY3QSqlX9pK+tK+2DojDlzI97QwgQVbx4WvTJ1JEidfgRqNcTlJOG16RvlyxQjW1u3/QV67bmINus470qQqzIBbdLfM70v+E5Ga/bk+Gk1Z29btB7DxXt4z9dH9z3NXTOLhDpH5WZzpcatrbfSrgMzKtxC+z6oLfDzzio9Fx20RiuHv3P8GtXyyR9WkelMH9GVi7xUBHVCveRVVhNKL555u7NbP5TI6Jc9NZqf7OtrNsRKIY4MfGc9KKjYa+Ks+3PT+yQZ8u/ZMMddMTv73nzLH0pU715/CBl1hQGkKkopukGtKbCpdc666PnRrFy9l21hBqSNqLo/FGPF/Yqr+yTXhuhBhvNZnvFQU="
+  slack_notifications: "wZ7l/X7cVeetmwfup7vCeN74pqFGMC5eaJfy/aqRwVGCbY3aHQKoqJaBBrVef\
+    c+DsJwPPM9HIOGs7jkPY+Y1pFbklAhWCDCvmc+f3fL4/yPWK1u7r8IIHhM3O0YvYrEHfFfZn+V1nAomx1\
+    /wttFOr07LLffaNOn+sFzXgKP1Ebv5MrlCNGY0q3T2A38pwXus60GXaGalI/I/a/vjRdkEmq38eIMqLl0\
+    v94oCy67Gqb/5mlB8eT6SffLGoFCctNpC9G9jyh/eRQp+B+YwksjZz+SOQTIy/mOlk8fU1ZL4f9wPguXh\
+    eKznckuvX+J0o+o5kspyrQveWW2lo1VjmnFfdifCVjTj4AIcmc60Zb2dMzzBcfcA+zeVlhWkWbB65LuuX\
+    kfxxsN97EwP5KVH+Lw7c2ycUyHV8XvKHNzVRLIUuVeOTKLHgGpkVgz/WasT5yBOEbnAyZxxAHQpMbXQr9\
+    POwaq92Kwb7du0sLcsP4agdd2L0YACb4JdwQeeD1c8h6RrXua2ejBJ41e+9ZkZcZGad9P6YVmxvI+hddd\
+    jdzzvBWq6+B/Ubft9AqQXmn4pg0fKkZLjrzsSYGRhXzINxhVBjZD8b5BQIb/Aeix3IFhLmDdSQMhjdETA\
+    gL3jSd9D5t1G5QNp4AdbitqcH+yNoXzZCXye76hrwYr6yrHi3JN9yrM="
   deploy_dists:
     - sdist
     - bdist_wheel
@@ -65,6 +91,15 @@ travis_yml:
 ci_scripts:
   - template: static
   - template: docs
+  - template: examples
+  - template: test
+    coverage: true
+    pip_install:
+      - $TF_VERSION
   - template: deploy
 
 codecov_yml: {}
+
+pre_commit_config_yaml: {}
+
+pyproject_toml: {}
