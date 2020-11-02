@@ -7,8 +7,8 @@ a release version. Release versions are git tagged with the version.
 """
 
 name = "lmu"
-version_info = (0, 2, 0)  # (major, minor, patch)
-dev = None
+version_info = (0, 2, 1)  # (major, minor, patch)
+dev = 0
 
 version = (
     f"{'.'.join(str(v) for v in version_info)}{f'.dev{dev}' if dev is not None else ''}"
