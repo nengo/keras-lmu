@@ -54,7 +54,7 @@ setup(
     author="Applied Brain Research",
     author_email="info@appliedbrainresearch.com",
     packages=find_packages(),
-    url="https://www.appliedbrainresearch.com/lmu",
+    url="https://www.nengo.ai/lmu",
     include_package_data=False,
     license="Free for non-commercial use",
     description="Legendre Memory Units",

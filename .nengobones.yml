@@ -1,6 +1,6 @@
 project_name: NengoLMU
 pkg_name: lmu
-repo_name: abr/lmu
+repo_name: nengo/lmu
 description: Legendre Memory Units
 
 copyright_start: 2019

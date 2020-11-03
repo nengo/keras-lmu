@@ -4,7 +4,7 @@
 NengoLMU contributors
 *********************
 
-See https://github.com/abr/lmu/graphs/contributors
+See https://github.com/nengo/lmu/graphs/contributors
 for a list of the people who have committed to NengoLMU.
 Thank you for your contributions!
 

@@ -68,7 +68,7 @@ autoautosummary_change_modules = {
 
 # -- nengo_sphinx_theme.ext.sourcelinks
 sourcelinks_module = "lmu"
-sourcelinks_url = "https://github.com/abr/lmu"
+sourcelinks_url = "https://github.com/nengo/lmu"
 
 # -- sphinx
 nitpicky = True

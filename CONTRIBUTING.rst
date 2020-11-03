@@ -13,7 +13,7 @@ Filing issues
 If you find a bug in NengoLMU,
 or think that a certain feature is missing,
 please consider
-`filing an issue <https://github.com/abr/lmu/issues>`_!
+`filing an issue <https://github.com/nengo/lmu/issues>`_!
 Please search the currently open issues first
 to see if your bug or feature request already exists.
 If so, feel free to add a comment to the issue
