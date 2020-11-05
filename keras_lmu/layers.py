@@ -1,5 +1,5 @@
 """
-Core classes for the LMU package.
+Core classes for the KerasLMU package.
 """
 
 import numpy as np

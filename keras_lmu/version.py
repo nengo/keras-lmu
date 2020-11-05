@@ -1,4 +1,4 @@
-"""LMU version information.
+"""KerasLMU version information.
 
 We use semantic versioning (see http://semver.org/).
 and conform to PEP440 (see https://www.python.org/dev/peps/pep-0440/).
@@ -6,8 +6,8 @@ and conform to PEP440 (see https://www.python.org/dev/peps/pep-0440/).
 a release version. Release versions are git tagged with the version.
 """
 
-name = "lmu"
-version_info = (0, 2, 1)  # (major, minor, patch)
+name = "keras_lmu"
+version_info = (0, 3, 0)  # (major, minor, patch)
 dev = 0
 
 version = (

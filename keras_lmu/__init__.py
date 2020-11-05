@@ -1,4 +1,4 @@
-"""LMU provides a package for deep learning with Legendre Memory Units."""
+"""KerasLMU provides a package for deep learning with Legendre Memory Units."""
 
 from .layers import (
     LMUCell,

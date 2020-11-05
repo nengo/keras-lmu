@@ -1,7 +1,7 @@
-project_name: NengoLMU
-pkg_name: lmu
-repo_name: nengo/lmu
-description: Legendre Memory Units
+project_name: KerasLMU
+pkg_name: keras_lmu
+repo_name: nengo/keras-lmu
+description: Keras implementation of Legendre Memory Units
 
 copyright_start: 2019
 
@@ -16,7 +16,7 @@ manifest_in: {}
 setup_py:
   python_requires: ">=3.6"
   install_req:
-    - scipy
+    - scipy>=1.0.0
     - tensorflow>=2.1.0
   tests_req:
     - pytest>=6.1.0
@@ -31,7 +31,6 @@ setup_py:
     - numpydoc>=0.6
   classifiers:
     - "Development Status :: 3 - Alpha"
-    - "Framework :: Nengo"
     - "Intended Audience :: Science/Research"
     - "License :: Free for non-commercial use"
     - "Operating System :: OS Independent"
@@ -51,10 +50,10 @@ docs_conf_py:
   html_redirects:
     getting_started.html: getting-started.html
   autoautosummary_change_modules:
-    lmu:
-      - lmu.layers.LMUCell
-      - lmu.layers.LMU
-      - lmu.layers.LMUFFT
+    keras_lmu:
+      - keras_lmu.layers.LMUCell
+      - keras_lmu.layers.LMU
+      - keras_lmu.layers.LMUFFT
   extensions:
     - nengo_sphinx_theme.ext.autoautosummary
   doctest_setup:

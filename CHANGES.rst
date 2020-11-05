@@ -19,9 +19,20 @@ Release history
    - Removed
    - Fixed
 
-0.2.1 (unreleased)
+0.3.0 (unreleased)
 ==================
 
+**Changed**
+
+- Renamed module from ``lmu`` to ``keras_lmu`` (so it will now be imported via
+  ``import keras_lmu``), renamed package from ``lmu`` to
+  ``keras-lmu`` (so it will now be installed via ``pip install keras-lmu``), and
+  changed any references to "NengoLMU" to "KerasLMU" (since this implementation is
+  based in the Keras framework rather than Nengo). In the future the ``lmu`` namespace
+  will be used as a meta-package to encapsulate LMU implementations in different
+  frameworks. (`#24`_)
+
+.. _#24: https://github.com/abr/lmu/pull/24
 
 0.2.0 (November 2, 2020)
 ========================
@@ -80,7 +91,7 @@ Release history
 0.1.0 (June 22, 2020)
 =====================
 
-Initial release of NengoLMU 0.1.0! Supports Python 3.5+.
+Initial release of KerasLMU 0.1.0! Supports Python 3.5+.
 
 The API is considered unstable; parts are likely to change in the future.
 

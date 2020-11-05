@@ -4,7 +4,7 @@
 
 import os
 
-import lmu
+import keras_lmu
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -31,7 +31,7 @@ autodoc_member_order = "bysource"  # default is alphabetical
 
 # -- sphinx.ext.doctest
 doctest_global_setup = """
-import lmu
+import keras_lmu
 import numpy as np
 import tensorflow as tf
 """
@@ -52,23 +52,23 @@ nbsphinx_timeout = -1
 
 # -- notfound.extension
 notfound_template = "404.html"
-notfound_urls_prefix = "/lmu/"
+notfound_urls_prefix = "/keras-lmu/"
 
 # -- numpydoc config
 numpydoc_show_class_members = False
 
 # -- nengo_sphinx_theme.ext.autoautosummary
 autoautosummary_change_modules = {
-    "lmu": [
-        "lmu.layers.LMUCell",
-        "lmu.layers.LMU",
-        "lmu.layers.LMUFFT",
+    "keras_lmu": [
+        "keras_lmu.layers.LMUCell",
+        "keras_lmu.layers.LMU",
+        "keras_lmu.layers.LMUFFT",
     ],
 }
 
 # -- nengo_sphinx_theme.ext.sourcelinks
-sourcelinks_module = "lmu"
-sourcelinks_url = "https://github.com/nengo/lmu"
+sourcelinks_module = "keras_lmu"
+sourcelinks_url = "https://github.com/nengo/keras-lmu"
 
 # -- sphinx
 nitpicky = True
@@ -84,20 +84,20 @@ linkcheck_ignore = [r"http://localhost:\d+"]
 linkcheck_anchors = True
 default_role = "py:obj"
 pygments_style = "sphinx"
-user_agent = "lmu"
+user_agent = "keras_lmu"
 
-project = "NengoLMU"
+project = "KerasLMU"
 authors = "Applied Brain Research"
 copyright = "2019-2020 Applied Brain Research"
-version = ".".join(lmu.__version__.split(".")[:2])  # Short X.Y version
-release = lmu.__version__  # Full version, with tags
+version = ".".join(keras_lmu.__version__.split(".")[:2])  # Short X.Y version
+release = keras_lmu.__version__  # Full version, with tags
 
 # -- HTML output
 templates_path = ["_templates"]
 html_static_path = ["_static"]
 html_theme = "nengo_sphinx_theme"
-html_title = "NengoLMU {0} docs".format(release)
-htmlhelp_basename = "NengoLMU"
+html_title = "KerasLMU {0} docs".format(release)
+htmlhelp_basename = "KerasLMU"
 html_last_updated_fmt = ""  # Default output format (suppressed)
 html_show_sphinx = False
 html_favicon = os.path.join("_static", "favicon.ico")

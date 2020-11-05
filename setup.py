@@ -27,10 +27,10 @@ def read(*filenames, **kwargs):
 
 
 root = os.path.dirname(os.path.realpath(__file__))
-version = runpy.run_path(os.path.join(root, "lmu", "version.py"))["version"]
+version = runpy.run_path(os.path.join(root, "keras_lmu", "version.py"))["version"]
 
 install_req = [
-    "scipy",
+    "scipy>=1.0.0",
     "tensorflow>=2.1.0",
 ]
 docs_req = [
@@ -49,15 +49,15 @@ tests_req = [
 ]
 
 setup(
-    name="lmu",
+    name="keras-lmu",
     version=version,
     author="Applied Brain Research",
     author_email="info@appliedbrainresearch.com",
     packages=find_packages(),
-    url="https://www.nengo.ai/lmu",
+    url="https://www.nengo.ai/keras-lmu",
     include_package_data=False,
     license="Free for non-commercial use",
-    description="Legendre Memory Units",
+    description="Keras implementation of Legendre Memory Units",
     long_description=read("README.rst", "CHANGES.rst"),
     zip_safe=False,
     install_requires=install_req,
@@ -70,7 +70,6 @@ setup(
     python_requires=">=3.6",
     classifiers=[
         "Development Status :: 3 - Alpha",
-        "Framework :: Nengo",
         "Intended Audience :: Science/Research",
         "License :: Free for non-commercial use",
         "Operating System :: OS Independent",

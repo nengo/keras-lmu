@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
-from lmu import layers
+from keras_lmu import layers
 
 
 def test_multivariate_lmu(rng):

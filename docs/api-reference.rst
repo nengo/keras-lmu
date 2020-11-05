@@ -9,7 +9,7 @@ API reference
 LMU Layers
 ==========
 
-.. automodule:: lmu.layers
+.. automodule:: keras_lmu.layers
 
-    .. autoautosummary:: lmu.layers
+    .. autoautosummary:: keras_lmu.layers
         :nosignatures:

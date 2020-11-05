@@ -5,15 +5,15 @@ Basic usage
 ***********
 
 The standard Legendre Memory Unit (LMU) layer
-implementation in NengoLMU is defined in the
-``lmu.LMU`` class. The following code creates
+implementation in KerasLMU is defined in the
+``keras_lmu.LMU`` class. The following code creates
 a new LMU layer:
 
 .. testcode::
 
-   import lmu
+   import keras_lmu
 
-   lmu_layer = lmu.LMU(
+   lmu_layer = keras_lmu.LMU(
        memory_d=1,
        order=256,
        theta=784,
@@ -30,7 +30,7 @@ and ``units`` represents the dimensionality of the hidden component.
 To learn more about these parameters, check out
 the :ref:`LMU class API reference <api-reference-lc>`.
 
-Creating NengoLMU layers
+Creating KerasLMU layers
 ------------------------
 
 The ``LMU`` class functions as a standard

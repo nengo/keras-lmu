@@ -5,36 +5,34 @@ Getting started
 Installation
 ============
 
-To install NengoLMU, we recommend using ``pip``.
+To install KerasLMU, we recommend using ``pip``.
 
 .. code:: bash
 
-   pip install lmu
-
-Before running this command, please ensure your system meets the NengoLMU requirements.
+   pip install keras-lmu
 
 Requirements
 ------------
 
-NengoLMU works with Python 3.6 or later.  After installing NumPy and TensorFlow, ``pip``
+KerasLMU works with Python 3.6 or later.  After installing NumPy and TensorFlow, ``pip``
 will do its best to install all of the package's other requirements when it installs
-NengoLMU. However, if anything goes wrong during this process, you can install each
-required package manually and then try to ``pip install lmu`` again.
+KerasLMU. However, if anything goes wrong during this process, you can install each
+required package manually and then try to ``pip install keras-lmu`` again.
 
 Developer installation
 ----------------------
-If you want to modify NengoLMU, or get the very latest updates, you will need to
+If you want to modify KerasLMU, or get the very latest updates, you will need to
 perform a developer installation:
 
 .. code-block:: bash
 
-  git clone https://github.com/abr/lmu
-  pip install -e ./lmu
+  git clone https://github.com/nengo/keras-lmu
+  pip install -e ./keras-lmu
 
 Installing TensorFlow
 ---------------------
 
-NengoLMU is designed to work within TensorFlow. Assuming you have the required libraries
+KerasLMU is designed to work within TensorFlow. Assuming you have the required libraries
 installed, the latest version of TensorFlow can be using ``pip install tensorflow``
 
 To use TensorFlow with GPU support, you will need to have the CUDA/cuDNN libraries
@@ -68,33 +66,33 @@ instructions below:
 Installing other packages
 -------------------------
 
-The steps above will only install NengoLMU's required dependencies.
-Optional NengoLMU features require additional packages to be installed.
+The steps above will only install KerasLMU's required dependencies.
+Optional KerasLMU features require additional packages to be installed.
 
 - Running the test suite requires pytest.
 - Building the documentation requires Sphinx, NumPyDoc, nengo_sphinx_theme,
   and a few other packages.
 
 These additional dependencies can also be installed through ``pip`` when
-installing NengoLMU.
+installing KerasLMU.
 
 .. code-block:: bash
 
-   pip install lmu[tests]  # Needed to run unit tests
-   pip install lmu[docs]  # Needed to build docs
-   pip install lmu[all]  # All of the above
+   pip install keras-lmu[tests]  # Needed to run unit tests
+   pip install keras-lmu[docs]  # Needed to build docs
+   pip install keras-lmu[all]  # All of the above
 
 Next steps
 ==========
 
-* If you want to learn how to use NengoLMU in your
+* If you want to learn how to use KerasLMU in your
   models, read through the :ref:`basic usage <basic-usage>` page.
 * For a more detailed understanding of the various
-  classes and functions in the NengoLMU package,
+  classes and functions in the KerasLMU package,
   refer to the :ref:`API reference <api-reference>`.
 * If you are interested to learn the theoretical background
   behind how the Legendre Memory Unit works, we recommend reading
   `this technical overview
   <http://compneuro.uwaterloo.ca/files/publications/voelker.2019.lmu.pdf>`_.
-* If you would like to see how NengoLMU is incorporated into various
+* If you would like to see how KerasLMU is incorporated into various
   models, check out our :ref:`examples <examples>`.

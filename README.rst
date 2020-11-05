@@ -1,9 +1,9 @@
-Legendre Memory Units: Continuous-Time Representation in Recurrent Neural Networks
-----------------------------------------------------------------------------------
+KerasLMU: Recurrent neural networks using Legendre Memory Units
+---------------------------------------------------------------
 
 `Paper <https://papers.nips.cc/paper/9689-legendre-memory-units-continuous-time-representation-in-recurrent-neural-networks.pdf>`_
 
-This is a python software library containing various implementations of the
+This is a Keras-based implementation of the
 Legendre Memory Unit (LMU). The LMU is a novel memory cell for recurrent neural
 networks that dynamically maintains information across long windows of time using
 relatively few resources. It has been shown to perform as well as standard LSTM or

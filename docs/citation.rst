@@ -2,7 +2,7 @@
 Citation
 ********
 
-If you would like to cite NengoLMU in your research, please cite `this
+If you would like to cite KerasLMU in your research, please cite `this
 paper <http://compneuro.uwaterloo.ca/files/publications/voelker.2019.lmu.pdf>`_:
 
    Aaron R. Voelker, Ivana Kajić, and Chris Eliasmith. Legendre Memory Units:
