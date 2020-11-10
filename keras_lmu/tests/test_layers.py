@@ -202,11 +202,19 @@ def test_fft(return_sequences, hidden_cell, rng):
     assert np.allclose(rnn_out, fft_out, atol=2e-6)
 
 
-def test_fft_errors():
+def test_validation_errors():
     fft_layer = layers.LMUFFT(1, 2, 3, None)
-
     with pytest.raises(ValueError, match="temporal axis be fully specified"):
         fft_layer(tf.keras.Input((None, 32)))
+
+    with pytest.raises(ValueError, match="hidden_to_memory must be False"):
+        layers.LMUCell(1, 2, 3, None, hidden_to_memory=True)
+
+    with pytest.raises(ValueError, match="input_to_hidden must be False"):
+        layers.LMUCell(1, 2, 3, None, input_to_hidden=True)
+
+    with pytest.raises(ValueError, match="input_to_hidden must be False"):
+        layers.LMUFFT(1, 2, 3, None, input_to_hidden=True)
 
 
 @pytest.mark.parametrize(
@@ -218,7 +226,7 @@ def test_fft_auto_swap(hidden_to_memory, memory_to_memory, memory_d):
         memory_d,
         2,
         3,
-        None,
+        tf.keras.layers.Dense(5),
         hidden_to_memory=hidden_to_memory,
         memory_to_memory=memory_to_memory,
     )
@@ -269,13 +277,17 @@ def test_hidden_types(hidden_cell, fft, rng, seed):
 
 
 @pytest.mark.parametrize("fft", (True, False))
-def test_connection_params(fft):
+@pytest.mark.parametrize("hidden_cell", (None, tf.keras.layers.Dense))
+def test_connection_params(fft, hidden_cell):
     input_shape = (32, 7 if fft else None, 6)
+
+    x = tf.keras.Input(batch_shape=input_shape)
+
     lmu_args = dict(
         memory_d=1,
         order=3,
         theta=4,
-        hidden_cell=tf.keras.layers.Dense(units=5),
+        hidden_cell=hidden_cell if hidden_cell is None else hidden_cell(units=5),
         input_to_hidden=False,
     )
     if not fft:
@@ -283,25 +295,31 @@ def test_connection_params(fft):
         lmu_args["memory_to_memory"] = False
 
     lmu = layers.LMUCell(**lmu_args) if not fft else layers.LMUFFT(**lmu_args)
-    lmu.build(input_shape)
+    y = lmu(x) if fft else tf.keras.layers.RNN(lmu)(x)
     assert lmu.kernel.shape == (input_shape[-1], lmu.memory_d)
     if not fft:
         assert lmu.recurrent_kernel is None
-    assert lmu.hidden_cell.kernel.shape == (
-        lmu.memory_d * lmu.order,
-        lmu.hidden_cell.units,
+    if hidden_cell is not None:
+        assert lmu.hidden_cell.kernel.shape == (
+            lmu.memory_d * lmu.order,
+            lmu.hidden_cell.units,
+        )
+    assert y.shape == (
+        input_shape[0],
+        lmu.memory_d * lmu.order if hidden_cell is None else lmu.hidden_cell.units,
     )
 
-    lmu_args["input_to_hidden"] = True
+    lmu_args["input_to_hidden"] = hidden_cell is not None
     if not fft:
-        lmu_args["hidden_to_memory"] = True
+        lmu_args["hidden_to_memory"] = hidden_cell is not None
         lmu_args["memory_to_memory"] = True
 
     lmu = layers.LMUCell(**lmu_args) if not fft else layers.LMUFFT(**lmu_args)
-    lmu.hidden_cell.built = False  # so that the kernel will be rebuilt
-    lmu.build(input_shape)
+    if hidden_cell is not None:
+        lmu.hidden_cell.built = False  # so that the kernel will be rebuilt
+    y = lmu(x) if fft else tf.keras.layers.RNN(lmu)(x)
     assert lmu.kernel.shape == (
-        input_shape[-1] + (lmu.hidden_cell.units if not fft else 0),
+        input_shape[-1] + (0 if fft or hidden_cell is None else lmu.hidden_cell.units),
         lmu.memory_d,
     )
     if not fft:
@@ -309,9 +327,14 @@ def test_connection_params(fft):
             lmu.order * lmu.memory_d,
             lmu.memory_d,
         )
-    assert lmu.hidden_cell.kernel.shape == (
-        lmu.memory_d * lmu.order + input_shape[-1],
-        lmu.hidden_cell.units,
+    if hidden_cell is not None:
+        assert lmu.hidden_cell.kernel.shape == (
+            lmu.memory_d * lmu.order + input_shape[-1],
+            lmu.hidden_cell.units,
+        )
+    assert y.shape == (
+        input_shape[0],
+        lmu.memory_d * lmu.order if hidden_cell is None else lmu.hidden_cell.units,
     )
 
 
@@ -341,34 +364,3 @@ def test_dropout(dropout, recurrent_dropout, fft):
     y0 = lmu(np.ones((32, 10, 64)), training=False).numpy()
     y1 = lmu(np.ones((32, 10, 64)), training=False).numpy()
     assert np.allclose(y0, y1)
-
-
-@pytest.mark.parametrize(
-    "hidden_cell",
-    (tf.keras.layers.SimpleRNNCell(units=10), tf.keras.layers.Dense(units=10), None),
-)
-def test_skip_connection(rng, hidden_cell):
-    memory_d = 4
-    order = 16
-    n_steps = 10
-    input_d = 32
-
-    inp = tf.keras.Input(shape=(n_steps, input_d))
-
-    lmu = layers.LMUCell(
-        memory_d=memory_d,
-        order=order,
-        theta=n_steps,
-        hidden_cell=hidden_cell,
-        input_to_hidden=True,
-    )
-    assert lmu.output_size == (None if hidden_cell is None else 10)
-
-    out = tf.keras.layers.RNN(lmu)(inp)
-
-    output_size = (
-        (memory_d * order + input_d) if hidden_cell is None else hidden_cell.units
-    )
-    assert out.shape[-1] == output_size
-    assert lmu.hidden_output_size == output_size
-    assert lmu.output_size == output_size

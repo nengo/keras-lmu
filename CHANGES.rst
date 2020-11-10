@@ -22,6 +22,13 @@ Release history
 0.3.1 (unreleased)
 ==================
 
+**Changed**
+
+- Raise a validation error if ``hidden_to_memory`` or ``input_to_hidden`` are True
+  when ``hidden_cell=None``. (`#26`_)
+
+.. _#26: https://github.com/nengo/keras-lmu/pull/26
+
 
 0.3.0 (November 6, 2020)
 ========================
