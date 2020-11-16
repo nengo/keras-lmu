@@ -27,7 +27,12 @@ Release history
 - Raise a validation error if ``hidden_to_memory`` or ``input_to_hidden`` are True
   when ``hidden_cell=None``. (`#26`_)
 
+**Fixed**
+
+- Fixed a bug with the autoswapping in ``keras_lmu.LMU`` during training. (`#28`_)
+
 .. _#26: https://github.com/nengo/keras-lmu/pull/26
+.. _#28: https://github.com/nengo/keras-lmu/pull/28
 
 
 0.3.0 (November 6, 2020)

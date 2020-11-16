@@ -5,3 +5,4 @@ keras_lmu.egg-info
 __pycache__
 /.idea
 /docs/_build
+/tmp

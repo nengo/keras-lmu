@@ -368,37 +368,7 @@ class LMU(tf.keras.layers.Layer):
         self.dropout = dropout
         self.recurrent_dropout = recurrent_dropout
         self.return_sequences = return_sequences
-
-        if not hidden_to_memory and not memory_to_memory and memory_d == 1:
-            self.fft_layer = LMUFFT(
-                memory_d=memory_d,
-                order=order,
-                theta=theta,
-                hidden_cell=hidden_cell,
-                input_to_hidden=input_to_hidden,
-                kernel_initializer=kernel_initializer,
-                dropout=dropout,
-                return_sequences=return_sequences,
-            )
-        else:
-            self.fft_layer = None
-
-        self.rnn_layer = tf.keras.layers.RNN(
-            LMUCell(
-                memory_d=memory_d,
-                order=order,
-                theta=theta,
-                hidden_cell=hidden_cell,
-                hidden_to_memory=hidden_to_memory,
-                memory_to_memory=memory_to_memory,
-                input_to_hidden=input_to_hidden,
-                kernel_initializer=kernel_initializer,
-                recurrent_initializer=recurrent_initializer,
-                dropout=dropout,
-                recurrent_dropout=recurrent_dropout,
-            ),
-            return_sequences=return_sequences,
-        )
+        self.layer = None
 
     def build(self, input_shapes):
         """
@@ -413,10 +383,41 @@ class LMU(tf.keras.layers.Layer):
 
         super().build(input_shapes)
 
-        if self.fft_layer is None or input_shapes[1] is None:
-            self.rnn_layer.build(input_shapes)
+        if (
+            not self.hidden_to_memory
+            and not self.memory_to_memory
+            and self.memory_d == 1
+            and input_shapes[1] is not None
+        ):
+            self.layer = LMUFFT(
+                memory_d=self.memory_d,
+                order=self.order,
+                theta=self.theta,
+                hidden_cell=self.hidden_cell,
+                input_to_hidden=self.input_to_hidden,
+                kernel_initializer=self.kernel_initializer,
+                dropout=self.dropout,
+                return_sequences=self.return_sequences,
+            )
         else:
-            self.fft_layer.build(input_shapes)
+            self.layer = tf.keras.layers.RNN(
+                LMUCell(
+                    memory_d=self.memory_d,
+                    order=self.order,
+                    theta=self.theta,
+                    hidden_cell=self.hidden_cell,
+                    hidden_to_memory=self.hidden_to_memory,
+                    memory_to_memory=self.memory_to_memory,
+                    input_to_hidden=self.input_to_hidden,
+                    kernel_initializer=self.kernel_initializer,
+                    recurrent_initializer=self.recurrent_initializer,
+                    dropout=self.dropout,
+                    recurrent_dropout=self.recurrent_dropout,
+                ),
+                return_sequences=self.return_sequences,
+            )
+
+        self.layer.build(input_shapes)
 
     def call(self, inputs, training=None):
         """
@@ -429,10 +430,7 @@ class LMU(tf.keras.layers.Layer):
         with some additional bookkeeping.
         """
 
-        if self.fft_layer is None or inputs.shape[1] is None:
-            return self.rnn_layer.call(inputs, training=training)
-        else:
-            return self.fft_layer.call(inputs, training=training)
+        return self.layer.call(inputs, training=training)
 
     def get_config(self):
         """Return config of layer (for serialization during model saving/loading)."""

@@ -86,7 +86,7 @@ def test_layer_vs_cell(rng):
         return_sequences=True,
     )
     lmu_layer.build(inp.shape)
-    lmu_layer.rnn_layer.set_weights(lmu_cell.get_weights())
+    lmu_layer.layer.set_weights(lmu_cell.get_weights())
     layer_out = lmu_layer(inp)
 
     for w0, w1 in zip(
@@ -218,10 +218,16 @@ def test_validation_errors():
 
 
 @pytest.mark.parametrize(
-    "hidden_to_memory, memory_to_memory, memory_d",
-    [(False, False, 1), (True, False, 1), (False, True, 1), (False, False, 2)],
+    "hidden_to_memory, memory_to_memory, memory_d, steps",
+    [
+        (False, False, 1, 5),
+        (True, False, 1, 5),
+        (False, True, 1, 5),
+        (False, False, 2, 5),
+        (False, False, 1, None),
+    ],
 )
-def test_fft_auto_swap(hidden_to_memory, memory_to_memory, memory_d):
+def test_fft_auto_swap(hidden_to_memory, memory_to_memory, memory_d, steps):
     lmu = layers.LMU(
         memory_d,
         2,
@@ -230,9 +236,10 @@ def test_fft_auto_swap(hidden_to_memory, memory_to_memory, memory_d):
         hidden_to_memory=hidden_to_memory,
         memory_to_memory=memory_to_memory,
     )
+    lmu.build((32, steps, 8))
 
-    assert (lmu.fft_layer is None) == (
-        hidden_to_memory or memory_to_memory or memory_d != 1
+    assert isinstance(lmu.layer, tf.keras.layers.RNN) == (
+        hidden_to_memory or memory_to_memory or memory_d != 1 or steps is None
     )
 
 
@@ -364,3 +371,43 @@ def test_dropout(dropout, recurrent_dropout, fft):
     y0 = lmu(np.ones((32, 10, 64)), training=False).numpy()
     y1 = lmu(np.ones((32, 10, 64)), training=False).numpy()
     assert np.allclose(y0, y1)
+
+
+@pytest.mark.parametrize("fft", (True, False))
+def test_fit(fft):
+    lmu_layer = layers.LMU(
+        memory_d=1,
+        order=256,
+        theta=784,
+        hidden_cell=tf.keras.layers.SimpleRNNCell(units=10),
+        hidden_to_memory=not fft,
+        memory_to_memory=not fft,
+        input_to_hidden=not fft,
+    )
+
+    inputs = tf.keras.layers.Input((5 if fft else None, 10))
+    lmu = lmu_layer(inputs)
+    outputs = tf.keras.layers.Dense(2)(lmu)
+
+    model = tf.keras.Model(inputs=inputs, outputs=outputs)
+
+    x_train = tf.ones((5, 5, 10))
+    x_test = tf.ones((5, 5, 10))
+    y_train = tf.ones((5, 1))
+    y_test = tf.ones((5, 1))
+    model.compile(
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        optimizer=tf.keras.optimizers.RMSprop(),
+        metrics=["accuracy"],
+    )
+
+    model.fit(x_train, y_train, epochs=10, validation_split=0.2)
+
+    _, acc = model.evaluate(x_test, y_test, verbose=0)
+
+    if fft:
+        assert isinstance(lmu_layer.layer, layers.LMUFFT)
+    else:
+        assert isinstance(lmu_layer.layer, tf.keras.layers.RNN)
+
+    assert acc == 1.0
