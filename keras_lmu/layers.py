@@ -3,8 +3,8 @@ Core classes for the KerasLMU package.
 """
 
 import numpy as np
-from scipy.signal import cont2discrete
 import tensorflow as tf
+from scipy.signal import cont2discrete
 from tensorflow.python.keras.layers.recurrent import DropoutRNNCellMixin
 
 
