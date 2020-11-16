@@ -243,6 +243,18 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
 
         return o, h + [m]
 
+    def reset_dropout_mask(self):
+        """Reset dropout mask for memory and hidden components."""
+        super().reset_dropout_mask()
+        if isinstance(self.hidden_cell, DropoutRNNCellMixin):
+            self.hidden_cell.reset_dropout_mask()
+
+    def reset_recurrent_dropout_mask(self):
+        """Reset recurrent dropout mask for memory and hidden components."""
+        super().reset_recurrent_dropout_mask()
+        if isinstance(self.hidden_cell, DropoutRNNCellMixin):
+            self.hidden_cell.reset_recurrent_dropout_mask()
+
     def get_config(self):
         """Return config of layer (for serialization during model saving/loading)."""
 

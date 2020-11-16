@@ -30,9 +30,12 @@ Release history
 **Fixed**
 
 - Fixed a bug with the autoswapping in ``keras_lmu.LMU`` during training. (`#28`_)
+- Fixed a bug where dropout mask was not being reset properly in the hidden cell.
+  (`#29`_)
 
 .. _#26: https://github.com/nengo/keras-lmu/pull/26
 .. _#28: https://github.com/nengo/keras-lmu/pull/28
+.. _#29: https://github.com/nengo/keras-lmu/pull/29
 
 
 0.3.0 (November 6, 2020)

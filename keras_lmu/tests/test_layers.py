@@ -345,9 +345,14 @@ def test_connection_params(fft, hidden_cell):
     )
 
 
-@pytest.mark.parametrize("dropout, recurrent_dropout", [(0, 0), (0.5, 0), (0, 0.5)])
+@pytest.mark.parametrize(
+    "dropout, recurrent_dropout, hidden_dropout, hidden_recurrent_dropout",
+    [(0, 0, 0, 0), (0.5, 0, 0, 0), (0, 0.5, 0, 0), (0, 0, 0.5, 0), (0, 0, 0, 0.5)],
+)
 @pytest.mark.parametrize("fft", (True, False))
-def test_dropout(dropout, recurrent_dropout, fft):
+def test_dropout(
+    dropout, recurrent_dropout, hidden_dropout, hidden_recurrent_dropout, fft
+):
     if fft:
         kwargs = {}
     else:
@@ -356,7 +361,9 @@ def test_dropout(dropout, recurrent_dropout, fft):
         memory_d=1,
         order=3,
         theta=4,
-        hidden_cell=None,
+        hidden_cell=tf.keras.layers.SimpleRNNCell(
+            5, dropout=hidden_dropout, recurrent_dropout=hidden_recurrent_dropout
+        ),
         dropout=dropout,
         **kwargs,
     )
@@ -365,7 +372,12 @@ def test_dropout(dropout, recurrent_dropout, fft):
     y1 = lmu(np.ones((32, 10, 64)), training=True).numpy()
 
     # if dropout is being applied then outputs should be stochastic, else deterministic
-    assert np.allclose(y0, y1) != (dropout or (recurrent_dropout and not fft))
+    assert np.allclose(y0, y1) != (
+        dropout > 0
+        or (recurrent_dropout > 0 and not fft)
+        or hidden_dropout > 0
+        or hidden_recurrent_dropout > 0
+    )
 
     # dropout not applied when training=False
     y0 = lmu(np.ones((32, 10, 64)), training=False).numpy()
