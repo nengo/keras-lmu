@@ -8,7 +8,7 @@ a release version. Release versions are git tagged with the version.
 
 name = "keras_lmu"
 version_info = (0, 3, 1)  # (major, minor, patch)
-dev = 0
+dev = None  # set to None for releases
 
 version = (
     f"{'.'.join(str(v) for v in version_info)}{f'.dev{dev}' if dev is not None else ''}"
