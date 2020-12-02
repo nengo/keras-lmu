@@ -14,7 +14,6 @@ contributors_rst: {}
 manifest_in: {}
 
 setup_py:
-  python_requires: ">=3.6"
   install_req:
     - scipy>=1.0.0
     - tensorflow>=2.1.0
