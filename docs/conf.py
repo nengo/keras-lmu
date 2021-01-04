@@ -88,7 +88,7 @@ user_agent = "keras_lmu"
 
 project = "KerasLMU"
 authors = "Applied Brain Research"
-copyright = "2019-2020 Applied Brain Research"
+copyright = "2019-2021 Applied Brain Research"
 version = ".".join(keras_lmu.__version__.split(".")[:2])  # Short X.Y version
 release = keras_lmu.__version__  # Full version, with tags
 
