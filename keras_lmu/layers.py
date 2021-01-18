@@ -28,7 +28,7 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
         The number of degrees in the transfer function of the LTI system used to
         represent the sliding window of history. This parameter sets the number of
         Legendre polynomials used to orthogonally represent the sliding window.
-    theta : int
+    theta : float
         The number of timesteps in the sliding window that is represented using the
         LTI system. In this context, the sliding window represents a dynamic range of
         data, of fixed size, that will be used to predict the value at the next time
@@ -308,7 +308,7 @@ class LMU(tf.keras.layers.Layer):
         The number of degrees in the transfer function of the LTI system used to
         represent the sliding window of history. This parameter sets the number of
         Legendre polynomials used to orthogonally represent the sliding window.
-    theta : int
+    theta : float
         The number of timesteps in the sliding window that is represented using the
         LTI system. In this context, the sliding window represents a dynamic range of
         data, of fixed size, that will be used to predict the value at the next time
@@ -493,7 +493,7 @@ class LMUFFT(tf.keras.layers.Layer):
         The number of degrees in the transfer function of the LTI system used to
         represent the sliding window of history. This parameter sets the number of
         Legendre polynomials used to orthogonally represent the sliding window.
-    theta : int
+    theta : float
         The number of timesteps in the sliding window that is represented using the
         LTI system. In this context, the sliding window represents a dynamic range of
         data, of fixed size, that will be used to predict the value at the next time
