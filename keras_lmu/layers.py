@@ -325,7 +325,7 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
             m = tf.nn.tanh(m)
 
         else:
-            m = tf.matmul(m, self.AT) + tf.matmul(u, self.B)
+            m = tf.matmul(m, self.A) + tf.matmul(u, self.B)
 
         # re-combine memory/order dimensions
         m = tf.reshape(m, (-1, self.memory_d * self.order))
@@ -451,34 +451,6 @@ class LMU(tf.keras.layers.Layer):
         If True, return the full output sequence. Otherwise, return just the last
         output in the output sequence.
 
-    ## DOUBLE CHECK THESE DEFINITIONS, taken from
-    ## https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN 
-    return_state: bool, optional
-        If True, return the last state in addition to the output.
-    go_backwards: bool, optional
-        If True, process the input sequence backwards and return the reversed sequence.
-    stateful: bool, optional
-        If True, the last state for each sample at index i in a batch will be used 
-        as initial state for the sample of index i in the following batch.
-    unroll: bool, optional
-        If True, the network will be unrolled, else a symbolic loop will be used.
-        Unrolling can speed-up a RNN, although it tends to be more memory-intensive.
-        Unrolling is only suitable for short sequences.
-    time_major: bool, optional
-        The shape format of the inputs and outputs tensors.
-        If True, the inputs and outputs will be in shape (timesteps, batch, ...),
-        whereas in the False case, it will be (batch, timesteps, ...).
-        Using time_major = True is a bit more efficient because it avoids transposes
-        at the beginning and end of the RNN calculation. However, most TensorFlow
-        data is batch-major, so by default this function accepts input and emits
-        output in batch-major form.
-    zero_output_for_mask: bool, optional
-        Whether the output should use zeros for the masked timesteps.
-        Note that this field is only used when return_sequences is True
-        and mask is provided. It can useful if you want to reuse the raw output
-        sequence of the RNN without interference from the masked timesteps,
-        eg, merging bidirectional RNNs.
-
     References
     ----------
     .. [1] Voelker and Eliasmith (2018). Improving spiking dynamical
@@ -504,12 +476,6 @@ class LMU(tf.keras.layers.Layer):
         dropout=0,
         recurrent_dropout=0,
         return_sequences=False,
-        return_state=False,
-        go_backwards=False,
-        stateful=False,
-        unroll=False,
-        time_major=False, # unsure if False should be default
-        zero_output_for_mask=False,
         **kwargs,
     ):
 
@@ -530,7 +496,7 @@ class LMU(tf.keras.layers.Layer):
         self.return_sequences = return_sequences
         self.layer = None
 
-    def build(self, input_shapes):
+    def build(self, input_shapes, **kwargs):
         """
         Builds the layer.
 
@@ -576,12 +542,7 @@ class LMU(tf.keras.layers.Layer):
                     recurrent_dropout=self.recurrent_dropout,
                 ),
                 return_sequences=self.return_sequences,
-                return_state=self.return_state,
-                go_backwards=self.go_backwards,
-                stateful=self.stateful,
-                unroll=self.unroll,
-                time_major=self.time_major,
-                zero_output_for_mask=self.zero_output_for_mask,
+                **kwargs,
             )
 
         self.layer.build(input_shapes)
@@ -599,7 +560,7 @@ class LMU(tf.keras.layers.Layer):
 
         return self.layer.call(inputs, training=training)
 
-    def get_config(self):
+    def get_config(self, **kwargs):
         """Return config of layer (for serialization during model saving/loading)."""
 
         config = super().get_config()
@@ -618,12 +579,7 @@ class LMU(tf.keras.layers.Layer):
                 dropout=self.dropout,
                 recurrent_dropout=self.recurrent_dropout,
                 return_sequences=self.return_sequences,
-                return_state=self.return_state,
-                go_backwards=self.go_backwards,
-                stateful=self.stateful,
-                unroll=self.unroll,
-                time_major=self.time_major,
-                zero_output_for_mask=self.zero_output_for_mask,
+                **kwargs,
             )
         )
 
