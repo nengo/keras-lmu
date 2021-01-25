@@ -450,6 +450,13 @@ class LMU(tf.keras.layers.Layer):
     return_sequences : bool, optional
         If True, return the full output sequence. Otherwise, return just the last
         output in the output sequence.
+    return_state: bool, optional
+        Whether to return the last state in addition to the output.
+    go_backwards: bool, optional
+        If True, process the input sequence backwards and return the reversed sequence.
+    stateful: bool, optional
+        If True, the last state for each sample at index i in a batch will be used as
+        initial state for the sample of index i in the following batch.
 
     References
     ----------
@@ -476,6 +483,9 @@ class LMU(tf.keras.layers.Layer):
         dropout=0,
         recurrent_dropout=0,
         return_sequences=False,
+        return_state=False,
+        go_backwards=False,
+        stateful=False,
         **kwargs,
     ):
 
@@ -494,9 +504,12 @@ class LMU(tf.keras.layers.Layer):
         self.dropout = dropout
         self.recurrent_dropout = recurrent_dropout
         self.return_sequences = return_sequences
+        self.return_state = return_state
+        self.go_backwards = go_backwards
+        self.stateful = stateful
         self.layer = None
 
-    def build(self, input_shapes, **kwargs):
+    def build(self, input_shapes):
         """
         Builds the layer.
 
@@ -542,7 +555,9 @@ class LMU(tf.keras.layers.Layer):
                     recurrent_dropout=self.recurrent_dropout,
                 ),
                 return_sequences=self.return_sequences,
-                **kwargs,
+                return_state=self.return_state,
+                go_backwards=self.go_backwards,
+                stateful=self.stateful,
             )
 
         self.layer.build(input_shapes)
@@ -560,7 +575,7 @@ class LMU(tf.keras.layers.Layer):
 
         return self.layer.call(inputs, training=training)
 
-    def get_config(self, **kwargs):
+    def get_config(self):
         """Return config of layer (for serialization during model saving/loading)."""
 
         config = super().get_config()
@@ -579,7 +594,8 @@ class LMU(tf.keras.layers.Layer):
                 dropout=self.dropout,
                 recurrent_dropout=self.recurrent_dropout,
                 return_sequences=self.return_sequences,
-                **kwargs,
+                return_state=self.return_state,
+                go_backwards=self.go_backwards,
             )
         )
 
