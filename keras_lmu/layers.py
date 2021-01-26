@@ -1,6 +1,7 @@
 """
 Core classes for the KerasLMU package.
 """
+import warnings
 
 import numpy as np
 import tensorflow as tf
