@@ -408,7 +408,6 @@ class LMU(tf.keras.layers.Layer):
         if (
             not self.hidden_to_memory
             and not self.memory_to_memory
-            and self.memory_d == 1
             and input_shapes[1] is not None
         ):
             self.layer = LMUFFT(
@@ -540,13 +539,6 @@ class LMUFFT(tf.keras.layers.Layer):
     ):
         super().__init__(**kwargs)
 
-        if memory_d != 1:
-            # TODO: we can support this by reusing the same impulse response
-            #  for each dimension
-            raise NotImplementedError(
-                "Multi-dimensional memory not supported in LMUFFT"
-            )
-
         if input_to_hidden and hidden_cell is None:
             raise ValueError("input_to_hidden must be False if hidden_cell is None")
 
@@ -559,9 +551,10 @@ class LMUFFT(tf.keras.layers.Layer):
         self.dropout = dropout
         self.return_sequences = return_sequences
 
+        # create a standard LMUCell to generate the impulse response during `build`
         self.delay_layer = tf.keras.layers.RNN(
             LMUCell(
-                memory_d=memory_d,
+                memory_d=1,
                 order=order,
                 theta=theta,
                 hidden_cell=None,
@@ -654,19 +647,20 @@ class LMUFFT(tf.keras.layers.Layer):
             else tf.matmul(inputs, self.kernel, name="input_encoder_mult")
         )
 
-        # FFT requires shape (batch, 1, timesteps)
+        # FFT requires shape (batch, memory_d, timesteps)
         u = tf.transpose(u, perm=[0, 2, 1])
 
         # Pad sequences to avoid circular convolution
         # Perform the FFT
         fft_input = tf.signal.rfft(u, fft_length=[2 * seq_len], name="input_pad")
 
-        # Elementwise product of FFT (broadcasting done automatically)
-        result = fft_input * self.impulse_response
+        # Elementwise product of FFT (with broadcasting)
+        result = tf.expand_dims(fft_input, axis=-2) * self.impulse_response
 
         # Inverse FFT
         m = tf.signal.irfft(result, fft_length=[2 * seq_len])[..., :seq_len]
 
+        m = tf.reshape(m, (-1, self.order * self.memory_d, seq_len))
         m = tf.transpose(m, perm=[0, 2, 1])
 
         # apply hidden cell

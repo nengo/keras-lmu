@@ -63,7 +63,8 @@ def test_multivariate_lmu(rng):
 
 
 @pytest.mark.parametrize("has_input_kernel", (True, False))
-def test_layer_vs_cell(has_input_kernel, rng):
+@pytest.mark.parametrize("fft", (True, False))
+def test_layer_vs_cell(has_input_kernel, fft, rng):
     n_steps = 10
     input_d = 32
     kwargs = dict(
@@ -71,6 +72,7 @@ def test_layer_vs_cell(has_input_kernel, rng):
         order=12,
         theta=n_steps,
         kernel_initializer="glorot_uniform" if has_input_kernel else None,
+        memory_to_memory=not fft,
     )
     hidden_cell = lambda: tf.keras.layers.SimpleRNNCell(units=64)
 
@@ -87,14 +89,17 @@ def test_layer_vs_cell(has_input_kernel, rng):
     lmu_layer.layer.set_weights(lmu_cell.get_weights())
     layer_out = lmu_layer(inp)
 
+    assert isinstance(lmu_layer.layer, layers.LMUFFT if fft else tf.keras.layers.RNN)
+
     for w0, w1 in zip(
         sorted(lmu_cell.weights, key=lambda w: w.shape.as_list()),
         sorted(lmu_layer.weights, key=lambda w: w.shape.as_list()),
     ):
         assert np.allclose(w0.numpy(), w1.numpy())
 
-    assert np.allclose(cell_out, lmu_cell(inp))
-    assert np.allclose(cell_out, layer_out)
+    atol = 2e-6 if fft else 1e-8
+    assert np.allclose(cell_out, lmu_cell(inp), atol=atol)
+    assert np.allclose(cell_out, layer_out, atol=atol)
 
 
 def test_save_load_weights(rng, tmp_path):
@@ -181,18 +186,26 @@ def test_save_load_serialization(mode, tmp_path):
 
 @pytest.mark.parametrize("return_sequences", (True, False))
 @pytest.mark.parametrize(
-    "hidden_cell", (None, tf.keras.layers.Dense(4), tf.keras.layers.SimpleRNNCell(4))
+    "hidden_cell",
+    (
+        lambda: None,
+        lambda: tf.keras.layers.Dense(4),
+        lambda: tf.keras.layers.SimpleRNNCell(4),
+    ),
 )
-def test_fft(return_sequences, hidden_cell, rng):
+@pytest.mark.parametrize("memory_d", [1, 4])
+def test_fft(return_sequences, hidden_cell, memory_d, rng):
+    kwargs = dict(memory_d=memory_d, order=2, theta=3, hidden_cell=hidden_cell())
+
     x = rng.uniform(-1, 1, size=(2, 10, 32))
 
     rnn_layer = tf.keras.layers.RNN(
-        layers.LMUCell(1, 2, 3, hidden_cell),
+        layers.LMUCell(**kwargs),
         return_sequences=return_sequences,
     )
     rnn_out = rnn_layer(x)
 
-    fft_layer = layers.LMUFFT(1, 2, 3, hidden_cell, return_sequences=return_sequences)
+    fft_layer = layers.LMUFFT(return_sequences=return_sequences, **kwargs)
     fft_layer.build(x.shape)
     fft_layer.kernel.assign(rnn_layer.cell.kernel)
     fft_out = fft_layer(x)
@@ -237,7 +250,7 @@ def test_fft_auto_swap(hidden_to_memory, memory_to_memory, memory_d, steps):
     lmu.build((32, steps, 8))
 
     assert isinstance(lmu.layer, tf.keras.layers.RNN) == (
-        hidden_to_memory or memory_to_memory or memory_d != 1 or steps is None
+        hidden_to_memory or memory_to_memory or steps is None
     )
 
 
@@ -415,11 +428,7 @@ def test_fit(fft):
 
     _, acc = model.evaluate(x_test, y_test, verbose=0)
 
-    if fft:
-        assert isinstance(lmu_layer.layer, layers.LMUFFT)
-    else:
-        assert isinstance(lmu_layer.layer, tf.keras.layers.RNN)
-
+    assert isinstance(lmu_layer.layer, layers.LMUFFT if fft else tf.keras.layers.RNN)
     assert acc == 1.0
 
 

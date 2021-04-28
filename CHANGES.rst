@@ -25,6 +25,10 @@ Release history
 **Added**
 
 - Setting ``kernel_initializer=None`` now removes the dense input kernel. (`#40`_)
+- The ``keras_lmu.LMUFFT`` layer now supports ``memory_d > 1``. ``keras_lmu.LMU`` now
+  uses this implementation for all values of ``memory_d`` when feedforward conditions
+  are satisfied (no hidden-to-memory or memory-to-memory connections,
+  and the sequence length is not ``None``). (`#40`_)
 
 .. _#40: https://github.com/nengo/keras-lmu/pull/40
 
