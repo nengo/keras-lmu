@@ -97,7 +97,7 @@ def test_layer_vs_cell(has_input_kernel, fft, rng):
     ):
         assert np.allclose(w0.numpy(), w1.numpy())
 
-    atol = 2e-6 if fft else 1e-8
+    atol = 3e-6 if fft else 1e-8
     assert np.allclose(cell_out, lmu_cell(inp), atol=atol)
     assert np.allclose(cell_out, layer_out, atol=atol)
 
@@ -194,7 +194,8 @@ def test_save_load_serialization(mode, tmp_path):
     ),
 )
 @pytest.mark.parametrize("memory_d", [1, 4])
-def test_fft(return_sequences, hidden_cell, memory_d, rng):
+@pytest.mark.parametrize("conv_mode", ("fft", "raw"))
+def test_fft(return_sequences, hidden_cell, memory_d, conv_mode, rng):
     kwargs = dict(memory_d=memory_d, order=2, theta=3, hidden_cell=hidden_cell())
 
     x = rng.uniform(-1, 1, size=(2, 10, 32))
@@ -205,7 +206,9 @@ def test_fft(return_sequences, hidden_cell, memory_d, rng):
     )
     rnn_out = rnn_layer(x)
 
-    fft_layer = layers.LMUFFT(return_sequences=return_sequences, **kwargs)
+    fft_layer = layers.LMUFFT(
+        return_sequences=return_sequences, conv_mode=conv_mode, **kwargs
+    )
     fft_layer.build(x.shape)
     fft_layer.kernel.assign(rnn_layer.cell.kernel)
     fft_out = fft_layer(x)
@@ -226,6 +229,10 @@ def test_validation_errors():
 
     with pytest.raises(ValueError, match="input_to_hidden must be False"):
         layers.LMUFFT(1, 2, 3, None, input_to_hidden=True)
+
+    fft_layer = layers.LMUFFT(1, 2, 3, None, conv_mode="raw_bad")
+    with pytest.raises(ValueError, match="Unrecognized conv mode"):
+        fft_layer(tf.keras.Input((10, 32)))
 
 
 @pytest.mark.parametrize(
