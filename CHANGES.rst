@@ -35,6 +35,11 @@ Release history
   and ``B`` LMU matrices. This is mainly useful in combination with
   ``trainable_theta=True``, where setting ``discretizer="euler"`` may improve the
   training speed (possibly at the cost of some accuracy). (`#41`_)
+- The ``keras_lmu.LMUFFT`` layer can now use raw convolution internally (as opposed to
+  FFT-based convolution). The new ``conv_mode`` option exposes this. The new
+  ``truncate_ir`` option allows truncating the impulse response when running with a
+  raw convolution mode, for efficiency. Whether FFT-based or raw convolution is faster
+  depends on the specific model, hardware, and amount of truncation. (`#42`_)
 
 **Changed**
 
@@ -44,6 +49,7 @@ Release history
 
 .. _#40: https://github.com/nengo/keras-lmu/pull/40
 .. _#41: https://github.com/nengo/keras-lmu/pull/41
+.. _#42: https://github.com/nengo/keras-lmu/pull/42
 
 0.3.1 (November 16, 2020)
 =========================

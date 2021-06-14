@@ -665,6 +665,15 @@ class LMUFFT(tf.keras.layers.Layer):
     return_sequences : bool, optional
         If True, return the full output sequence. Otherwise, return just the last
         output in the output sequence.
+    conv_mode : "fft" or "raw"
+        The method for performing the inpulse response convolution. "fft" uses FFT
+        convolution (default). "raw" uses explicit convolution, which may be faster
+        for particular models on particular hardware.
+    truncate_ir : float
+        The portion of the impulse response to truncate when using "raw"
+        convolution (see ``conv_mode``). This is an approximate upper bound on the error
+        relative to the exact implementation. Smaller ``theta`` values result in more
+        truncated elements for a given value of ``truncate_ir``, improving efficiency.
     """
 
     def __init__(
@@ -678,12 +687,17 @@ class LMUFFT(tf.keras.layers.Layer):
         kernel_initializer="glorot_uniform",
         dropout=0,
         return_sequences=False,
+        conv_mode="fft",
+        truncate_ir=1e-4,
         **kwargs,
     ):
         super().__init__(**kwargs)
 
         if input_to_hidden and hidden_cell is None:
             raise ValueError("input_to_hidden must be False if hidden_cell is None")
+
+        if conv_mode not in ("fft", "raw"):
+            raise ValueError(f"Unrecognized conv mode '{conv_mode}'")
 
         self.memory_d = memory_d
         self.order = order
@@ -694,6 +708,8 @@ class LMUFFT(tf.keras.layers.Layer):
         self.kernel_initializer = kernel_initializer
         self.dropout = dropout
         self.return_sequences = return_sequences
+        self.conv_mode = conv_mode.lower()
+        self.truncate_ir = truncate_ir
 
         # create a standard LMUCell to generate the impulse response during `build`
         self.delay_layer = tf.keras.layers.RNN(
@@ -739,12 +755,33 @@ class LMUFFT(tf.keras.layers.Layer):
 
         impulse = tf.reshape(tf.eye(seq_len, 1), (1, -1, 1))
 
-        self.impulse_response = tf.signal.rfft(
-            tf.squeeze(
-                tf.transpose(self.delay_layer(impulse, training=False)), axis=-1
-            ),
-            fft_length=[2 * seq_len],
+        self.impulse_response = tf.squeeze(
+            self.delay_layer(impulse, training=False), axis=0
         )
+
+        if self.conv_mode == "fft":
+            self.impulse_response = tf.signal.rfft(
+                tf.transpose(self.impulse_response),
+                fft_length=[2 * seq_len],
+            )
+        else:
+            if self.truncate_ir is not None:
+                assert self.impulse_response.shape == (seq_len, self.order)
+
+                cumsum = tf.math.cumsum(
+                    tf.math.abs(self.impulse_response), axis=0, reverse=True
+                )
+                cumsum = cumsum / cumsum[0]
+                to_drop = tf.reduce_all(cumsum < self.truncate_ir, axis=-1)
+                if to_drop[-1]:
+                    cutoff = tf.where(to_drop)[0, -1]
+                    self.impulse_response = self.impulse_response[:cutoff]
+
+            self.impulse_response = tf.reshape(
+                self.impulse_response,
+                (self.impulse_response.shape[0], 1, 1, self.order),
+            )
+            self.impulse_response = self.impulse_response[::-1, :, :, :]
 
         if self.kernel_initializer is not None:
             self.kernel = self.add_weight(
@@ -781,8 +818,6 @@ class LMUFFT(tf.keras.layers.Layer):
         if training is None:
             training = tf.keras.backend.learning_phase()
 
-        seq_len = tf.shape(inputs)[1]
-
         if self.dropout:
             inputs = tf.keras.layers.Dropout(
                 self.dropout, noise_shape=(inputs.shape[0], 1) + inputs.shape[2:]
@@ -795,21 +830,10 @@ class LMUFFT(tf.keras.layers.Layer):
             else tf.matmul(inputs, self.kernel, name="input_encoder_mult")
         )
 
-        # FFT requires shape (batch, memory_d, timesteps)
-        u = tf.transpose(u, perm=[0, 2, 1])
-
-        # Pad sequences to avoid circular convolution
-        # Perform the FFT
-        fft_input = tf.signal.rfft(u, fft_length=[2 * seq_len], name="input_pad")
-
-        # Elementwise product of FFT (with broadcasting)
-        result = tf.expand_dims(fft_input, axis=-2) * self.impulse_response
-
-        # Inverse FFT
-        m = tf.signal.irfft(result, fft_length=[2 * seq_len])[..., :seq_len]
-
-        m = tf.reshape(m, (-1, self.order * self.memory_d, seq_len))
-        m = tf.transpose(m, perm=[0, 2, 1])
+        if self.conv_mode == "fft":
+            m = self._fft_convolution(u)
+        elif self.conv_mode == "raw":
+            m = self._raw_convolution(u)
 
         # apply hidden cell
         h_in = tf.concat((m, inputs), axis=-1) if self.input_to_hidden else m
@@ -831,6 +855,41 @@ class LMUFFT(tf.keras.layers.Layer):
 
         return h
 
+    def _fft_convolution(self, u):
+        seq_len = tf.shape(u)[1]
+
+        # FFT requires shape (batch, memory_d, timesteps)
+        u = tf.transpose(u, perm=[0, 2, 1])
+
+        # Pad sequences to avoid circular convolution
+        # Perform the FFT
+        fft_input = tf.signal.rfft(u, fft_length=[2 * seq_len])
+
+        # Elementwise product of FFT (with broadcasting)
+        result = tf.expand_dims(fft_input, axis=-2) * self.impulse_response
+
+        # Inverse FFT
+        m = tf.signal.irfft(result, fft_length=[2 * seq_len])[..., :seq_len]
+
+        m = tf.reshape(m, (-1, self.order * self.memory_d, seq_len))
+
+        return tf.transpose(m, perm=[0, 2, 1])
+
+    def _raw_convolution(self, u):
+        seq_len = tf.shape(u)[1]
+        ir_len = self.impulse_response.shape[0]
+
+        u = tf.expand_dims(u, -1)
+        m = tf.nn.conv2d(
+            u,
+            self.impulse_response,
+            strides=1,
+            data_format="NHWC",
+            padding=[[0, 0], [ir_len - 1, 0], [0, 0], [0, 0]],
+        )
+        m = tf.reshape(m, (-1, seq_len, self.memory_d * self.order))
+        return m
+
     def get_config(self):
         """Return config of layer (for serialization during model saving/loading)."""
 
@@ -846,6 +905,8 @@ class LMUFFT(tf.keras.layers.Layer):
                 kernel_initializer=self.kernel_initializer,
                 dropout=self.dropout,
                 return_sequences=self.return_sequences,
+                conv_mode=self.conv_mode,
+                truncate_ir=self.truncate_ir,
             )
         )
 
