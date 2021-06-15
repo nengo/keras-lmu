@@ -62,29 +62,27 @@ def test_multivariate_lmu(rng):
         )
 
 
-def test_layer_vs_cell(rng):
-    memory_d = 4
-    order = 12
+@pytest.mark.parametrize("has_input_kernel", (True, False))
+def test_layer_vs_cell(has_input_kernel, rng):
     n_steps = 10
     input_d = 32
+    kwargs = dict(
+        memory_d=4 if has_input_kernel else input_d,
+        order=12,
+        theta=n_steps,
+        kernel_initializer="glorot_uniform" if has_input_kernel else None,
+    )
+    hidden_cell = lambda: tf.keras.layers.SimpleRNNCell(units=64)
 
     inp = rng.uniform(-1, 1, size=(2, n_steps, input_d))
 
     lmu_cell = tf.keras.layers.RNN(
-        layers.LMUCell(
-            memory_d, order, n_steps, tf.keras.layers.SimpleRNNCell(units=64)
-        ),
+        layers.LMUCell(hidden_cell=hidden_cell(), **kwargs),
         return_sequences=True,
     )
     cell_out = lmu_cell(inp)
 
-    lmu_layer = layers.LMU(
-        memory_d,
-        order,
-        n_steps,
-        tf.keras.layers.SimpleRNNCell(units=64),
-        return_sequences=True,
-    )
+    lmu_layer = layers.LMU(return_sequences=True, hidden_cell=hidden_cell(), **kwargs)
     lmu_layer.build(inp.shape)
     lmu_layer.layer.set_weights(lmu_cell.get_weights())
     layer_out = lmu_layer(inp)
@@ -423,3 +421,20 @@ def test_fit(fft):
         assert isinstance(lmu_layer.layer, tf.keras.layers.RNN)
 
     assert acc == 1.0
+
+
+@pytest.mark.parametrize("fft", (True, False))
+def test_no_input_kernel_dimension_mismatch(fft):
+    lmu_layer = layers.LMU(
+        memory_d=1,
+        order=4,
+        theta=4,
+        hidden_cell=tf.keras.layers.SimpleRNNCell(units=10),
+        hidden_to_memory=False,
+        memory_to_memory=not fft,
+        input_to_hidden=not fft,
+        kernel_initializer=None,
+    )
+
+    with pytest.raises(ValueError, match="no input kernel"):
+        lmu_layer(tf.ones((4, 10, 2)))

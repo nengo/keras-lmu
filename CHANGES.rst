@@ -22,6 +22,11 @@ Release history
 0.3.2 (unreleased)
 ==================
 
+**Added**
+
+- Setting ``kernel_initializer=None`` now removes the dense input kernel. (`#40`_)
+
+.. _#40: https://github.com/nengo/keras-lmu/pull/40
 
 0.3.1 (November 16, 2020)
 =========================

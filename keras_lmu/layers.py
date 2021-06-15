@@ -48,7 +48,8 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
         If True, connect the input directly to the hidden component (in addition to
         the connection from the memory component) (default False).
     kernel_initializer : ``tf.initializers.Initializer``
-        Initializer for weights from input to memory/hidden component.
+        Initializer for weights from input to memory/hidden component. If ``None``,
+        no weights will be used, and the input size must match the memory/hidden size.
     recurrent_initializer : ``tf.initializers.Initializer``
         Initializer for ``memory_to_memory`` weights (if that connection is enabled).
     dropout : float
@@ -146,11 +147,19 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
         if self.hidden_to_memory:
             enc_d += self.hidden_output_size
 
-        self.kernel = self.add_weight(
-            name="kernel",
-            shape=(enc_d, self.memory_d),
-            initializer=self.kernel_initializer,
-        )
+        if self.kernel_initializer is not None:
+            self.kernel = self.add_weight(
+                name="kernel",
+                shape=(enc_d, self.memory_d),
+                initializer=self.kernel_initializer,
+            )
+        else:
+            self.kernel = None
+            if enc_d != self.memory_d:
+                raise ValueError(
+                    f"For LMUCells with no input kernel, the input dimension ({enc_d})"
+                    f" must equal `memory_d` ({self.memory_d})."
+                )
 
         if self.memory_to_memory:
             self.recurrent_kernel = self.add_weight(
@@ -207,7 +216,7 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
         u_in = tf.concat((inputs, h[0]), axis=1) if self.hidden_to_memory else inputs
         if self.dropout > 0:
             u_in *= self.get_dropout_mask_for_cell(u_in, training)
-        u = tf.matmul(u_in, self.kernel)
+        u = u_in if self.kernel is None else tf.matmul(u_in, self.kernel)
 
         if self.memory_to_memory:
             if self.recurrent_dropout > 0:
@@ -328,7 +337,8 @@ class LMU(tf.keras.layers.Layer):
         If True, connect the input directly to the hidden component (in addition to
         the connection from the memory component) (default False).
     kernel_initializer : ``tf.initializers.Initializer``
-        Initializer for weights from input to memory/hidden component.
+        Initializer for weights from input to memory/hidden component. If ``None``,
+        no weights will be used, and the input size must match the memory/hidden size.
     recurrent_initializer : ``tf.initializers.Initializer``
         Initializer for ``memory_to_memory`` weights (if that connection is enabled).
     dropout : float
@@ -507,7 +517,8 @@ class LMUFFT(tf.keras.layers.Layer):
         If True, connect the input directly to the hidden component (in addition to
         the connection from the memory component) (default False).
     kernel_initializer : ``tf.initializers.Initializer``
-        Initializer for weights from input to memory/hidden component.
+        Initializer for weights from input to memory/hidden component. If ``None``,
+        no weights will be used, and the input size must match the memory/hidden size.
     dropout : float
         Dropout rate on input connections.
     return_sequences : bool, optional
@@ -557,8 +568,7 @@ class LMUFFT(tf.keras.layers.Layer):
                 input_to_hidden=False,
                 hidden_to_memory=False,
                 memory_to_memory=False,
-                kernel_initializer="ones",
-                dropout=0,
+                kernel_initializer=None,
                 trainable=False,
             ),
             return_sequences=True,
@@ -577,26 +587,37 @@ class LMUFFT(tf.keras.layers.Layer):
 
         super().build(input_shape)
 
-        if input_shape[1] is None:
+        seq_len = input_shape[1]
+        enc_d = input_shape[-1]
+
+        if seq_len is None:
             # TODO: we could dynamically run the impulse response for longer if
             #  needed using stateful=True
             raise ValueError(
                 f"LMUFFT requires that the input shape's temporal axis be fully "
-                f"specified (got {input_shape[1]})"
+                f"specified (got {seq_len})"
             )
 
-        impulse = tf.reshape(tf.eye(input_shape[1], 1), (1, -1, 1))
+        impulse = tf.reshape(tf.eye(seq_len, 1), (1, -1, 1))
 
         self.impulse_response = tf.signal.rfft(
             tf.squeeze(tf.transpose(self.delay_layer(impulse)), axis=-1),
-            fft_length=[2 * input_shape[1]],
+            fft_length=[2 * seq_len],
         )
 
-        self.kernel = self.add_weight(
-            name="kernel",
-            shape=(input_shape[-1], self.memory_d),
-            initializer=self.kernel_initializer,
-        )
+        if self.kernel_initializer is not None:
+            self.kernel = self.add_weight(
+                name="kernel",
+                shape=(input_shape[-1], self.memory_d),
+                initializer=self.kernel_initializer,
+            )
+        else:
+            self.kernel = None
+            if enc_d != self.memory_d:
+                raise ValueError(
+                    f"For LMUCells with no input kernel, the input dimension ({enc_d})"
+                    f" must equal `memory_d` ({self.memory_d})."
+                )
 
         if self.hidden_cell is not None and not self.hidden_cell.built:
             hidden_input_d = self.memory_d * self.order
@@ -627,7 +648,12 @@ class LMUFFT(tf.keras.layers.Layer):
             )(inputs)
 
         # Apply input encoders
-        u = tf.matmul(inputs, self.kernel, name="input_encoder_mult")
+        u = (
+            inputs
+            if self.kernel is None
+            else tf.matmul(inputs, self.kernel, name="input_encoder_mult")
+        )
+
         # FFT requires shape (batch, 1, timesteps)
         u = tf.transpose(u, perm=[0, 2, 1])
 
