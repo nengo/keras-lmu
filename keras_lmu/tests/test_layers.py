@@ -58,7 +58,7 @@ def test_multivariate_lmu(rng):
 
     for i in range(memory_d):
         assert np.allclose(
-            results[0][..., i * order : (i + 1) * order], results[i + 1], atol=1e-6
+            results[0][..., i * order : (i + 1) * order], results[i + 1], atol=2e-6
         )
 
 
