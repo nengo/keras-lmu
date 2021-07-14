@@ -5,6 +5,7 @@ import pytest
 import tensorflow as tf
 
 from keras_lmu import layers
+from keras_lmu.tests.utils import tf_gpu_installed
 
 
 def test_multivariate_lmu(rng):
@@ -194,7 +195,9 @@ def test_save_load_serialization(mode, tmp_path):
     ),
 )
 @pytest.mark.parametrize("memory_d", [1, 4])
-@pytest.mark.parametrize("conv_mode", ("fft", "raw"))
+@pytest.mark.parametrize(
+    "conv_mode", ["fft", "raw"] + (["raw_nchw"] if tf_gpu_installed else [])
+)
 def test_fft(return_sequences, hidden_cell, memory_d, conv_mode, rng):
     kwargs = dict(memory_d=memory_d, order=2, theta=3, hidden_cell=hidden_cell())
 

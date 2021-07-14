@@ -523,12 +523,13 @@ class LMUFFT(tf.keras.layers.Layer):
     return_sequences : bool, optional
         If True, return the full output sequence. Otherwise, return just the last
         output in the output sequence.
-    conv_mode : "fft" or "raw"
+    conv_mode : "fft" or "raw" or "raw_nchw"
         The method for performing the inpulse response convolution. "fft" uses FFT
         convolution (default). "raw" uses explicit convolution, which may be faster
-        for particular models on particular hardware.
+        for particular models on particular hardware. "raw_nchw" uses an alternate
+        ordering that is typically faster than "raw" on GPUs, but unsupported on CPUs.
     truncate_ir : float
-        The portion of the impulse response to truncate when using "raw"
+        The portion of the impulse response to truncate when using "raw" or "raw_nchw"
         convolution (see ``conv_mode``). This is an approximate upper bound on the error
         relative to the exact implementation. Smaller ``theta`` values result in more
         truncated elements for a given value of ``truncate_ir``, improving efficiency.
@@ -674,7 +675,7 @@ class LMUFFT(tf.keras.layers.Layer):
 
         if self.conv_mode == "fft":
             m = self._fft_convolution(u)
-        elif self.conv_mode == "raw":
+        elif self.conv_mode in ("raw", "raw_nchw"):
             m = self._raw_convolution(u)
         else:
             raise ValueError(f"Unrecognized conv mode '{self.conv_mode}'")
@@ -725,14 +726,25 @@ class LMUFFT(tf.keras.layers.Layer):
         assert self.impulse_response.shape[1:] == (self.order,)
 
         u = tf.transpose(u, perm=[0, 2, 1])
-        u = tf.reshape(u, (-1, 1, 1, seq_len))  # combine batch and memory_d dimensions
+
         filters = tf.reshape(self.impulse_response, (1, ir_len, 1, self.order))
         filters = filters[:, ::-1, :, :]
-        padding = [[0, 0], [0, 0], [0, 0], [ir_len - 1, 0]]
-        m = tf.nn.conv2d(u, filters, strides=1, data_format="NCHW", padding=padding)
-        m = tf.reshape(m, (-1, self.memory_d * self.order, seq_len))
 
-        return tf.transpose(m, perm=[0, 2, 1])
+        if self.conv_mode == "raw_nchw":  # pragma: no cover
+            u = tf.reshape(u, (-1, 1, 1, seq_len))  # combine batch and memory_d axes
+            padding = [[0, 0], [0, 0], [0, 0], [ir_len - 1, 0]]
+            m = tf.nn.conv2d(u, filters, strides=1, data_format="NCHW", padding=padding)
+            m = tf.reshape(m, (-1, self.memory_d * self.order, seq_len))
+            m = tf.transpose(m, perm=[0, 2, 1])
+        else:
+            u = tf.reshape(u, (-1, 1, seq_len, 1))  # combine batch and memory_d axes
+            padding = [[0, 0], [0, 0], [ir_len - 1, 0], [0, 0]]
+            m = tf.nn.conv2d(u, filters, strides=1, data_format="NHWC", padding=padding)
+            m = tf.reshape(m, (-1, self.memory_d, seq_len, self.order))
+            m = tf.transpose(m, perm=[0, 2, 1, 3])
+            m = tf.reshape(m, (-1, seq_len, self.memory_d * self.order))
+
+        return m
 
     def get_config(self):
         """Return config of layer (for serialization during model saving/loading)."""
