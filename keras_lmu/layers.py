@@ -73,6 +73,16 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         no weights will be used, and the input size must match the memory/hidden size.
     recurrent_initializer : ``tf.initializers.Initializer``
         Initializer for ``memory_to_memory`` weights (if that connection is enabled).
+    kernel_regularizer : ``tf.keras.regularizers.Regularizer``
+        Regularizer for weights from input to memory/hidden component.
+    recurrent_regularizer : ``tf.keras.regularizers.Regularizer``
+        Regularizer for ``memory_to_memory`` weights (if that connection is enabled).
+    use_bias : bool
+        If True, the memory component includes a bias term.
+    bias_initializer : ``tf.initializers.Initializer``
+        Initializer for the memory component bias term. Only used if ``use_bias=True``.
+    bias_regularizer : ``tf.keras.regularizers.Regularizer``
+        Regularizer for the memory component bias term. Only used if ``use_bias=True``.
     dropout : float
         Dropout rate on input connections.
     recurrent_dropout : float
@@ -101,6 +111,11 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         discretizer="zoh",
         kernel_initializer="glorot_uniform",
         recurrent_initializer="orthogonal",
+        kernel_regularizer=None,
+        recurrent_regularizer=None,
+        use_bias=False,
+        bias_initializer="zeros",
+        bias_regularizer=None,
         dropout=0,
         recurrent_dropout=0,
         **kwargs,
@@ -118,11 +133,17 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         self.discretizer = discretizer
         self.kernel_initializer = kernel_initializer
         self.recurrent_initializer = recurrent_initializer
+        self.kernel_regularizer = kernel_regularizer
+        self.recurrent_regularizer = recurrent_regularizer
+        self.use_bias = use_bias
+        self.bias_initializer = bias_initializer
+        self.bias_regularizer = bias_regularizer
         self.dropout = dropout
         self.recurrent_dropout = recurrent_dropout
 
         self.kernel = None
         self.recurrent_kernel = None
+        self.bias = None
         self.theta_inv = None
         self.A = None
         self.B = None
@@ -241,14 +262,21 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
                 name="kernel",
                 shape=(enc_d, self.memory_d),
                 initializer=self.kernel_initializer,
+                regularizer=self.kernel_regularizer,
             )
-        else:
-            self.kernel = None
-            if enc_d != self.memory_d:
-                raise ValueError(
-                    f"For LMUCells with no input kernel, the input dimension ({enc_d})"
-                    f" must equal `memory_d` ({self.memory_d})."
-                )
+        elif enc_d != self.memory_d:
+            raise ValueError(
+                f"For LMUCells with no input kernel, the input dimension ({enc_d})"
+                f" must equal `memory_d` ({self.memory_d})."
+            )
+
+        if self.use_bias:
+            self.bias = self.add_weight(
+                name="bias",
+                shape=(1, self.memory_d),
+                initializer=self.bias_initializer,
+                regularizer=self.bias_regularizer,
+            )
 
         # when using euler, 1/theta results in better gradients for the memory
         # update since you are multiplying 1/theta, as compared to dividing theta
@@ -267,6 +295,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
                 name="recurrent_kernel",
                 shape=(self.memory_d * self.order, self.memory_d),
                 initializer=self.recurrent_initializer,
+                regularizer=self.recurrent_regularizer,
             )
         else:
             self.recurrent_kernel = None
@@ -281,7 +310,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         # generate A and B matrices
         self._gen_AB()
 
-    def call(self, inputs, states, training=None):
+    def call(self, inputs, states, training=None):  # noqa: C901
         """
         Apply this cell to inputs.
 
@@ -303,10 +332,13 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         m = states[-1]
 
         # compute memory input
-        u_in = tf.concat((inputs, h[0]), axis=1) if self.hidden_to_memory else inputs
+        u = tf.concat((inputs, h[0]), axis=1) if self.hidden_to_memory else inputs
         if self.dropout > 0:
-            u_in *= self.get_dropout_mask_for_cell(u_in, training)
-        u = u_in if self.kernel is None else tf.matmul(u_in, self.kernel)
+            u *= self.get_dropout_mask_for_cell(u, training)
+        if self.kernel is not None:
+            u = tf.matmul(u, self.kernel, name="kernel_matmul")
+        if self.bias is not None:
+            u = u + self.bias
 
         if self.memory_to_memory:
             if self.recurrent_dropout > 0:
@@ -316,7 +348,9 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
             else:
                 rec_m = m
 
-            u += tf.matmul(rec_m, self.recurrent_kernel)
+            u = u + tf.matmul(
+                rec_m, self.recurrent_kernel, name="recurrent_kernel_matmul"
+            )
 
         # separate memory/order dimensions
         m = tf.reshape(m, (-1, self.memory_d, self.order))
@@ -389,6 +423,11 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
                 discretizer=self.discretizer,
                 kernel_initializer=self.kernel_initializer,
                 recurrent_initializer=self.recurrent_initializer,
+                kernel_regularizer=self.kernel_regularizer,
+                recurrent_regularizer=self.recurrent_regularizer,
+                use_bias=self.use_bias,
+                bias_initializer=self.bias_initializer,
+                bias_regularizer=self.bias_regularizer,
                 dropout=self.dropout,
                 recurrent_dropout=self.recurrent_dropout,
             )
@@ -461,6 +500,16 @@ class LMU(tf.keras.layers.Layer):
         no weights will be used, and the input size must match the memory/hidden size.
     recurrent_initializer : ``tf.initializers.Initializer``
         Initializer for ``memory_to_memory`` weights (if that connection is enabled).
+    kernel_regularizer : ``tf.keras.regularizers.Regularizer``
+        Regularizer for weights from input to memory/hidden component.
+    recurrent_regularizer : ``tf.keras.regularizers.Regularizer``
+        Regularizer for ``memory_to_memory`` weights (if that connection is enabled).
+    use_bias : bool
+        If True, the memory component includes a bias term.
+    bias_initializer : ``tf.initializers.Initializer``
+        Initializer for the memory component bias term. Only used if ``use_bias=True``.
+    bias_regularizer : ``tf.keras.regularizers.Regularizer``
+        Regularizer for the memory component bias term. Only used if ``use_bias=True``.
     dropout : float
         Dropout rate on input connections.
     recurrent_dropout : float
@@ -492,6 +541,11 @@ class LMU(tf.keras.layers.Layer):
         discretizer="zoh",
         kernel_initializer="glorot_uniform",
         recurrent_initializer="orthogonal",
+        kernel_regularizer=None,
+        recurrent_regularizer=None,
+        use_bias=False,
+        bias_initializer="zeros",
+        bias_regularizer=None,
         dropout=0,
         recurrent_dropout=0,
         return_sequences=False,
@@ -511,6 +565,11 @@ class LMU(tf.keras.layers.Layer):
         self.discretizer = discretizer
         self.kernel_initializer = kernel_initializer
         self.recurrent_initializer = recurrent_initializer
+        self.kernel_regularizer = kernel_regularizer
+        self.recurrent_regularizer = recurrent_regularizer
+        self.use_bias = use_bias
+        self.bias_initializer = bias_initializer
+        self.bias_regularizer = bias_regularizer
         self.dropout = dropout
         self.recurrent_dropout = recurrent_dropout
         self.return_sequences = return_sequences
@@ -561,6 +620,10 @@ class LMU(tf.keras.layers.Layer):
                 input_to_hidden=self.input_to_hidden,
                 discretizer=self.discretizer,
                 kernel_initializer=self.kernel_initializer,
+                kernel_regularizer=self.kernel_regularizer,
+                use_bias=self.use_bias,
+                bias_initializer=self.bias_initializer,
+                bias_regularizer=self.bias_regularizer,
                 dropout=self.dropout,
                 return_sequences=self.return_sequences,
             )
@@ -578,6 +641,11 @@ class LMU(tf.keras.layers.Layer):
                     discretizer=self.discretizer,
                     kernel_initializer=self.kernel_initializer,
                     recurrent_initializer=self.recurrent_initializer,
+                    kernel_regularizer=self.kernel_regularizer,
+                    recurrent_regularizer=self.recurrent_regularizer,
+                    use_bias=self.use_bias,
+                    bias_initializer=self.bias_initializer,
+                    bias_regularizer=self.bias_regularizer,
                     dropout=self.dropout,
                     recurrent_dropout=self.recurrent_dropout,
                 ),
@@ -616,6 +684,11 @@ class LMU(tf.keras.layers.Layer):
                 discretizer=self.discretizer,
                 kernel_initializer=self.kernel_initializer,
                 recurrent_initializer=self.recurrent_initializer,
+                kernel_regularizer=self.kernel_regularizer,
+                recurrent_regularizer=self.recurrent_regularizer,
+                use_bias=self.use_bias,
+                bias_initializer=self.bias_initializer,
+                bias_regularizer=self.bias_regularizer,
                 dropout=self.dropout,
                 recurrent_dropout=self.recurrent_dropout,
                 return_sequences=self.return_sequences,
@@ -671,6 +744,14 @@ class LMUFeedforward(tf.keras.layers.Layer):
     kernel_initializer : ``tf.initializers.Initializer``
         Initializer for weights from input to memory/hidden component. If ``None``,
         no weights will be used, and the input size must match the memory/hidden size.
+    kernel_regularizer : ``tf.keras.regularizers.Regularizer``
+        Regularizer for weights from input to memory/hidden component.
+    use_bias : bool
+        If True, the memory component includes a bias term.
+    bias_initializer : ``tf.initializers.Initializer``
+        Initializer for the memory component bias term. Only used if ``use_bias=True``.
+    bias_regularizer : ``tf.keras.regularizers.Regularizer``
+        Regularizer for the memory component bias term. Only used if ``use_bias=True``.
     dropout : float
         Dropout rate on input connections.
     return_sequences : bool, optional
@@ -696,6 +777,10 @@ class LMUFeedforward(tf.keras.layers.Layer):
         input_to_hidden=False,
         discretizer="zoh",
         kernel_initializer="glorot_uniform",
+        kernel_regularizer=None,
+        use_bias=False,
+        bias_initializer="zeros",
+        bias_regularizer=None,
         dropout=0,
         return_sequences=False,
         conv_mode="fft",
@@ -717,6 +802,10 @@ class LMUFeedforward(tf.keras.layers.Layer):
         self.input_to_hidden = input_to_hidden
         self.discretizer = discretizer
         self.kernel_initializer = kernel_initializer
+        self.kernel_regularizer = kernel_regularizer
+        self.use_bias = use_bias
+        self.bias_initializer = bias_initializer
+        self.bias_regularizer = bias_regularizer
         self.dropout = dropout
         self.return_sequences = return_sequences
         self.conv_mode = conv_mode.lower()
@@ -739,6 +828,9 @@ class LMUFeedforward(tf.keras.layers.Layer):
             ),
             return_sequences=True,
         )
+        self.impulse_response = None
+        self.kernel = None
+        self.bias = None
 
     def build(self, input_shape):
         """
@@ -799,6 +891,7 @@ class LMUFeedforward(tf.keras.layers.Layer):
                 name="kernel",
                 shape=(input_shape[-1], self.memory_d),
                 initializer=self.kernel_initializer,
+                regularizer=self.kernel_regularizer,
             )
         else:
             self.kernel = None
@@ -807,6 +900,14 @@ class LMUFeedforward(tf.keras.layers.Layer):
                     f"For LMUCells with no input kernel, the input dimension ({enc_d})"
                     f" must equal `memory_d` ({self.memory_d})."
                 )
+
+        if self.use_bias:
+            self.bias = self.add_weight(
+                name="bias",
+                shape=(1, self.memory_d),
+                initializer=self.bias_initializer,
+                regularizer=self.bias_regularizer,
+            )
 
         if self.hidden_cell is not None and not self.hidden_cell.built:
             hidden_input_d = self.memory_d * self.order
@@ -835,11 +936,11 @@ class LMUFeedforward(tf.keras.layers.Layer):
             )(inputs)
 
         # Apply input encoders
-        u = (
-            inputs
-            if self.kernel is None
-            else tf.matmul(inputs, self.kernel, name="input_encoder_mult")
-        )
+        u = inputs
+        if self.kernel is not None:
+            u = tf.matmul(u, self.kernel, name="kernel_matmul")
+        if self.bias is not None:
+            u = u + self.bias
 
         if self.conv_mode == "fft":
             m = self._fft_convolution(u)
@@ -914,6 +1015,10 @@ class LMUFeedforward(tf.keras.layers.Layer):
                 input_to_hidden=self.input_to_hidden,
                 discretizer=self.discretizer,
                 kernel_initializer=self.kernel_initializer,
+                kernel_regularizer=self.kernel_regularizer,
+                use_bias=self.use_bias,
+                bias_initializer=self.bias_initializer,
+                bias_regularizer=self.bias_regularizer,
                 dropout=self.dropout,
                 return_sequences=self.return_sequences,
                 conv_mode=self.conv_mode,

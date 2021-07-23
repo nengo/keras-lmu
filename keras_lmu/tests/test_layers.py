@@ -670,3 +670,55 @@ def test_theta_attribute(mode):
         cell = layer if mode == "cell" else layer.layer.cell
         cell.theta_inv.assign(10)
         assert np.allclose(layer.theta, 0.1)
+
+
+@pytest.mark.parametrize("fft", (True, False))
+@pytest.mark.parametrize("bias", (True, False))
+def test_regularizer_loss(fft, bias):
+    # choose arbitrary amounts of regularization
+    reg = 0.23
+    rec_reg = 0.34
+    bias_reg = 0.81
+    seq_len = 5
+    input_d = 3
+    memory_d = 2
+
+    lmu_layer = layers.LMU(
+        memory_d=memory_d,
+        order=4,
+        theta=4,
+        hidden_cell=tf.keras.layers.SimpleRNNCell(units=10),
+        hidden_to_memory=False,
+        memory_to_memory=not fft,
+        input_to_hidden=not fft,
+        use_bias=bias,
+        bias_initializer="uniform",  # non-zero to make regularization loss non-zero
+        kernel_regularizer=tf.keras.regularizers.L1L2(l1=reg),
+        recurrent_regularizer=tf.keras.regularizers.L1L2(l1=rec_reg),
+        bias_regularizer=tf.keras.regularizers.L1L2(l1=bias_reg),
+    )
+    inputs = tf.keras.Input((seq_len, input_d))
+    lmus = lmu_layer(inputs)
+    outputs = tf.keras.layers.Dense(10)(lmus)
+
+    model = tf.keras.Model(inputs=inputs, outputs=outputs)
+    cce_loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    model.compile(loss=cce_loss_fn, optimizer="adam", metrics=[cce_loss_fn])
+
+    n_test = 5
+    x_test = tf.ones((n_test, seq_len, input_d))
+    y_test = tf.ones((n_test, 1))
+
+    loss, cce_loss = model.evaluate(x_test, y_test)
+    regularization_loss = loss - cce_loss
+
+    # determine the target regularization loss based on reg terms and parameter values
+    layer = lmu_layer.layer if fft else lmu_layer.layer.cell
+    target = reg * np.abs(layer.kernel.numpy()).sum()
+    if not fft:
+        target += rec_reg * np.abs(layer.recurrent_kernel.numpy()).sum()
+    if bias:
+        target += bias_reg * np.abs(layer.bias.numpy()).sum()
+
+    assert target > 0.1, f"Target {target} is negligible, please fix the test"
+    assert np.isclose(regularization_loss, target)

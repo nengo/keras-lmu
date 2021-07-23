@@ -31,7 +31,10 @@ Release history
 **Added**
 
 - Added support for TensorFlow 2.8. (`#46`_)
+- Allow for optional bias on the memory component with the ``use_bias`` flag. (`#44`_)
+- Added regularizer support for kernel, recurrent kernel, and bias. (`#44`_)
 
+.. _#44: https://github.com/nengo/keras-lmu/pull/44
 .. _#46: https://github.com/nengo/keras-lmu/pull/46
 
 0.4.0 (August 16, 2021)
