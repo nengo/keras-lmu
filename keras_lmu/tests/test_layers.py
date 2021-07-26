@@ -5,7 +5,7 @@ import pytest
 import tensorflow as tf
 
 from keras_lmu import layers
-from keras_lmu.tests.utils import tf_gpu_installed
+from keras_lmu.tests import tf_gpu_installed
 
 
 def test_multivariate_lmu(rng):
