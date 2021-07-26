@@ -608,23 +608,23 @@ class LMUFFT(tf.keras.layers.Layer):
         impulse = tf.reshape(tf.eye(seq_len, 1), (1, -1, 1))
 
         self.impulse_response = tf.squeeze(self.delay_layer(impulse), axis=0)
-        self.impulse_response_fft = None
 
         if self.conv_mode == "fft":
-            self.impulse_response_fft = tf.signal.rfft(
+            self.impulse_response = tf.signal.rfft(
                 tf.transpose(self.impulse_response),
                 fft_length=[2 * seq_len],
             )
         elif self.truncate_ir is not None:
-            ir = self.impulse_response.numpy()
-            assert ir.shape == (seq_len, self.order)
+            assert self.impulse_response.shape == (seq_len, self.order)
 
-            cumsum = np.cumsum(np.abs(ir[::-1]), axis=0)
-            cumsum = cumsum / cumsum[-1]
-            to_drop = (cumsum < self.truncate_ir).all(axis=-1)
-            if to_drop[0].item():
-                i = to_drop.nonzero()[0][-1]
-                self.impulse_response = self.impulse_response[: -(i + 1)]
+            cumsum = tf.math.cumsum(
+                tf.math.abs(self.impulse_response), axis=0, reverse=True
+            )
+            cumsum = cumsum / cumsum[0]
+            to_drop = tf.reduce_all(cumsum < self.truncate_ir, axis=-1)
+            if to_drop[-1]:
+                cutoff = tf.where(to_drop)[0, -1]
+                self.impulse_response = self.impulse_response[:cutoff]
 
         if self.kernel_initializer is not None:
             self.kernel = self.add_weight(
@@ -708,10 +708,10 @@ class LMUFFT(tf.keras.layers.Layer):
 
         # Pad sequences to avoid circular convolution
         # Perform the FFT
-        fft_input = tf.signal.rfft(u, fft_length=[2 * seq_len], name="input_pad")
+        fft_input = tf.signal.rfft(u, fft_length=[2 * seq_len])
 
         # Elementwise product of FFT (with broadcasting)
-        result = tf.expand_dims(fft_input, axis=-2) * self.impulse_response_fft
+        result = tf.expand_dims(fft_input, axis=-2) * self.impulse_response
 
         # Inverse FFT
         m = tf.signal.irfft(result, fft_length=[2 * seq_len])[..., :seq_len]
