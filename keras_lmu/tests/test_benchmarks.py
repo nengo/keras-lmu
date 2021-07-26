@@ -7,7 +7,7 @@ import pytest
 import tensorflow as tf
 
 from keras_lmu import layers
-from keras_lmu.tests.utils import tf_gpu_installed
+from keras_lmu.tests import tf_gpu_installed
 
 
 class SteptimeLogger(tf.keras.callbacks.Callback):
@@ -79,7 +79,7 @@ def test_performance(mode, capsys):
     steptimes = SteptimeLogger()
     model.fit(x_train, y_train, epochs=2, batch_size=batch_size, callbacks=[steptimes])
 
-    step_time = np.mean(steptimes.batch_times[1:])
+    step_time = np.min(steptimes.batch_times[1:])
 
     with capsys.disabled():
         print(f"step time: {step_time:0.3f}")
