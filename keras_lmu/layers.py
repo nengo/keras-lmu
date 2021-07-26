@@ -614,17 +614,24 @@ class LMUFFT(tf.keras.layers.Layer):
                 tf.transpose(self.impulse_response),
                 fft_length=[2 * seq_len],
             )
-        elif self.truncate_ir is not None:
-            assert self.impulse_response.shape == (seq_len, self.order)
+        else:
+            if self.truncate_ir is not None:
+                assert self.impulse_response.shape == (seq_len, self.order)
 
-            cumsum = tf.math.cumsum(
-                tf.math.abs(self.impulse_response), axis=0, reverse=True
+                cumsum = tf.math.cumsum(
+                    tf.math.abs(self.impulse_response), axis=0, reverse=True
+                )
+                cumsum = cumsum / cumsum[0]
+                to_drop = tf.reduce_all(cumsum < self.truncate_ir, axis=-1)
+                if to_drop[-1]:
+                    cutoff = tf.where(to_drop)[0, -1]
+                    self.impulse_response = self.impulse_response[:cutoff]
+
+            self.impulse_response = tf.reshape(
+                self.impulse_response,
+                (1, self.impulse_response.shape[0], 1, self.order),
             )
-            cumsum = cumsum / cumsum[0]
-            to_drop = tf.reduce_all(cumsum < self.truncate_ir, axis=-1)
-            if to_drop[-1]:
-                cutoff = tf.where(to_drop)[0, -1]
-                self.impulse_response = self.impulse_response[:cutoff]
+            self.impulse_response = self.impulse_response[:, ::-1, :, :]
 
         if self.kernel_initializer is not None:
             self.kernel = self.add_weight(
@@ -722,25 +729,26 @@ class LMUFFT(tf.keras.layers.Layer):
 
     def _raw_convolution(self, u):
         seq_len = tf.shape(u)[1]
-        ir_len = self.impulse_response.shape[0]
-        assert self.impulse_response.shape[1:] == (self.order,)
+        ir_len = self.impulse_response.shape[1]
 
+        # it's more efficient to do convolution along the W dimension, so move
+        # signal dimension to W
         u = tf.transpose(u, perm=[0, 2, 1])
-
-        filters = tf.reshape(self.impulse_response, (1, ir_len, 1, self.order))
-        filters = filters[:, ::-1, :, :]
 
         if self.conv_mode == "raw_nchw":  # pragma: no cover
             u = tf.reshape(u, (-1, 1, 1, seq_len))  # combine batch and memory_d axes
             padding = [[0, 0], [0, 0], [0, 0], [ir_len - 1, 0]]
-            m = tf.nn.conv2d(u, filters, strides=1, data_format="NCHW", padding=padding)
+            m = tf.nn.conv2d(
+                u, self.impulse_response, strides=1, data_format="NCHW", padding=padding
+            )
             m = tf.reshape(m, (-1, self.memory_d * self.order, seq_len))
             m = tf.transpose(m, perm=[0, 2, 1])
         else:
-            u = tf.reshape(u, (-1, 1, seq_len, 1))  # combine batch and memory_d axes
+            u = tf.expand_dims(u, -1)
             padding = [[0, 0], [0, 0], [ir_len - 1, 0], [0, 0]]
-            m = tf.nn.conv2d(u, filters, strides=1, data_format="NHWC", padding=padding)
-            m = tf.reshape(m, (-1, self.memory_d, seq_len, self.order))
+            m = tf.nn.conv2d(
+                u, self.impulse_response, strides=1, data_format="NHWC", padding=padding
+            )
             m = tf.transpose(m, perm=[0, 2, 1, 3])
             m = tf.reshape(m, (-1, seq_len, self.memory_d * self.order))
 
