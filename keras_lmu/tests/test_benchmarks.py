@@ -17,30 +17,22 @@ class SteptimeLogger(tf.keras.callbacks.Callback):
         super().__init__()
 
         self.train_start = None
-        self.epoch_start = None
-        self.batch_start = None
+        self.inference_start = None
 
-        self.train_time = None
-        self.epoch_times = []
-        self.batch_times = []
-
-    def on_train_begin(self, logs=None):
-        self.train_start = timeit.default_timer()
-
-    def on_train_end(self, logs=None):
-        self.train_time = timeit.default_timer() - self.train_start
-
-    def on_epoch_begin(self, epoch, logs=None):
-        self.epoch_start = timeit.default_timer()
-
-    def on_epoch_end(self, epoch, logs=None):
-        self.epoch_times.append(timeit.default_timer() - self.epoch_start)
+        self.train_times = []
+        self.inference_times = []
 
     def on_train_batch_begin(self, batch, logs=None):
-        self.batch_start = timeit.default_timer()
+        self.train_start = timeit.default_timer()
 
     def on_train_batch_end(self, batch, logs=None):
-        self.batch_times.append(timeit.default_timer() - self.batch_start)
+        self.train_times.append(timeit.default_timer() - self.train_start)
+
+    def on_predict_batch_begin(self, batch, logs=None):
+        self.inference_start = timeit.default_timer()
+
+    def on_predict_batch_end(self, batch, logs=None):
+        self.inference_times.append(timeit.default_timer() - self.inference_start)
 
 
 @pytest.mark.skipif(not tf_gpu_installed, reason="Very slow on CPU")
@@ -48,19 +40,17 @@ class SteptimeLogger(tf.keras.callbacks.Callback):
 def test_performance(mode, capsys):
     dims = 32
     seq_len = 1024
-    batch_size = 4
+    batch_size = 32
     odims = 2
 
     kwargs = dict(memory_d=dims, order=256, theta=784, hidden_cell=None)
     if mode == "rnn":
         lmu_layer = tf.keras.layers.RNN(
             layers.LMUCell(**kwargs),
-            return_sequences=True,
+            return_sequences=False,
         )
     elif mode in ("fft", "raw", "raw_nchw"):
-        lmu_layer = layers.LMUFFT(
-            return_sequences=True, conv_mode=mode, truncate_ir=None, **kwargs
-        )
+        lmu_layer = layers.LMUFFT(return_sequences=False, conv_mode=mode, **kwargs)
 
     inputs = tf.keras.layers.Input((seq_len, dims), batch_size=batch_size)
     lmu = lmu_layer(inputs)
@@ -68,18 +58,18 @@ def test_performance(mode, capsys):
 
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
 
-    n_train = 5 * batch_size
+    n_train = 20 * batch_size
     x_train = tf.random.uniform((n_train, seq_len, dims), minval=-1, maxval=1, seed=0)
-    y_train = tf.random.uniform((n_train, seq_len, odims), minval=-1, maxval=1, seed=1)
+    y_train = tf.random.uniform((n_train, odims), minval=-1, maxval=1, seed=1)
     model.compile(
         loss="mse",
         optimizer=tf.keras.optimizers.RMSprop(),
     )
 
     steptimes = SteptimeLogger()
-    model.fit(x_train, y_train, epochs=2, batch_size=batch_size, callbacks=[steptimes])
-
-    step_time = np.min(steptimes.batch_times[1:])
+    model.fit(x_train, y_train, epochs=1, batch_size=batch_size, callbacks=[steptimes])
+    model.predict(x_train, batch_size=batch_size, callbacks=[steptimes])
 
     with capsys.disabled():
-        print(f"step time: {step_time:0.3f}")
+        print(f"train step time: {np.min(steptimes.train_times):0.4f}")
+        print(f"inference step time: {np.min(steptimes.inference_times):0.4f}")
