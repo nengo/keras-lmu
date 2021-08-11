@@ -731,19 +731,14 @@ class LMUFFT(tf.keras.layers.Layer):
         seq_len = tf.shape(u)[1]
         ir_len = self.impulse_response.shape[0]
 
-        if self.conv_mode == "raw_nchw":  # pragma: no cover
-            u = tf.expand_dims(u, 1)
-            padding = [[0, 0], [0, 0], [ir_len - 1, 0], [0, 0]]
-            m = tf.nn.conv2d(
-                u, self.impulse_response, strides=1, data_format="NCHW", padding=padding
-            )
-        else:
-            u = tf.expand_dims(u, -1)
-            padding = [[0, 0], [ir_len - 1, 0], [0, 0], [0, 0]]
-            m = tf.nn.conv2d(
-                u, self.impulse_response, strides=1, data_format="NHWC", padding=padding
-            )
-
+        channels_last = self.conv_mode != "raw_nchw"
+        u = tf.expand_dims(u, -1 if channels_last else 1)
+        padding = [[0, 0], [0, 0], [0, 0], [0, 0]]
+        padding[1 if channels_last else 2] = [ir_len - 1, 0]
+        fmt = "NHWC" if channels_last else "NCHW"
+        m = tf.nn.conv2d(
+            u, self.impulse_response, strides=1, data_format=fmt, padding=padding
+        )
         m = tf.reshape(m, (-1, seq_len, self.memory_d * self.order))
         return m
 
