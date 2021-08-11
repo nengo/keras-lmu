@@ -732,11 +732,11 @@ class LMUFFT(tf.keras.layers.Layer):
         ir_len = self.impulse_response.shape[1]
 
         # it's more efficient to do convolution along the W dimension, so move
-        # signal dimension to W
+        # signal dimension to W (`u` shape will now be `(batch, memory_d, timesteps)`)
         u = tf.transpose(u, perm=[0, 2, 1])
 
         if self.conv_mode == "raw_nchw":  # pragma: no cover
-            u = tf.reshape(u, (-1, 1, 1, seq_len))  # combine batch and memory_d axes
+            u = tf.expand_dims(u, 1)
             padding = [[0, 0], [0, 0], [0, 0], [ir_len - 1, 0]]
             m = tf.nn.conv2d(
                 u, self.impulse_response, strides=1, data_format="NCHW", padding=padding
