@@ -133,3 +133,10 @@ codecov_yml: {}
 pre_commit_config_yaml: {}
 
 pyproject_toml: {}
+
+version_py:
+  type: semver
+  major: 0
+  minor: 4
+  patch: 0
+  release: false
