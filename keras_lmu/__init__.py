@@ -1,6 +1,6 @@
 """KerasLMU provides a package for deep learning with Legendre Memory Units."""
 
-from .layers import LMU, LMUFFT, LMUCell
+from .layers import LMU, LMUCell, LMUFeedforward
 from .version import version as __version__
 
 __copyright__ = "2019-2021, Applied Brain Research"

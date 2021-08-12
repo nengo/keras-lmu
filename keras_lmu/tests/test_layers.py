@@ -67,9 +67,9 @@ def test_multivariate_lmu(rng, discretizer):
 
 
 @pytest.mark.parametrize("has_input_kernel", (True, False))
-@pytest.mark.parametrize("fft", (True, False))
+@pytest.mark.parametrize("feedforward", (True, False))
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
-def test_layer_vs_cell(rng, has_input_kernel, fft, discretizer):
+def test_layer_vs_cell(rng, has_input_kernel, feedforward, discretizer):
     n_steps = 10
     input_d = 32
     kwargs = dict(
@@ -78,7 +78,7 @@ def test_layer_vs_cell(rng, has_input_kernel, fft, discretizer):
         theta=n_steps * (8 if discretizer == "euler" else 1),
         discretizer=discretizer,
         kernel_initializer="glorot_uniform" if has_input_kernel else None,
-        memory_to_memory=not fft,
+        memory_to_memory=not feedforward,
     )
     hidden_cell = lambda: tf.keras.layers.SimpleRNNCell(units=64)
 
@@ -95,7 +95,9 @@ def test_layer_vs_cell(rng, has_input_kernel, fft, discretizer):
     lmu_layer.layer.set_weights(lmu_cell.get_weights())
     layer_out = lmu_layer(inp)
 
-    assert isinstance(lmu_layer.layer, layers.LMUFFT if fft else tf.keras.layers.RNN)
+    assert isinstance(
+        lmu_layer.layer, layers.LMUFeedforward if feedforward else tf.keras.layers.RNN
+    )
 
     for w0, w1 in zip(
         sorted(lmu_cell.weights, key=lambda w: w.shape.as_list()),
@@ -104,7 +106,7 @@ def test_layer_vs_cell(rng, has_input_kernel, fft, discretizer):
         assert np.allclose(w0.numpy(), w1.numpy())
 
     assert np.allclose(cell_out, lmu_cell(inp))
-    assert np.allclose(cell_out, layer_out, atol=3e-6 if fft else 1e-8), np.max(
+    assert np.allclose(cell_out, layer_out, atol=3e-6 if feedforward else 1e-8), np.max(
         np.abs(cell_out - layer_out)
     )
 
@@ -155,12 +157,12 @@ def test_save_load_weights(rng, tmp_path, discretizer, trainable_theta):
 
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
 @pytest.mark.parametrize("trainable_theta", (True, False))
-@pytest.mark.parametrize("mode", ("cell", "lmu", "fft"))
+@pytest.mark.parametrize("mode", ("cell", "lmu", "feedforward"))
 def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
-    if mode == "fft" and trainable_theta:
-        pytest.skip("FFT does not support trainable theta")
+    if mode == "feedforward" and trainable_theta:
+        pytest.skip("LMUFeedforward does not support trainable theta")
 
-    inp = tf.keras.Input((10 if mode == "fft" else None, 32))
+    inp = tf.keras.Input((10 if mode == "feedforward" else None, 32))
     if mode == "cell":
         out = tf.keras.layers.RNN(
             layers.LMUCell(
@@ -184,8 +186,8 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
             trainable_theta=trainable_theta,
             discretizer=discretizer,
         )(inp)
-    elif mode == "fft":
-        out = layers.LMUFFT(
+    elif mode == "feedforward":
+        out = layers.LMUFeedforward(
             1,
             2,
             3,
@@ -203,7 +205,7 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
         custom_objects={
             "LMUCell": layers.LMUCell,
             "LMU": layers.LMU,
-            "LMUFFT": layers.LMUFFT,
+            "LMUFeedforward": layers.LMUFeedforward,
         },
     )
 
@@ -224,7 +226,9 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
 @pytest.mark.parametrize("memory_d", [1, 4])
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
 @pytest.mark.parametrize("conv_mode", ["fft", "raw"])
-def test_fft(return_sequences, hidden_cell, memory_d, discretizer, conv_mode, rng):
+def test_feedforward(
+    return_sequences, hidden_cell, memory_d, discretizer, conv_mode, rng
+):
     kwargs = dict(
         memory_d=memory_d,
         order=2,
@@ -241,14 +245,14 @@ def test_fft(return_sequences, hidden_cell, memory_d, discretizer, conv_mode, rn
     )
     rnn_out = rnn_layer(x)
 
-    fft_layer = layers.LMUFFT(
+    ff_layer = layers.LMUFeedforward(
         return_sequences=return_sequences, conv_mode=conv_mode, **kwargs
     )
-    fft_layer.build(x.shape)
-    fft_layer.kernel.assign(rnn_layer.cell.kernel)
-    fft_out = fft_layer(x, training=None)
+    ff_layer.build(x.shape)
+    ff_layer.kernel.assign(rnn_layer.cell.kernel)
+    ff_out = ff_layer(x, training=None)
 
-    assert np.allclose(rnn_out, fft_out, atol=2e-6)
+    assert np.allclose(rnn_out, ff_out, atol=2e-6)
 
 
 @pytest.mark.parametrize("truncate_ir", [None, 1e-5, 1e-4, 1e-3])
@@ -264,22 +268,22 @@ def test_raw_truncation(truncate_ir, rng):
     rnn_layer = tf.keras.layers.RNN(layers.LMUCell(**kwargs), return_sequences=True)
     rnn_out = rnn_layer(x)
 
-    fft_layer = layers.LMUFFT(
+    ff_layer = layers.LMUFeedforward(
         return_sequences=True, conv_mode="raw", truncate_ir=truncate_ir, **kwargs
     )
-    fft_out = fft_layer(x)
+    ff_out = ff_layer(x)
     if truncate_ir is not None:
-        assert fft_layer.impulse_response.shape[0] < seq_len
+        assert ff_layer.impulse_response.shape[0] < seq_len
 
     # only one seed in 50 failed with `atol=truncate_ir`, hence the 1.2 fudge factor
     atol = 2e-6 if truncate_ir is None else 1.2 * truncate_ir
-    assert np.allclose(rnn_out, fft_out, atol=atol)
+    assert np.allclose(rnn_out, ff_out, atol=atol)
 
 
 def test_validation_errors():
-    fft_layer = layers.LMUFFT(1, 2, 3, None)
+    ff_layer = layers.LMUFeedforward(1, 2, 3, None)
     with pytest.raises(ValueError, match="temporal axis be fully specified"):
-        fft_layer(tf.keras.Input((None, 32)))
+        ff_layer(tf.keras.Input((None, 32)))
 
     with pytest.raises(ValueError, match="hidden_to_memory must be False"):
         layers.LMUCell(1, 2, 3, None, hidden_to_memory=True)
@@ -288,14 +292,15 @@ def test_validation_errors():
         layers.LMUCell(1, 2, 3, None, input_to_hidden=True)
 
     with pytest.raises(ValueError, match="input_to_hidden must be False"):
-        layers.LMUFFT(1, 2, 3, None, input_to_hidden=True)
+        layers.LMUFeedforward(1, 2, 3, None, input_to_hidden=True)
 
     with pytest.raises(ValueError, match="Unrecognized conv mode"):
-        layers.LMUFFT(1, 2, 3, None, conv_mode="raw_bad")
+        layers.LMUFeedforward(1, 2, 3, None, conv_mode="raw_bad")
 
 
 @pytest.mark.parametrize(
-    "should_use_fft, hidden_to_memory, memory_to_memory, steps, trainable_theta",
+    "should_use_feedforward, hidden_to_memory, memory_to_memory, steps, "
+    "trainable_theta",
     [
         (True, False, False, 5, False),
         (False, True, False, 5, False),
@@ -304,8 +309,8 @@ def test_validation_errors():
         (False, False, False, 5, True),
     ],
 )
-def test_fft_auto_swap(
-    should_use_fft, hidden_to_memory, memory_to_memory, steps, trainable_theta
+def test_feedforward_auto_swap(
+    should_use_feedforward, hidden_to_memory, memory_to_memory, steps, trainable_theta
 ):
     lmu = layers.LMU(
         4,
@@ -318,15 +323,15 @@ def test_fft_auto_swap(
     )
     lmu.build((32, steps, 8))
 
-    assert isinstance(lmu.layer, layers.LMUFFT) == should_use_fft
+    assert isinstance(lmu.layer, layers.LMUFeedforward) == should_use_feedforward
 
 
 @pytest.mark.parametrize(
     "hidden_cell",
     (tf.keras.layers.SimpleRNNCell(units=10), tf.keras.layers.Dense(units=10), None),
 )
-@pytest.mark.parametrize("fft", (True, False))
-def test_hidden_types(hidden_cell, fft, rng, seed):
+@pytest.mark.parametrize("feedforward", (True, False))
+def test_hidden_types(hidden_cell, feedforward, rng, seed):
     x = rng.uniform(-1, 1, size=(2, 5, 32))
 
     lmu_params = dict(
@@ -349,8 +354,10 @@ def test_hidden_types(hidden_cell, fft, rng, seed):
         base_output = hidden_cell(base_output)
 
     lmu = (
-        layers.LMUFFT(hidden_cell=hidden_cell, return_sequences=True, **lmu_params)
-        if fft
+        layers.LMUFeedforward(
+            hidden_cell=hidden_cell, return_sequences=True, **lmu_params
+        )
+        if feedforward
         else tf.keras.layers.RNN(
             layers.LMUCell(hidden_cell=hidden_cell, **lmu_params),
             return_sequences=True,
@@ -358,13 +365,13 @@ def test_hidden_types(hidden_cell, fft, rng, seed):
     )
     lmu_output = lmu(x)
 
-    assert np.allclose(lmu_output, base_output, atol=2e-6 if fft else 1e-8)
+    assert np.allclose(lmu_output, base_output, atol=2e-6 if feedforward else 1e-8)
 
 
-@pytest.mark.parametrize("fft", (True, False))
+@pytest.mark.parametrize("feedforward", (True, False))
 @pytest.mark.parametrize("hidden_cell", (None, tf.keras.layers.Dense))
-def test_connection_params(fft, hidden_cell):
-    input_shape = (32, 7 if fft else None, 6)
+def test_connection_params(feedforward, hidden_cell):
+    input_shape = (32, 7 if feedforward else None, 6)
 
     x = tf.keras.Input(batch_shape=input_shape)
 
@@ -375,14 +382,18 @@ def test_connection_params(fft, hidden_cell):
         hidden_cell=hidden_cell if hidden_cell is None else hidden_cell(units=5),
         input_to_hidden=False,
     )
-    if not fft:
+    if not feedforward:
         lmu_args["hidden_to_memory"] = False
         lmu_args["memory_to_memory"] = False
 
-    lmu = layers.LMUCell(**lmu_args) if not fft else layers.LMUFFT(**lmu_args)
-    y = lmu(x) if fft else tf.keras.layers.RNN(lmu)(x)
+    lmu = (
+        layers.LMUCell(**lmu_args)
+        if not feedforward
+        else layers.LMUFeedforward(**lmu_args)
+    )
+    y = lmu(x) if feedforward else tf.keras.layers.RNN(lmu)(x)
     assert lmu.kernel.shape == (input_shape[-1], lmu.memory_d)
-    if not fft:
+    if not feedforward:
         assert lmu.recurrent_kernel is None
     if hidden_cell is not None:
         assert lmu.hidden_cell.kernel.shape == (
@@ -395,19 +406,24 @@ def test_connection_params(fft, hidden_cell):
     )
 
     lmu_args["input_to_hidden"] = hidden_cell is not None
-    if not fft:
+    if not feedforward:
         lmu_args["hidden_to_memory"] = hidden_cell is not None
         lmu_args["memory_to_memory"] = True
 
-    lmu = layers.LMUCell(**lmu_args) if not fft else layers.LMUFFT(**lmu_args)
+    lmu = (
+        layers.LMUCell(**lmu_args)
+        if not feedforward
+        else layers.LMUFeedforward(**lmu_args)
+    )
     if hidden_cell is not None:
         lmu.hidden_cell.built = False  # so that the kernel will be rebuilt
-    y = lmu(x) if fft else tf.keras.layers.RNN(lmu)(x)
+    y = lmu(x) if feedforward else tf.keras.layers.RNN(lmu)(x)
     assert lmu.kernel.shape == (
-        input_shape[-1] + (0 if fft or hidden_cell is None else lmu.hidden_cell.units),
+        input_shape[-1]
+        + (0 if feedforward or hidden_cell is None else lmu.hidden_cell.units),
         lmu.memory_d,
     )
-    if not fft:
+    if not feedforward:
         assert lmu.recurrent_kernel.shape == (
             lmu.order * lmu.memory_d,
             lmu.memory_d,
@@ -427,11 +443,11 @@ def test_connection_params(fft, hidden_cell):
     "dropout, recurrent_dropout, hidden_dropout, hidden_recurrent_dropout",
     [(0, 0, 0, 0), (0.5, 0, 0, 0), (0, 0.5, 0, 0), (0, 0, 0.5, 0), (0, 0, 0, 0.5)],
 )
-@pytest.mark.parametrize("fft", (True, False))
+@pytest.mark.parametrize("feedforward", (True, False))
 def test_dropout(
-    dropout, recurrent_dropout, hidden_dropout, hidden_recurrent_dropout, fft
+    dropout, recurrent_dropout, hidden_dropout, hidden_recurrent_dropout, feedforward
 ):
-    if fft:
+    if feedforward:
         kwargs = {}
     else:
         kwargs = dict(memory_to_memory=True, recurrent_dropout=recurrent_dropout)
@@ -452,7 +468,7 @@ def test_dropout(
     # if dropout is being applied then outputs should be stochastic, else deterministic
     assert np.allclose(y0, y1) != (
         dropout > 0
-        or (recurrent_dropout > 0 and not fft)
+        or (recurrent_dropout > 0 and not feedforward)
         or hidden_dropout > 0
         or hidden_recurrent_dropout > 0
     )
@@ -465,10 +481,10 @@ def test_dropout(
 
 @pytest.mark.parametrize("trainable_theta", (True, False))
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
-@pytest.mark.parametrize("fft", (True, False))
-def test_fit(fft, discretizer, trainable_theta):
-    if fft and trainable_theta:
-        pytest.skip("FFT does not support trainable theta")
+@pytest.mark.parametrize("feedforward", (True, False))
+def test_fit(feedforward, discretizer, trainable_theta):
+    if feedforward and trainable_theta:
+        pytest.skip("LMUFeedforward does not support trainable theta")
 
     lmu_layer = layers.LMU(
         memory_d=1,
@@ -476,14 +492,14 @@ def test_fit(fft, discretizer, trainable_theta):
         theta=784 if discretizer == "zoh" else 2000,
         trainable_theta=trainable_theta,
         hidden_cell=tf.keras.layers.SimpleRNNCell(units=30),
-        hidden_to_memory=not fft,
-        memory_to_memory=not fft,
-        input_to_hidden=not fft,
+        hidden_to_memory=not feedforward,
+        memory_to_memory=not feedforward,
+        input_to_hidden=not feedforward,
         discretizer=discretizer,
         kernel_initializer="zeros",
     )
 
-    inputs = tf.keras.layers.Input((5 if fft else None, 10))
+    inputs = tf.keras.layers.Input((5 if feedforward else None, 10))
     lmu = lmu_layer(inputs)
     outputs = tf.keras.layers.Dense(2)(lmu)
 
@@ -503,20 +519,22 @@ def test_fit(fft, discretizer, trainable_theta):
 
     _, acc = model.evaluate(x_test, y_test, verbose=0)
 
-    assert isinstance(lmu_layer.layer, layers.LMUFFT if fft else tf.keras.layers.RNN)
+    assert isinstance(
+        lmu_layer.layer, layers.LMUFeedforward if feedforward else tf.keras.layers.RNN
+    )
     assert acc == 1.0
 
 
-@pytest.mark.parametrize("fft", (True, False))
-def test_no_input_kernel_dimension_mismatch(fft):
+@pytest.mark.parametrize("feedforward", (True, False))
+def test_no_input_kernel_dimension_mismatch(feedforward):
     lmu_layer = layers.LMU(
         memory_d=1,
         order=4,
         theta=4,
         hidden_cell=tf.keras.layers.SimpleRNNCell(units=10),
         hidden_to_memory=False,
-        memory_to_memory=not fft,
-        input_to_hidden=not fft,
+        memory_to_memory=not feedforward,
+        input_to_hidden=not feedforward,
         kernel_initializer=None,
     )
 
@@ -620,7 +638,7 @@ def test_theta_update(discretizer, trainable_theta, tmp_path):
     )
 
 
-@pytest.mark.parametrize("mode", ("cell", "rnn", "fft"))
+@pytest.mark.parametrize("mode", ("cell", "rnn", "feedforward"))
 def test_theta_attribute(mode):
     theta = 3
 
@@ -629,7 +647,7 @@ def test_theta_attribute(mode):
         layer = layers.LMUCell(1, 2, theta, None, trainable_theta=True)
     elif mode == "rnn":
         layer = layers.LMU(1, 2, theta, None, trainable_theta=True)
-    elif mode == "fft":
+    elif mode == "feedforward":
         layer = layers.LMU(1, 2, theta, None, trainable_theta=False)
 
     assert not layer.built
@@ -639,9 +657,9 @@ def test_theta_attribute(mode):
     assert layer.built
     assert np.allclose(layer.theta, theta)
 
-    if mode == "fft":
-        # fft doesn't support trainable theta
-        assert isinstance(layer.layer, layers.LMUFFT)
+    if mode == "feedforward":
+        # feedforward doesn't support trainable theta
+        assert isinstance(layer.layer, layers.LMUFeedforward)
     else:
         # check that updates to the internal variable are reflected in the theta
         # attribute

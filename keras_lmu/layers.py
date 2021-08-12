@@ -516,7 +516,7 @@ class LMU(tf.keras.layers.Layer):
         if self.built:
             return (
                 self.layer.theta
-                if isinstance(self.layer, LMUFFT)
+                if isinstance(self.layer, LMUFeedforward)
                 else self.layer.cell.theta
             )
 
@@ -541,7 +541,7 @@ class LMU(tf.keras.layers.Layer):
             and input_shapes[1] is not None
             and not self.trainable_theta
         ):
-            self.layer = LMUFFT(
+            self.layer = LMUFeedforward(
                 memory_d=self.memory_d,
                 order=self.order,
                 theta=self._init_theta,
@@ -620,15 +620,14 @@ class LMU(tf.keras.layers.Layer):
         return super().from_config(config)
 
 
-class LMUFFT(tf.keras.layers.Layer):
+class LMUFeedforward(tf.keras.layers.Layer):
     """
-    Layer class for the FFT variant of the LMU.
+    Layer class for the feedforward variant of the LMU.
 
     This class assumes no recurrent connections are desired in the memory component.
 
     Produces the output of the delay system by evaluating the convolution of the input
-    sequence with the impulse response from the LMU cell. The convolution operation is
-    calculated using the fast Fourier transform (FFT).
+    sequence with the impulse response from the LMU cell.
 
     Parameters
     ----------
@@ -749,8 +748,8 @@ class LMUFFT(tf.keras.layers.Layer):
             # TODO: we could dynamically run the impulse response for longer if
             #  needed using stateful=True
             raise ValueError(
-                f"LMUFFT requires that the input shape's temporal axis be fully "
-                f"specified (got {seq_len})"
+                f"LMUFeedforward requires that the input shape's temporal axis be "
+                f"fully specified (got {seq_len})"
             )
 
         impulse = tf.reshape(tf.eye(seq_len, 1), (1, -1, 1))

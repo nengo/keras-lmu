@@ -50,7 +50,9 @@ def test_performance(mode, capsys):
             return_sequences=False,
         )
     elif mode in ("fft", "raw"):
-        lmu_layer = layers.LMUFFT(return_sequences=False, conv_mode=mode, **kwargs)
+        lmu_layer = layers.LMUFeedforward(
+            return_sequences=False, conv_mode=mode, **kwargs
+        )
 
     inputs = tf.keras.layers.Input((seq_len, dims), batch_size=batch_size)
     lmu = lmu_layer(inputs)
