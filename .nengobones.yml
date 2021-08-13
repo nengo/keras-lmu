@@ -65,7 +65,7 @@ travis_yml:
     TF_VERSION: tensorflow
   jobs:
     - script: static
-    - script: test
+    - script: remote-test
     - script: test
       env:
         TF_VERSION: tensorflow==2.1.0
@@ -95,6 +95,19 @@ ci_scripts:
     pip_install:
       - $TF_VERSION
   - template: remote-script
+    remote_script: test
+    output_name: remote-test
+    host: azure
+    travis_var_key: 2895d60e3414
+    azure_name: nengo-dl
+    azure_group: nengo-ci
+    coverage: true
+    remote_vars:
+      TF_FORCE_GPU_ALLOW_GROWTH: "true"
+      TF_VERSION: $TF_VERSION
+    remote_setup:
+      - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
+  - template: remote-script
     remote_script: docs
     output_name: remote-docs
     host: azure-docs
@@ -102,7 +115,7 @@ ci_scripts:
     azure_name: nengo-dl-docs
     azure_group: nengo-ci
     remote_setup:
-      - conda install -y -c conda-forge cudatoolkit=11.2 cudnn=8.1
+      - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
   - template: remote-script
     remote_script: examples
     output_name: remote-examples
@@ -111,7 +124,7 @@ ci_scripts:
     azure_name: nengo-dl-examples
     azure_group: nengo-ci
     remote_setup:
-      - conda install -y -c conda-forge cudatoolkit=11.2 cudnn=8.1
+      - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
   - template: deploy
 
 codecov_yml: {}

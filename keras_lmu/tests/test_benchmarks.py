@@ -36,11 +36,19 @@ class SteptimeLogger(tf.keras.callbacks.Callback):
 
 
 @pytest.mark.skipif(not tf_gpu_installed, reason="Very slow on CPU")
-@pytest.mark.parametrize("mode", ["rnn", "fft", "raw"])
-def test_performance(mode, capsys):
+@pytest.mark.parametrize(
+    "mode, min_time, max_time",
+    [("rnn", 0.1, 0.2), ("fft", 0.1, 0.2), ("raw", 0.05, 0.15)],
+)
+def test_performance(mode, min_time, max_time):
+    # performance is based on Azure NC6 VM
+    # CPU: Intel Xeon E5-2690 v3 @ 2.60Ghz
+    # GPU: Nvidia Tesla K80
+    # TensorFlow version: 2.6.0
+
     dims = 32
-    seq_len = 1024
-    batch_size = 32
+    seq_len = 512
+    batch_size = 16
     odims = 2
 
     kwargs = dict(memory_d=dims, order=256, theta=784, hidden_cell=None)
@@ -70,8 +78,7 @@ def test_performance(mode, capsys):
 
     steptimes = SteptimeLogger()
     model.fit(x_train, y_train, epochs=1, batch_size=batch_size, callbacks=[steptimes])
-    model.predict(x_train, batch_size=batch_size, callbacks=[steptimes])
 
-    with capsys.disabled():
-        print(f"train step time: {np.min(steptimes.train_times):0.4f}")
-        print(f"inference step time: {np.min(steptimes.inference_times):0.4f}")
+    step_time = np.min(steptimes.train_times)
+    assert step_time >= min_time
+    assert step_time <= max_time

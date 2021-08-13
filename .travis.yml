@@ -31,7 +31,7 @@ jobs:
       SCRIPT="static"
   -
     env:
-      SCRIPT="test"
+      SCRIPT="remote-test"
   -
     env:
       TF_VERSION="tensorflow==2.1.0"
