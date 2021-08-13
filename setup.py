@@ -35,7 +35,7 @@ install_req = [
     "tensorflow>=2.1.0",
 ]
 docs_req = [
-    "matplotlib>=3.0.2",
+    "matplotlib>=3.0.2,<3.4.3",
     "jupyter>=1.0.0",
     "seaborn>=0.9.0",
     "sphinx>=1.8",
