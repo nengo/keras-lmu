@@ -48,6 +48,10 @@ Release history
   weights from previous versions will be incompatible. (`#41`_)
 - Renamed ``keras_lmu.LMUFFT`` to ``keras_lmu.LMUFeedforward``. (`#42`_)
 
+**Fixed**
+
+- Fixed dropout support in TensorFlow 2.6. (`#42`_)
+
 .. _#40: https://github.com/nengo/keras-lmu/pull/40
 .. _#41: https://github.com/nengo/keras-lmu/pull/41
 .. _#42: https://github.com/nengo/keras-lmu/pull/42

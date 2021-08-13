@@ -4,7 +4,12 @@ Core classes for the KerasLMU package.
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.keras.layers.recurrent import DropoutRNNCellMixin
+from packaging import version
+
+if version.parse(tf.__version__) < version.parse("2.6.0rc0"):
+    from tensorflow.python.keras.layers.recurrent import DropoutRNNCellMixin
+else:
+    from keras.layers.recurrent import DropoutRNNCellMixin
 
 
 class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
