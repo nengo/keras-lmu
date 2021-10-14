@@ -174,7 +174,7 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
             self._base_A = tf.constant(A.T, dtype=self.dtype)
             self._base_B = tf.constant(B.T, dtype=self.dtype)
 
-            self.A, self.B = LMUCell._cont2discrete_zoh(
+            self._A, self._B = LMUCell._cont2discrete_zoh(
                 self._base_A / self._init_theta, self._base_B / self._init_theta
             )
         else:
@@ -182,8 +182,8 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
                 A = A / self._init_theta + np.eye(self.order)
                 B = B / self._init_theta
 
-            self.A = tf.constant(A.T, dtype=self.dtype)
-            self.B = tf.constant(B.T, dtype=self.dtype)
+            self._A = A.T
+            self._B = B.T
 
     @staticmethod
     def _cont2discrete_zoh(A, B):
@@ -273,6 +273,19 @@ class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
 
         # generate A and B matrices
         self._gen_AB()
+        self.A = self.add_weight(
+            name="A",
+            shape=(self.order, self.order),
+            initializer=tf.initializers.constant(self._A),
+            trainable=False,
+        )
+
+        self.B = self.add_weight(
+            name="B",
+            shape=(1, self.order),  # system is SISO
+            initializer=tf.initializers.constant(self._B),
+            trainable=False,
+        )
 
     def call(self, inputs, states, training=None):
         """
