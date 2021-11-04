@@ -331,14 +331,16 @@ def test_feedforward_auto_swap(
     (tf.keras.layers.SimpleRNNCell(units=10), tf.keras.layers.Dense(units=10), None),
 )
 @pytest.mark.parametrize("feedforward", (True, False))
-def test_hidden_types(hidden_cell, feedforward, rng, seed):
+def test_hidden_types(hidden_cell, feedforward, rng):
     x = rng.uniform(-1, 1, size=(2, 5, 32))
 
     lmu_params = dict(
         memory_d=1,
         order=3,
         theta=4,
-        kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seed),
+        kernel_initializer=tf.keras.initializers.constant(
+            rng.uniform(-1, 1, size=(32, 1))
+        ),
     )
 
     base_lmu = tf.keras.layers.RNN(
@@ -365,7 +367,9 @@ def test_hidden_types(hidden_cell, feedforward, rng, seed):
     )
     lmu_output = lmu(x)
 
-    assert np.allclose(lmu_output, base_output, atol=2e-6 if feedforward else 1e-8)
+    assert np.allclose(
+        lmu_output, base_output, atol=2e-6 if feedforward else 1e-8
+    ), np.max(np.abs(lmu_output - base_output))
 
 
 @pytest.mark.parametrize("feedforward", (True, False))

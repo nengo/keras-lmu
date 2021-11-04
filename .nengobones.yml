@@ -108,6 +108,7 @@ ci_scripts:
       TF_VERSION: $TF_VERSION
     remote_setup:
       - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
+      - export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CONDA_PREFIX/lib
   - template: remote-script
     remote_script: docs
     output_name: remote-docs
@@ -117,6 +118,7 @@ ci_scripts:
     azure_group: nengo-ci
     remote_setup:
       - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
+      - export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CONDA_PREFIX/lib
   - template: remote-script
     remote_script: examples
     output_name: remote-examples
@@ -126,6 +128,7 @@ ci_scripts:
     azure_group: nengo-ci
     remote_setup:
       - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
+      - export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CONDA_PREFIX/lib
   - template: deploy
 
 codecov_yml: {}
