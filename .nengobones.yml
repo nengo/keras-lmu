@@ -2,6 +2,7 @@ project_name: KerasLMU
 pkg_name: keras_lmu
 repo_name: nengo/keras-lmu
 description: Keras implementation of Legendre Memory Units
+license: abr-free
 
 copyright_start: 2019
 
@@ -32,7 +33,6 @@ setup_py:
   classifiers:
     - "Development Status :: 3 - Alpha"
     - "Intended Audience :: Science/Research"
-    - "License :: Free for non-commercial use"
     - "Operating System :: OS Independent"
     - "Programming Language :: Python "
     - "Programming Language :: Python :: 3.6"

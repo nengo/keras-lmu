@@ -6,3 +6,4 @@ __pycache__
 /.idea
 /docs/_build
 /tmp
+/.ci
