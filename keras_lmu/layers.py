@@ -11,8 +11,15 @@ if version.parse(tf.__version__) < version.parse("2.6.0rc0"):
 else:
     from keras.layers.recurrent import DropoutRNNCellMixin
 
+if version.parse(tf.__version__) < version.parse(
+    "2.8.0rc0"
+):  # pylint: disable=ungrouped-imports
+    from tensorflow.keras.layers import Layer as BaseRandomLayer
+else:
+    from keras.engine.base_layer import BaseRandomLayer
 
-class LMUCell(DropoutRNNCellMixin, tf.keras.layers.Layer):
+
+class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
     """
     Implementation of LMU cell (to be used within Keras RNN wrapper).
 

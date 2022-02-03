@@ -85,6 +85,7 @@ linkcheck_anchors = True
 default_role = "py:obj"
 pygments_style = "sphinx"
 user_agent = "keras_lmu"
+autodoc_inherit_docstrings = False
 
 project = "KerasLMU"
 authors = "Applied Brain Research"

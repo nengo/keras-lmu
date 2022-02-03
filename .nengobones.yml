@@ -59,6 +59,8 @@ docs_conf_py:
   doctest_setup:
     - import numpy as np
     - import tensorflow as tf
+  sphinx_options:
+    autodoc_inherit_docstrings: False
 
 travis_yml:
   python: 3.8
