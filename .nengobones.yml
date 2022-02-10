@@ -144,4 +144,4 @@ version_py:
   major: 0
   minor: 4
   patch: 1
-  release: false
+  release: true
