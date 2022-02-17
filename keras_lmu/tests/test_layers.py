@@ -1,5 +1,7 @@
 # pylint: disable=missing-docstring
 
+import inspect
+
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -722,3 +724,18 @@ def test_regularizer_loss(fft, bias):
 
     assert target > 0.1, f"Target {target} is negligible, please fix the test"
     assert np.isclose(regularization_loss, target)
+
+
+@pytest.mark.parametrize("cls", [layers.LMUCell, layers.LMU, layers.LMUFeedforward])
+def test_get_config(cls):
+    """Test that all ``__init__`` arguments appear in the ``get_config`` dictionary."""
+
+    params = dict(memory_d=2, order=5, theta=3.2, hidden_cell=None)
+    obj = cls(**params)
+
+    config = obj.get_config()
+    sig = inspect.signature(cls.__init__)
+
+    for key in sig.parameters:
+        if key not in ("self", "kwargs"):
+            assert key in config, key
