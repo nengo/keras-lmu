@@ -6,14 +6,13 @@ import numpy as np
 import tensorflow as tf
 from packaging import version
 
+# pylint: disable=ungrouped-imports
 if version.parse(tf.__version__) < version.parse("2.6.0rc0"):
     from tensorflow.python.keras.layers.recurrent import DropoutRNNCellMixin
 else:
     from keras.layers.recurrent import DropoutRNNCellMixin
 
-if version.parse(tf.__version__) < version.parse(
-    "2.8.0rc0"
-):  # pylint: disable=ungrouped-imports
+if version.parse(tf.__version__) < version.parse("2.8.0rc0"):
     from tensorflow.keras.layers import Layer as BaseRandomLayer
 else:
     from keras.engine.base_layer import BaseRandomLayer
