@@ -22,6 +22,13 @@ Release history
 0.4.2 (unreleased)
 ==================
 
+*Compatible with TensorFlow 2.1 - 2.9*
+
+**Added**
+
+- Added support for TensorFlow 2.9. (`#48`_)
+
+.. _#48: https://github.com/nengo/keras-lmu/pull/48
 
 0.4.1 (February 10, 2022)
 =========================

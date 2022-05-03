@@ -9,8 +9,10 @@ from packaging import version
 # pylint: disable=ungrouped-imports
 if version.parse(tf.__version__) < version.parse("2.6.0rc0"):
     from tensorflow.python.keras.layers.recurrent import DropoutRNNCellMixin
-else:
+elif version.parse(tf.__version__) < version.parse("2.9.0rc0"):
     from keras.layers.recurrent import DropoutRNNCellMixin
+else:
+    from keras.layers.rnn.dropout_rnn_cell_mixin import DropoutRNNCellMixin
 
 if version.parse(tf.__version__) < version.parse("2.8.0rc0"):
     from tensorflow.keras.layers import Layer as BaseRandomLayer
@@ -272,7 +274,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         if self.use_bias:
             self.bias = self.add_weight(
                 name="bias",
-                shape=(1, self.memory_d),
+                shape=(self.memory_d,),
                 initializer=self.bias_initializer,
                 regularizer=self.bias_regularizer,
             )
@@ -903,7 +905,7 @@ class LMUFeedforward(tf.keras.layers.Layer):
         if self.use_bias:
             self.bias = self.add_weight(
                 name="bias",
-                shape=(1, self.memory_d),
+                shape=(self.memory_d,),
                 initializer=self.bias_initializer,
                 regularizer=self.bias_regularizer,
             )

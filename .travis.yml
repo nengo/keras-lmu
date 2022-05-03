@@ -39,6 +39,10 @@ jobs:
     python: 3.6
   -
     env:
+      TF_VERSION="tensorflow==2.9.0rc1"
+      SCRIPT="test"
+  -
+    env:
       SCRIPT="remote-docs"
   -
     env:

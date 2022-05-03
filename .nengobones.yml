@@ -73,6 +73,9 @@ travis_yml:
       env:
         TF_VERSION: tensorflow==2.1.0
       python: 3.6
+    - script: test
+      env:
+        TF_VERSION: tensorflow==2.9.0rc1  # TODO: change to 2.6 after 2.9 is released
     - script: remote-docs
     - script: remote-examples
   pypi_user: __token__
