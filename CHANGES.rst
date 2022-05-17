@@ -19,6 +19,9 @@ Release history
    - Removed
    - Fixed
 
+0.4.3 (unreleased)
+==================
+
 0.4.2 (May 17, 2022)
 ====================
 
