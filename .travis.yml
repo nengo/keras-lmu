@@ -39,7 +39,7 @@ jobs:
     python: 3.6
   -
     env:
-      TF_VERSION="tensorflow==2.9.0rc1"
+      TF_VERSION="tensorflow~=2.6.0"
       SCRIPT="test"
   -
     env:
