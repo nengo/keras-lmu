@@ -9,3 +9,8 @@ target-version = ['py36']
 [tool.isort]
 profile = "black"
 src_paths = ["keras_lmu"]
+
+[tool.docformatter]
+wrap-summaries = 88
+wrap-descriptions = 81
+pre-summary-newline = true

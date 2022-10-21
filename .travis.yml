@@ -21,7 +21,6 @@ env:
   global:
     - SCRIPT="test"
     - TEST_ARGS=""
-    - BRANCH_NAME="${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}"
     - TF_VERSION="tensorflow"
 
 jobs:
@@ -95,26 +94,14 @@ install:
   - .ci/$SCRIPT.sh install
   - pip freeze
 
-before_script:
-  - .ci/$SCRIPT.sh before_script
-
 script:
   - .ci/$SCRIPT.sh script
-
-before_cache:
-  - .ci/$SCRIPT.sh before_cache
 
 after_success:
   - .ci/$SCRIPT.sh after_success
 
 after_failure:
   - .ci/$SCRIPT.sh after_failure
-
-before_deploy:
-  - .ci/$SCRIPT.sh before_deploy
-
-after_deploy:
-  - .ci/$SCRIPT.sh after_deploy
 
 after_script:
   - .ci/$SCRIPT.sh after_script
