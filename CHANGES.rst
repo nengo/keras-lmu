@@ -22,6 +22,15 @@ Release history
 0.4.3 (unreleased)
 ==================
 
+*Compatible with TensorFlow 2.1 - 2.10*
+
+**Added**
+
+- Layers are registered with the Keras serialization system (no longer need to
+  be passed as ``custom_objects``). (`#49`_)
+
+.. _#49: https://github.com/nengo/keras-lmu/pull/49
+
 0.4.2 (May 17, 2022)
 ====================
 

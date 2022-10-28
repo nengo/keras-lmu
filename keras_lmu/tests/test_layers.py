@@ -202,14 +202,7 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
 
     model.save(str(tmp_path))
 
-    model_load = tf.keras.models.load_model(
-        str(tmp_path),
-        custom_objects={
-            "LMUCell": layers.LMUCell,
-            "LMU": layers.LMU,
-            "LMUFeedforward": layers.LMUFeedforward,
-        },
-    )
+    model_load = tf.keras.models.load_model(str(tmp_path))
 
     assert np.allclose(
         model.predict(np.ones((32, 10, 32))), model_load.predict(np.ones((32, 10, 32)))
@@ -634,9 +627,7 @@ def test_theta_update(discretizer, trainable_theta, tmp_path):
     # save model and make sure you get same outputs, that is, correct theta was stored
     model.save(str(tmp_path))
 
-    model_load = tf.keras.models.load_model(
-        str(tmp_path), custom_objects={"LMUCell": layers.LMUCell}
-    )
+    model_load = tf.keras.models.load_model(str(tmp_path))
 
     assert np.allclose(
         model.predict(np.ones((32, 10, 20))),

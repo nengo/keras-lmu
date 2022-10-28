@@ -20,6 +20,7 @@ else:
     from keras.engine.base_layer import BaseRandomLayer
 
 
+@tf.keras.utils.register_keras_serializable("keras-lmu")
 class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
     """
     Implementation of LMU cell (to be used within Keras RNN wrapper).
@@ -444,6 +445,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         return super().from_config(config)
 
 
+@tf.keras.utils.register_keras_serializable("keras-lmu")
 class LMU(tf.keras.layers.Layer):
     """
     A layer of trainable low-dimensional delay systems.
@@ -706,6 +708,7 @@ class LMU(tf.keras.layers.Layer):
         return super().from_config(config)
 
 
+@tf.keras.utils.register_keras_serializable("keras-lmu")
 class LMUFeedforward(tf.keras.layers.Layer):
     """
     Layer class for the feedforward variant of the LMU.
