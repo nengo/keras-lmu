@@ -62,36 +62,6 @@ docs_conf_py:
   sphinx_options:
     autodoc_inherit_docstrings: False
 
-travis_yml:
-  python: 3.8
-  global_vars:
-    TF_VERSION: tensorflow
-  jobs:
-    - script: static
-    - script: remote-test
-    - script: test
-      env:
-        TF_VERSION: tensorflow==2.1.0
-      python: 3.6
-    - script: test
-      env:
-        TF_VERSION: tensorflow~=2.6.0
-    - script: remote-docs
-    - script: remote-examples
-  pypi_user: __token__
-  slack_notifications: "wZ7l/X7cVeetmwfup7vCeN74pqFGMC5eaJfy/aqRwVGCbY3aHQKoqJaBBrVef\
-    c+DsJwPPM9HIOGs7jkPY+Y1pFbklAhWCDCvmc+f3fL4/yPWK1u7r8IIHhM3O0YvYrEHfFfZn+V1nAomx1\
-    /wttFOr07LLffaNOn+sFzXgKP1Ebv5MrlCNGY0q3T2A38pwXus60GXaGalI/I/a/vjRdkEmq38eIMqLl0\
-    v94oCy67Gqb/5mlB8eT6SffLGoFCctNpC9G9jyh/eRQp+B+YwksjZz+SOQTIy/mOlk8fU1ZL4f9wPguXh\
-    eKznckuvX+J0o+o5kspyrQveWW2lo1VjmnFfdifCVjTj4AIcmc60Zb2dMzzBcfcA+zeVlhWkWbB65LuuX\
-    kfxxsN97EwP5KVH+Lw7c2ycUyHV8XvKHNzVRLIUuVeOTKLHgGpkVgz/WasT5yBOEbnAyZxxAHQpMbXQr9\
-    POwaq92Kwb7du0sLcsP4agdd2L0YACb4JdwQeeD1c8h6RrXua2ejBJ41e+9ZkZcZGad9P6YVmxvI+hddd\
-    jdzzvBWq6+B/Ubft9AqQXmn4pg0fKkZLjrzsSYGRhXzINxhVBjZD8b5BQIb/Aeix3IFhLmDdSQMhjdETA\
-    gL3jSd9D5t1G5QNp4AdbitqcH+yNoXzZCXye76hrwYr6yrHi3JN9yrM="
-  deploy_dists:
-    - sdist
-    - bdist_wheel
-
 ci_scripts:
   - template: static
   - template: docs
@@ -104,7 +74,6 @@ ci_scripts:
     remote_script: test
     output_name: remote-test
     host: azure
-    travis_var_key: 2895d60e3414
     azure_name: nengo-dl
     azure_group: nengo-ci
     coverage: true
@@ -118,7 +87,6 @@ ci_scripts:
     remote_script: docs
     output_name: remote-docs
     host: azure-docs
-    travis_var_key: 2895d60e3414
     azure_name: nengo-dl-docs
     azure_group: nengo-ci
     remote_setup:
@@ -128,15 +96,11 @@ ci_scripts:
     remote_script: examples
     output_name: remote-examples
     host: azure-examples
-    travis_var_key: 2895d60e3414
     azure_name: nengo-dl-examples
     azure_group: nengo-ci
     remote_setup:
       - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
       - export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CONDA_PREFIX/lib
-  - template: deploy
-
-codecov_yml: {}
 
 pre_commit_config_yaml: {}
 
