@@ -82,7 +82,9 @@ def test_layer_vs_cell(rng, has_input_kernel, feedforward, discretizer):
         kernel_initializer="glorot_uniform" if has_input_kernel else None,
         memory_to_memory=not feedforward,
     )
-    hidden_cell = lambda: tf.keras.layers.SimpleRNNCell(units=64)
+
+    def hidden_cell():
+        return tf.keras.layers.SimpleRNNCell(units=64)
 
     inp = rng.uniform(-1, 1, size=(2, n_steps, input_d))
 

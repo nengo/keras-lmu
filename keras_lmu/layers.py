@@ -1,6 +1,4 @@
-"""
-Core classes for the KerasLMU package.
-"""
+"""Core classes for the KerasLMU package."""
 
 import numpy as np
 import tensorflow as tf
@@ -180,8 +178,8 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         """
         Value of the ``theta`` parameter.
 
-        If ``trainable_theta=True`` this returns the trained value, not the initial
-        value passed in to the constructor.
+        If ``trainable_theta=True`` this returns the trained value, not the
+        initial value passed in to the constructor.
         """
         if self.built:
             return 1 / tf.keras.backend.get_value(self.theta_inv)
@@ -583,8 +581,8 @@ class LMU(tf.keras.layers.Layer):
         """
         Value of the ``theta`` parameter.
 
-        If ``trainable_theta=True`` this returns the trained value, not the initial
-        value passed in to the constructor.
+        If ``trainable_theta=True`` this returns the trained value, not the
+        initial value passed in to the constructor.
         """
 
         if self.built:

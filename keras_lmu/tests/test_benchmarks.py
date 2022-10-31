@@ -38,7 +38,7 @@ class SteptimeLogger(tf.keras.callbacks.Callback):
 @pytest.mark.skipif(not tf_gpu_installed, reason="Very slow on CPU")
 @pytest.mark.parametrize(
     "mode, min_time, max_time",
-    [("rnn", 0.1, 0.2), ("fft", 0.1, 0.2), ("raw", 0.05, 0.15)],
+    [("rnn", 0.1, 0.2), ("fft", 0.05, 0.15), ("raw", 0.05, 0.15)],
 )
 def test_performance(mode, min_time, max_time):
     # performance is based on Azure NC6 VM
