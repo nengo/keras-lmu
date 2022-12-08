@@ -81,6 +81,7 @@ def test_layer_vs_cell(rng, has_input_kernel, feedforward, discretizer):
         discretizer=discretizer,
         kernel_initializer="glorot_uniform" if has_input_kernel else None,
         memory_to_memory=not feedforward,
+        use_bias=True,
     )
 
     def hidden_cell():

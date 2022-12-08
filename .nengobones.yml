@@ -18,7 +18,7 @@ setup_py:
   install_req:
     - packaging>=20.9
     - scipy>=1.0.0
-    - tensorflow>=2.1.0
+    - tensorflow>=2.4.4
   tests_req:
     - pytest>=6.1.0
     - pytest-rng>=1.0.0
@@ -35,9 +35,9 @@ setup_py:
     - "Intended Audience :: Science/Research"
     - "Operating System :: OS Independent"
     - "Programming Language :: Python "
-    - "Programming Language :: Python :: 3.6"
     - "Programming Language :: Python :: 3.7"
     - "Programming Language :: Python :: 3.8"
+    - "Programming Language :: Python :: 3.9"
     - "Topic :: Scientific/Engineering "
     - "Topic :: Scientific/Engineering :: Artificial Intelligence"
 
@@ -46,7 +46,6 @@ setup_cfg: {}
 docs_conf_py:
   intersphinx_mapping:
     scipy: "https://docs.scipy.org/doc/scipy/reference"
-  tagmanager_id: GTM-KWCR2HN
   html_redirects:
     getting_started.html: getting-started.html
   autoautosummary_change_modules:
@@ -81,8 +80,7 @@ ci_scripts:
       TF_FORCE_GPU_ALLOW_GROWTH: "true"
       TF_VERSION: $TF_VERSION
     remote_setup:
-      - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
-      - export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CONDA_PREFIX/lib
+      - micromamba install -y "$TF_VERSION"
   - template: remote-script
     remote_script: docs
     output_name: remote-docs
@@ -90,8 +88,7 @@ ci_scripts:
     azure_name: nengo-dl-docs
     azure_group: nengo-ci
     remote_setup:
-      - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
-      - export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CONDA_PREFIX/lib
+      - micromamba install -y "$TF_VERSION"
   - template: remote-script
     remote_script: examples
     output_name: remote-examples
@@ -99,8 +96,7 @@ ci_scripts:
     azure_name: nengo-dl-examples
     azure_group: nengo-ci
     remote_setup:
-      - conda install -y -c conda-forge cudatoolkit=11.3 cudnn=8.2
-      - export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CONDA_PREFIX/lib
+      - micromamba install -y "$TF_VERSION"
 
 pre_commit_config_yaml: {}
 
@@ -109,6 +105,6 @@ pyproject_toml: {}
 version_py:
   type: semver
   major: 0
-  minor: 4
-  patch: 3
+  minor: 5
+  patch: 0
   release: false

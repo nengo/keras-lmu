@@ -32,7 +32,7 @@ version = runpy.run_path(str(root / "keras_lmu" / "version.py"))["version"]
 install_req = [
     "packaging>=20.9",
     "scipy>=1.0.0",
-    "tensorflow>=2.1.0",
+    "tensorflow>=2.4.4",
 ]
 docs_req = [
     "matplotlib>=3.0.2,<3.4.3",
@@ -75,9 +75,9 @@ setup(
         "License :: Free for non-commercial use",
         "Operating System :: OS Independent",
         "Programming Language :: Python ",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering ",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],

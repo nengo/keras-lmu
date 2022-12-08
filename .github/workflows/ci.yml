@@ -11,6 +11,7 @@ on:
     inputs:
       debug_enabled:
         description: Run the build with SSH debugging enabled
+        type: boolean
         required: false
         default: false
 
@@ -35,37 +36,28 @@ jobs:
       matrix:
         include:
           - script: remote-test
-            tf-version: tensorflow
-            python-version: "3.9"
-            coverage-name: remote-test
+            coverage-name: remote
           - script: test
-            tf-version: tensorflow
-            python-version: "3.9"
-            coverage-name: test-latest
+            coverage-name: latest
           - script: test
-            tf-version: tensorflow==2.1.0
-            python-version: "3.6"
-            coverage-name: test-old
+            tf-version: tensorflow==2.4.4
+            python-version: "3.7"
+            coverage-name: oldest
           - script: test
             tf-version: tensorflow~=2.6.0
-            python-version: "3.9"
-            coverage-name: test-2.6
+            coverage-name: tf-2.6
           - script: remote-docs
-            tf-version: tensorflow
-            python-version: "3.9"
           - script: remote-examples
-            tf-version: tensorflow
-            python-version: "3.9"
       fail-fast: false
     env:
-      TF_VERSION: ${{ matrix.tf-version }}
+      TF_VERSION: ${{ matrix.tf-version || 'tensorflow' }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
       SSH_CONFIG: ${{ secrets.SSH_CONFIG }}
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: nengo/nengo-bones/actions/setup@main
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version || '3.9' }}
       - uses: nengo/nengo-bones/actions/generate-and-check@main
       - name: Write secrets to file
         run: |

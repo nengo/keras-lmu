@@ -552,7 +552,6 @@ class LMU(tf.keras.layers.Layer):
         return_sequences=False,
         **kwargs,
     ):
-
         super().__init__(**kwargs)
 
         self.memory_d = memory_d
