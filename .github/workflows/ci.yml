@@ -37,6 +37,7 @@ jobs:
         include:
           - script: remote-test
             coverage-name: remote
+            tf-version: tensorflow==2.10
           - script: test
             coverage-name: latest
           - script: test
@@ -47,7 +48,9 @@ jobs:
             tf-version: tensorflow~=2.6.0
             coverage-name: tf-2.6
           - script: remote-docs
+            tf-version: tensorflow==2.10
           - script: remote-examples
+            tf-version: tensorflow==2.10
       fail-fast: false
     env:
       TF_VERSION: ${{ matrix.tf-version || 'tensorflow' }}
