@@ -98,6 +98,8 @@ ci_scripts:
     azure_group: nengo-ci
     remote_setup:
       - micromamba install -y "$TF_VERSION"
+  - template: deploy
+    wheel: true
 
 pre_commit_config_yaml: {}
 
@@ -108,4 +110,4 @@ version_py:
   major: 0
   minor: 5
   patch: 0
-  release: false
+  release: true
