@@ -411,26 +411,26 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
 
         config = super().get_config()
         config.update(
-            dict(
-                memory_d=self.memory_d,
-                order=self.order,
-                theta=self._init_theta,
-                hidden_cell=tf.keras.layers.serialize(self.hidden_cell),
-                trainable_theta=self.trainable_theta,
-                hidden_to_memory=self.hidden_to_memory,
-                memory_to_memory=self.memory_to_memory,
-                input_to_hidden=self.input_to_hidden,
-                discretizer=self.discretizer,
-                kernel_initializer=self.kernel_initializer,
-                recurrent_initializer=self.recurrent_initializer,
-                kernel_regularizer=self.kernel_regularizer,
-                recurrent_regularizer=self.recurrent_regularizer,
-                use_bias=self.use_bias,
-                bias_initializer=self.bias_initializer,
-                bias_regularizer=self.bias_regularizer,
-                dropout=self.dropout,
-                recurrent_dropout=self.recurrent_dropout,
-            )
+            {
+                "memory_d": self.memory_d,
+                "order": self.order,
+                "theta": self._init_theta,
+                "hidden_cell": tf.keras.layers.serialize(self.hidden_cell),
+                "trainable_theta": self.trainable_theta,
+                "hidden_to_memory": self.hidden_to_memory,
+                "memory_to_memory": self.memory_to_memory,
+                "input_to_hidden": self.input_to_hidden,
+                "discretizer": self.discretizer,
+                "kernel_initializer": self.kernel_initializer,
+                "recurrent_initializer": self.recurrent_initializer,
+                "kernel_regularizer": self.kernel_regularizer,
+                "recurrent_regularizer": self.recurrent_regularizer,
+                "use_bias": self.use_bias,
+                "bias_initializer": self.bias_initializer,
+                "bias_regularizer": self.bias_regularizer,
+                "dropout": self.dropout,
+                "recurrent_dropout": self.recurrent_dropout,
+            }
         )
 
         return config
@@ -672,27 +672,27 @@ class LMU(tf.keras.layers.Layer):
 
         config = super().get_config()
         config.update(
-            dict(
-                memory_d=self.memory_d,
-                order=self.order,
-                theta=self._init_theta,
-                hidden_cell=tf.keras.layers.serialize(self.hidden_cell),
-                trainable_theta=self.trainable_theta,
-                hidden_to_memory=self.hidden_to_memory,
-                memory_to_memory=self.memory_to_memory,
-                input_to_hidden=self.input_to_hidden,
-                discretizer=self.discretizer,
-                kernel_initializer=self.kernel_initializer,
-                recurrent_initializer=self.recurrent_initializer,
-                kernel_regularizer=self.kernel_regularizer,
-                recurrent_regularizer=self.recurrent_regularizer,
-                use_bias=self.use_bias,
-                bias_initializer=self.bias_initializer,
-                bias_regularizer=self.bias_regularizer,
-                dropout=self.dropout,
-                recurrent_dropout=self.recurrent_dropout,
-                return_sequences=self.return_sequences,
-            )
+            {
+                "memory_d": self.memory_d,
+                "order": self.order,
+                "theta": self._init_theta,
+                "hidden_cell": tf.keras.layers.serialize(self.hidden_cell),
+                "trainable_theta": self.trainable_theta,
+                "hidden_to_memory": self.hidden_to_memory,
+                "memory_to_memory": self.memory_to_memory,
+                "input_to_hidden": self.input_to_hidden,
+                "discretizer": self.discretizer,
+                "kernel_initializer": self.kernel_initializer,
+                "recurrent_initializer": self.recurrent_initializer,
+                "kernel_regularizer": self.kernel_regularizer,
+                "recurrent_regularizer": self.recurrent_regularizer,
+                "use_bias": self.use_bias,
+                "bias_initializer": self.bias_initializer,
+                "bias_regularizer": self.bias_regularizer,
+                "dropout": self.dropout,
+                "recurrent_dropout": self.recurrent_dropout,
+                "return_sequences": self.return_sequences,
+            }
         )
 
         return config
@@ -1008,23 +1008,23 @@ class LMUFeedforward(tf.keras.layers.Layer):
 
         config = super().get_config()
         config.update(
-            dict(
-                memory_d=self.memory_d,
-                order=self.order,
-                theta=self.theta,
-                hidden_cell=tf.keras.layers.serialize(self.hidden_cell),
-                input_to_hidden=self.input_to_hidden,
-                discretizer=self.discretizer,
-                kernel_initializer=self.kernel_initializer,
-                kernel_regularizer=self.kernel_regularizer,
-                use_bias=self.use_bias,
-                bias_initializer=self.bias_initializer,
-                bias_regularizer=self.bias_regularizer,
-                dropout=self.dropout,
-                return_sequences=self.return_sequences,
-                conv_mode=self.conv_mode,
-                truncate_ir=self.truncate_ir,
-            )
+            {
+                "memory_d": self.memory_d,
+                "order": self.order,
+                "theta": self.theta,
+                "hidden_cell": tf.keras.layers.serialize(self.hidden_cell),
+                "input_to_hidden": self.input_to_hidden,
+                "discretizer": self.discretizer,
+                "kernel_initializer": self.kernel_initializer,
+                "kernel_regularizer": self.kernel_regularizer,
+                "use_bias": self.use_bias,
+                "bias_initializer": self.bias_initializer,
+                "bias_regularizer": self.bias_regularizer,
+                "dropout": self.dropout,
+                "return_sequences": self.return_sequences,
+                "conv_mode": self.conv_mode,
+                "truncate_ir": self.truncate_ir,
+            }
         )
 
         return config

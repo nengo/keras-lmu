@@ -74,15 +74,15 @@ def test_multivariate_lmu(rng, discretizer):
 def test_layer_vs_cell(rng, has_input_kernel, feedforward, discretizer):
     n_steps = 10
     input_d = 32
-    kwargs = dict(
-        memory_d=4 if has_input_kernel else input_d,
-        order=12,
-        theta=n_steps * (8 if discretizer == "euler" else 1),
-        discretizer=discretizer,
-        kernel_initializer="glorot_uniform" if has_input_kernel else None,
-        memory_to_memory=not feedforward,
-        use_bias=True,
-    )
+    kwargs = {
+        "memory_d": 4 if has_input_kernel else input_d,
+        "order": 12,
+        "theta": n_steps * (8 if discretizer == "euler" else 1),
+        "discretizer": discretizer,
+        "kernel_initializer": "glorot_uniform" if has_input_kernel else None,
+        "memory_to_memory": not feedforward,
+        "use_bias": True,
+    }
 
     def hidden_cell():
         return tf.keras.layers.SimpleRNNCell(units=64)
@@ -227,13 +227,13 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
 def test_feedforward(
     return_sequences, hidden_cell, memory_d, discretizer, conv_mode, rng
 ):
-    kwargs = dict(
-        memory_d=memory_d,
-        order=2,
-        theta=12,
-        hidden_cell=hidden_cell(),
-        discretizer=discretizer,
-    )
+    kwargs = {
+        "memory_d": memory_d,
+        "order": 2,
+        "theta": 12,
+        "hidden_cell": hidden_cell(),
+        "discretizer": discretizer,
+    }
 
     x = rng.uniform(-1, 1, size=(2, 10, 32))
 
@@ -257,9 +257,13 @@ def test_feedforward(
 def test_raw_truncation(truncate_ir, rng):
     seq_len = 64
     theta = 11.2
-    kwargs = dict(
-        memory_d=4, order=4, theta=theta, hidden_cell=None, kernel_initializer=None
-    )
+    kwargs = {
+        "memory_d": 4,
+        "order": 4,
+        "theta": theta,
+        "hidden_cell": None,
+        "kernel_initializer": None,
+    }
 
     x = rng.uniform(-1, 1, size=(2, seq_len, kwargs["memory_d"]))
 
@@ -332,14 +336,14 @@ def test_feedforward_auto_swap(
 def test_hidden_types(hidden_cell, feedforward, rng):
     x = rng.uniform(-1, 1, size=(2, 5, 32))
 
-    lmu_params = dict(
-        memory_d=1,
-        order=3,
-        theta=4,
-        kernel_initializer=tf.keras.initializers.constant(
+    lmu_params = {
+        "memory_d": 1,
+        "order": 3,
+        "theta": 4,
+        "kernel_initializer": tf.keras.initializers.constant(
             rng.uniform(-1, 1, size=(32, 1))
         ),
-    )
+    }
 
     base_lmu = tf.keras.layers.RNN(
         layers.LMUCell(hidden_cell=None, **lmu_params),
@@ -377,13 +381,13 @@ def test_connection_params(feedforward, hidden_cell):
 
     x = tf.keras.Input(batch_shape=input_shape)
 
-    lmu_args = dict(
-        memory_d=1,
-        order=3,
-        theta=4,
-        hidden_cell=hidden_cell if hidden_cell is None else hidden_cell(units=5),
-        input_to_hidden=False,
-    )
+    lmu_args = {
+        "memory_d": 1,
+        "order": 3,
+        "theta": 4,
+        "hidden_cell": hidden_cell if hidden_cell is None else hidden_cell(units=5),
+        "input_to_hidden": False,
+    }
     if not feedforward:
         lmu_args["hidden_to_memory"] = False
         lmu_args["memory_to_memory"] = False
@@ -452,7 +456,7 @@ def test_dropout(
     if feedforward:
         kwargs = {}
     else:
-        kwargs = dict(memory_to_memory=True, recurrent_dropout=recurrent_dropout)
+        kwargs = {"memory_to_memory": True, "recurrent_dropout": recurrent_dropout}
     lmu = layers.LMU(
         memory_d=1,
         order=3,
@@ -724,7 +728,7 @@ def test_regularizer_loss(fft, bias):
 def test_get_config(cls):
     """Test that all ``__init__`` arguments appear in the ``get_config`` dictionary."""
 
-    params = dict(memory_d=2, order=5, theta=3.2, hidden_cell=None)
+    params = {"memory_d": 2, "order": 5, "theta": 3.2, "hidden_cell": None}
     obj = cls(**params)
 
     config = obj.get_config()

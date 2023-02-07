@@ -51,7 +51,7 @@ def test_performance(mode, min_time, max_time):
     batch_size = 16
     odims = 2
 
-    kwargs = dict(memory_d=dims, order=256, theta=784, hidden_cell=None)
+    kwargs = {"memory_d": dims, "order": 256, "theta": 784, "hidden_cell": None}
     if mode == "rnn":
         lmu_layer = tf.keras.layers.RNN(
             layers.LMUCell(**kwargs),
