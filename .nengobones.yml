@@ -81,7 +81,7 @@ ci_scripts:
       TF_FORCE_GPU_ALLOW_GROWTH: "true"
       TF_VERSION: $TF_VERSION
     remote_setup:
-      - micromamba install -y "$TF_VERSION"
+      - micromamba install -y "$TF_VERSION" cudnn=8.4
   - template: remote-script
     remote_script: docs
     output_name: remote-docs
@@ -89,7 +89,7 @@ ci_scripts:
     azure_name: nengo-dl-docs
     azure_group: nengo-ci
     remote_setup:
-      - micromamba install -y "$TF_VERSION"
+      - micromamba install -y "$TF_VERSION" cudnn=8.4
   - template: remote-script
     remote_script: examples
     output_name: remote-examples
@@ -97,7 +97,7 @@ ci_scripts:
     azure_name: nengo-dl-examples
     azure_group: nengo-ci
     remote_setup:
-      - micromamba install -y "$TF_VERSION"
+      - micromamba install -y "$TF_VERSION" cudnn=8.4
   - template: deploy
     wheel: true
 
