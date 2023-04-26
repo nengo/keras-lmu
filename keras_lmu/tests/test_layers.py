@@ -734,8 +734,7 @@ def test_regularizer_loss(fft, bias):
 def test_get_config(cls):
     """Test that all ``__init__`` arguments appear in the ``get_config`` dictionary."""
 
-    params = {"memory_d": 2, "order": 5, "theta": 3.2, "hidden_cell": None}
-    obj = cls(**params)
+    obj = cls(memory_d=2, order=5, theta=3.2, hidden_cell=None)
 
     config = obj.get_config()
     sig = inspect.signature(cls.__init__)

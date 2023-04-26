@@ -230,7 +230,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         """
 
         # combine A/B and pad to make square matrix
-        em_upper = tf.concat([A, B], axis=0)
+        em_upper = tf.concat([A, B], axis=0)  # pylint: disable=no-value-for-parameter
         em = tf.pad(em_upper, [(0, 0), (0, B.shape[0])])
 
         # compute matrix exponential
@@ -334,7 +334,11 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         m = states[-1]
 
         # compute memory input
-        u = tf.concat((inputs, h[0]), axis=1) if self.hidden_to_memory else inputs
+        u = (
+            tf.concat((inputs, h[0]), axis=1)  # pylint: disable=no-value-for-parameter
+            if self.hidden_to_memory
+            else inputs
+        )
         if self.dropout > 0:
             u *= self.get_dropout_mask_for_cell(u, training)
         if self.kernel is not None:
@@ -383,7 +387,11 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         m = tf.reshape(m, (-1, self.memory_d * self.order))
 
         # apply hidden cell
-        h_in = tf.concat((m, inputs), axis=1) if self.input_to_hidden else m
+        h_in = (
+            tf.concat((m, inputs), axis=1)  # pylint: disable=no-value-for-parameter
+            if self.input_to_hidden
+            else m
+        )
 
         if self.hidden_cell is None:
             o = h_in
@@ -595,7 +603,7 @@ class LMU(tf.keras.layers.Layer):
 
         return self._init_theta
 
-    def build(self, input_shapes):
+    def build(self, input_shape):
         """
         Builds the layer.
 
@@ -606,7 +614,7 @@ class LMU(tf.keras.layers.Layer):
         with some additional bookkeeping.
         """
 
-        super().build(input_shapes)
+        super().build(input_shape)
 
         if (
             not self.hidden_to_memory
@@ -656,7 +664,7 @@ class LMU(tf.keras.layers.Layer):
                 dtype=self.dtype,
             )
 
-        self.layer.build(input_shapes)
+        self.layer.build(input_shape)
 
     def call(self, inputs, training=None):
         """
@@ -961,7 +969,11 @@ class LMUFeedforward(tf.keras.layers.Layer):
             m = self._raw_convolution(u)
 
         # apply hidden cell
-        h_in = tf.concat((m, inputs), axis=-1) if self.input_to_hidden else m
+        h_in = (
+            tf.concat((m, inputs), axis=-1)  # pylint: disable=no-value-for-parameter
+            if self.input_to_hidden
+            else m
+        )
 
         if self.hidden_cell is None:
             h = h_in if self.return_sequences else h_in[:, -1]
