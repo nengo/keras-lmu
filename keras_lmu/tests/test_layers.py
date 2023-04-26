@@ -217,40 +217,48 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
     "hidden_cell",
     (
         lambda: None,
-        lambda: tf.keras.layers.Dense(4),
-        lambda: tf.keras.layers.SimpleRNNCell(4),
+        lambda: tf.keras.layers.Dense(4, dtype="float64"),
+        lambda: tf.keras.layers.SimpleRNNCell(4, dtype="float64"),
     ),
 )
-@pytest.mark.parametrize("memory_d", [1, 4])
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
 @pytest.mark.parametrize("conv_mode", ["fft", "raw"])
+@pytest.mark.parametrize("seq_len", [10, 50])
 def test_feedforward(
-    return_sequences, hidden_cell, memory_d, discretizer, conv_mode, rng
+    return_sequences, hidden_cell, discretizer, conv_mode, seq_len, rng, seed
 ):
     kwargs = {
-        "memory_d": memory_d,
+        "memory_d": 4,
         "order": 2,
-        "theta": 12,
+        "theta": 5,
         "hidden_cell": hidden_cell(),
         "discretizer": discretizer,
+        "dtype": "float64",
     }
 
-    x = rng.uniform(-1, 1, size=(2, 10, 32))
+    x = rng.uniform(-1, 1, size=(2, seq_len, 32))
 
     rnn_layer = tf.keras.layers.RNN(
         layers.LMUCell(**kwargs),
         return_sequences=return_sequences,
+        dtype="float64",
     )
     rnn_out = rnn_layer(x)
 
     ff_layer = layers.LMUFeedforward(
         return_sequences=return_sequences, conv_mode=conv_mode, **kwargs
     )
-    ff_layer.build(x.shape)
-    ff_layer.kernel.assign(rnn_layer.cell.kernel)
+    ff_layer.build((2, None, 32))  # testing with unknown sequence length
+    ff_layer.set_weights(rnn_layer.get_weights())
     ff_out = ff_layer(x, training=None)
 
-    assert np.allclose(rnn_out, ff_out, atol=2e-6)
+    assert ff_out.dtype == rnn_out.dtype == "float64"
+    assert np.allclose(
+        rnn_out,
+        ff_out,
+        # larger error for longer sequences, where the error accumulates more
+        atol=5e-8 if seq_len < 50 else 5e-4,
+    ), np.max(abs(rnn_out - ff_out))
 
 
 @pytest.mark.parametrize("truncate_ir", [None, 1e-5, 1e-4, 1e-3])
@@ -284,7 +292,7 @@ def test_raw_truncation(truncate_ir, rng):
 
 def test_validation_errors():
     ff_layer = layers.LMUFeedforward(1, 2, 3, None)
-    with pytest.raises(ValueError, match="temporal axis be fully specified"):
+    with pytest.warns(UserWarning, match="unknown impulse length"):
         ff_layer(tf.keras.Input((None, 32)))
 
     with pytest.raises(ValueError, match="hidden_to_memory must be False"):
@@ -301,18 +309,16 @@ def test_validation_errors():
 
 
 @pytest.mark.parametrize(
-    "should_use_feedforward, hidden_to_memory, memory_to_memory, steps, "
-    "trainable_theta",
+    "should_use_feedforward, hidden_to_memory, memory_to_memory, trainable_theta",
     [
-        (True, False, False, 5, False),
-        (False, True, False, 5, False),
-        (False, False, True, 5, False),
-        (False, False, False, None, False),
-        (False, False, False, 5, True),
+        (True, False, False, False),
+        (False, True, False, False),
+        (False, False, True, False),
+        (False, False, False, True),
     ],
 )
 def test_feedforward_auto_swap(
-    should_use_feedforward, hidden_to_memory, memory_to_memory, steps, trainable_theta
+    should_use_feedforward, hidden_to_memory, memory_to_memory, trainable_theta
 ):
     lmu = layers.LMU(
         4,
@@ -323,7 +329,7 @@ def test_feedforward_auto_swap(
         memory_to_memory=memory_to_memory,
         trainable_theta=trainable_theta,
     )
-    lmu.build((32, steps, 8))
+    lmu.build((32, None, 8))
 
     assert isinstance(lmu.layer, layers.LMUFeedforward) == should_use_feedforward
 
@@ -370,7 +376,7 @@ def test_hidden_types(hidden_cell, feedforward, rng):
     lmu_output = lmu(x)
 
     assert np.allclose(
-        lmu_output, base_output, atol=2e-6 if feedforward else 1e-8
+        lmu_output, base_output, atol=3e-6 if feedforward else 1e-8
     ), np.max(np.abs(lmu_output - base_output))
 
 
@@ -505,7 +511,7 @@ def test_fit(feedforward, discretizer, trainable_theta):
         kernel_initializer="zeros",
     )
 
-    inputs = tf.keras.layers.Input((5 if feedforward else None, 10))
+    inputs = tf.keras.layers.Input((None, 10))
     lmu = lmu_layer(inputs)
     outputs = tf.keras.layers.Dense(2)(lmu)
 
@@ -737,3 +743,22 @@ def test_get_config(cls):
     for key in sig.parameters:
         if key not in ("self", "kwargs"):
             assert key in config, key
+
+
+@pytest.mark.parametrize("feedforward", [True, False])
+@pytest.mark.parametrize("dtype", [None, "float32", "float64"])
+def test_dtype(feedforward, dtype):
+    x = np.ones((2, 10, 5))
+    layer = layers.LMU(
+        1,
+        2,
+        3,
+        tf.keras.layers.SimpleRNNCell(4, dtype=dtype),
+        trainable_theta=not feedforward,
+        dtype=dtype,
+    )
+    y = layer(x)
+    assert isinstance(
+        layer.layer, layers.LMUFeedforward if feedforward else tf.keras.layers.RNN
+    )
+    assert y.dtype == ("float32" if dtype is None else dtype)

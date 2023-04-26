@@ -1,5 +1,7 @@
 """Core classes for the KerasLMU package."""
 
+import warnings
+
 import numpy as np
 import tensorflow as tf
 from packaging import version
@@ -609,7 +611,6 @@ class LMU(tf.keras.layers.Layer):
         if (
             not self.hidden_to_memory
             and not self.memory_to_memory
-            and input_shapes[1] is not None
             and not self.trainable_theta
         ):
             self.layer = LMUFeedforward(
@@ -626,6 +627,7 @@ class LMU(tf.keras.layers.Layer):
                 bias_regularizer=self.bias_regularizer,
                 dropout=self.dropout,
                 return_sequences=self.return_sequences,
+                dtype=self.dtype,
             )
         else:
             self.layer = tf.keras.layers.RNN(
@@ -648,8 +650,10 @@ class LMU(tf.keras.layers.Layer):
                     bias_regularizer=self.bias_regularizer,
                     dropout=self.dropout,
                     recurrent_dropout=self.recurrent_dropout,
+                    dtype=self.dtype,
                 ),
                 return_sequences=self.return_sequences,
+                dtype=self.dtype,
             )
 
         self.layer.build(input_shapes)
@@ -826,8 +830,10 @@ class LMUFeedforward(tf.keras.layers.Layer):
                 discretizer=discretizer,
                 kernel_initializer=None,
                 trainable=False,
+                dtype=self.dtype,
             ),
             return_sequences=True,
+            dtype=self.dtype,
         )
         self.impulse_response = None
         self.kernel = None
@@ -846,31 +852,37 @@ class LMUFeedforward(tf.keras.layers.Layer):
 
         super().build(input_shape)
 
-        seq_len = input_shape[1]
         enc_d = input_shape[-1]
-
+        seq_len = input_shape[1]
         if seq_len is None:
-            # TODO: we could dynamically run the impulse response for longer if
-            #  needed using stateful=True
-            raise ValueError(
-                f"LMUFeedforward requires that the input shape's temporal axis be "
-                f"fully specified (got {seq_len})"
+            theta_factor = 5
+            warnings.warn(
+                f"Approximating unknown impulse length with {theta_factor}*theta; "
+                f"setting a fixed sequence length on inputs will remove the need for "
+                f"approximation"
             )
+            impulse_len = self.theta * theta_factor
+        else:
+            impulse_len = seq_len
 
-        impulse = tf.reshape(tf.eye(seq_len, 1), (1, -1, 1))
+        impulse = tf.reshape(tf.eye(impulse_len, 1), (1, -1, 1))
 
         self.impulse_response = tf.squeeze(
             self.delay_layer(impulse, training=False), axis=0
         )
 
         if self.conv_mode == "fft":
-            self.impulse_response = tf.signal.rfft(
-                tf.transpose(self.impulse_response),
-                fft_length=[2 * seq_len],
+            self.impulse_response_fft = (
+                None
+                if seq_len is None
+                else tf.signal.rfft(
+                    tf.transpose(self.impulse_response),
+                    fft_length=[2 * seq_len],
+                )
             )
         else:
             if self.truncate_ir is not None:
-                assert self.impulse_response.shape == (seq_len, self.order)
+                assert self.impulse_response.shape == (impulse_len, self.order)
 
                 cumsum = tf.math.cumsum(
                     tf.math.abs(self.impulse_response), axis=0, reverse=True
@@ -955,7 +967,9 @@ class LMUFeedforward(tf.keras.layers.Layer):
             h = h_in if self.return_sequences else h_in[:, -1]
         elif hasattr(self.hidden_cell, "state_size"):
             h = tf.keras.layers.RNN(
-                self.hidden_cell, return_sequences=self.return_sequences
+                self.hidden_cell,
+                return_sequences=self.return_sequences,
+                dtype=self.dtype,
             )(h_in, training=training)
         else:
             if not self.return_sequences:
@@ -977,9 +991,17 @@ class LMUFeedforward(tf.keras.layers.Layer):
         # Pad sequences to avoid circular convolution
         # Perform the FFT
         fft_input = tf.signal.rfft(u, fft_length=[2 * seq_len])
+        impulse_response = (
+            tf.signal.rfft(
+                tf.transpose(self.impulse_response[:seq_len]),
+                fft_length=[2 * seq_len],
+            )
+            if self.impulse_response_fft is None
+            else self.impulse_response_fft
+        )
 
         # Elementwise product of FFT (with broadcasting)
-        result = tf.expand_dims(fft_input, axis=-2) * self.impulse_response
+        result = tf.expand_dims(fft_input, axis=-2) * impulse_response
 
         # Inverse FFT
         m = tf.signal.irfft(result, fft_length=[2 * seq_len])[..., :seq_len]

@@ -24,6 +24,18 @@ Release history
 
 *Compatible with TensorFlow 2.4 - 2.11*
 
+**Changed**
+
+- ``LMUFeedforward`` can now be used with unknown sequence lengths, and ``LMU`` will
+  use ``LMUFeedforward`` for unknown sequence lengths (as long as the other conditions
+  are met, as before). (`#52`_)
+
+**Fixed**
+
+- Fixed errors when setting non-default dtype on LMU layers. (`#52`_)
+
+.. _#52: https://github.com/nengo/keras-lmu/pull/52
+
 0.5.0 (January 26, 2023)
 ========================
 
