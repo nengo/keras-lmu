@@ -156,9 +156,10 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
             )
 
         if self.hidden_cell is None:
-            for conn in ("hidden_to_memory", "input_to_hidden"):
-                if getattr(self, conn):
-                    raise ValueError(f"{conn} must be False if hidden_cell is None")
+            if self.hidden_to_memory:
+                raise ValueError(
+                    "hidden_to_memory must be False if hidden_cell is None"
+                )
 
             self.hidden_output_size = self.memory_d * self.order
             self.hidden_state_size = []
@@ -801,9 +802,6 @@ class LMUFeedforward(tf.keras.layers.Layer):
         **kwargs,
     ):
         super().__init__(**kwargs)
-
-        if input_to_hidden and hidden_cell is None:
-            raise ValueError("input_to_hidden must be False if hidden_cell is None")
 
         if conv_mode not in ("fft", "raw"):
             raise ValueError(f"Unrecognized conv mode '{conv_mode}'")

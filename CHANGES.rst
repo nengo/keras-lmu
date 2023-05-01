@@ -29,6 +29,8 @@ Release history
 - ``LMUFeedforward`` can now be used with unknown sequence lengths, and ``LMU`` will
   use ``LMUFeedforward`` for unknown sequence lengths (as long as the other conditions
   are met, as before). (`#52`_)
+- Allow ``input_to_hidden=True`` with ``hidden_cell=None``. This will act as a skip
+  connection. (`#52`_)
 
 **Fixed**
 

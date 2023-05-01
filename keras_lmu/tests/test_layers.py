@@ -298,12 +298,6 @@ def test_validation_errors():
     with pytest.raises(ValueError, match="hidden_to_memory must be False"):
         layers.LMUCell(1, 2, 3, None, hidden_to_memory=True)
 
-    with pytest.raises(ValueError, match="input_to_hidden must be False"):
-        layers.LMUCell(1, 2, 3, None, input_to_hidden=True)
-
-    with pytest.raises(ValueError, match="input_to_hidden must be False"):
-        layers.LMUFeedforward(1, 2, 3, None, input_to_hidden=True)
-
     with pytest.raises(ValueError, match="Unrecognized conv mode"):
         layers.LMUFeedforward(1, 2, 3, None, conv_mode="raw_bad")
 
