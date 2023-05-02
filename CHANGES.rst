@@ -19,7 +19,7 @@ Release history
    - Removed
    - Fixed
 
-0.5.1 (unreleased)
+0.6.0 (unreleased)
 ==================
 
 *Compatible with TensorFlow 2.4 - 2.11*
@@ -31,6 +31,8 @@ Release history
   are met, as before). (`#52`_)
 - Allow ``input_to_hidden=True`` with ``hidden_cell=None``. This will act as a skip
   connection. (`#52`_)
+- Changed order of LMU states so that the LMU memory state always comes first, and
+  any states from the hidden cell come afterwards. (`#52`_)
 
 **Fixed**
 

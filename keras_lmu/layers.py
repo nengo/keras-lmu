@@ -171,9 +171,9 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
             self.hidden_output_size = self.hidden_cell.units
             self.hidden_state_size = [self.hidden_cell.units]
 
-        self.state_size = tf.nest.flatten(self.hidden_state_size) + [
-            self.memory_d * self.order
-        ]
+        self.state_size = [self.memory_d * self.order] + tf.nest.flatten(
+            self.hidden_state_size
+        )
         self.output_size = self.hidden_output_size
 
     @property
@@ -329,10 +329,10 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
 
         states = tf.nest.flatten(states)
 
-        # state for the hidden cell
-        h = states[:-1]
         # state for the LMU memory
-        m = states[-1]
+        m = states[0]
+        # state for the hidden cell
+        h = states[1:]
 
         # compute memory input
         u = (
@@ -403,7 +403,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
             o = self.hidden_cell(h_in, training=training)
             h = [o]
 
-        return o, h + [m]
+        return o, [m] + h
 
     def reset_dropout_mask(self):
         """Reset dropout mask for memory and hidden components."""
