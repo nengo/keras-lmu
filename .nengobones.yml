@@ -109,5 +109,5 @@ version_py:
   type: semver
   major: 0
   minor: 6
-  patch: 0
-  release: True
+  patch: 1
+  release: False
