@@ -323,6 +323,7 @@
     "    ),\n",
     "]\n",
     "\n",
+    "result = None\n",
     "if do_training:\n",
     "    result = model.fit(\n",
     "        X_train,\n",

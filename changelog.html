@@ -5,10 +5,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Release history &#8212; KerasLMU 0.5.0 docs</title>
+    <title>Release history &#8212; KerasLMU 0.6.0 docs</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,600|Rajdhani:700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 <link rel="stylesheet" href="https://www.nengo.ai/css/bootstrap.css" type="text/css">
 <style>
@@ -102,7 +104,7 @@
         </li>
         <li class="nav-item dropdown active">
           <a
-            class="nav-link dropdown-toggle"
+            class="nav-link dropdown-toggle text-nowrap"
             id="navbar-dropdown-docs"
             data-toggle="dropdown"
             aria-haspopup="true"
@@ -138,7 +140,7 @@
         </li>
         <li class="nav-item dropdown">
           <a
-            class="nav-link dropdown-toggle"
+            class="nav-link dropdown-toggle text-nowrap"
             id="navbar-dropdown-community"
             data-toggle="dropdown"
             aria-haspopup="true"
@@ -173,12 +175,21 @@
             <a class="dropdown-item" href="https://www.nengo.ai/caa/">CAA</a>
           </div>
         </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
         <li class="nav-item">
           <a
             class="nav-link btn btn-success btn-sm text-white"
             href="https://www.nengo.ai/getting-started/"
-            >Getting started</a
-          >
+          >Getting started</a
+        >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link btn btn-success btn-sm text-white"
+            href="https://www.nengo.ai/store/"
+          >Store</a
+        >
         </li>
       </ul>
     </div>
@@ -218,6 +229,7 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="project.html">Project information</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Release history</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#may-5-2023">0.6.0 (May 5, 2023)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#january-26-2023">0.5.0 (January 26, 2023)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#may-17-2022">0.4.2 (May 17, 2022)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#february-10-2022">0.4.1 (February 10, 2022)</a></li>
@@ -309,6 +321,24 @@
               
   <div class="section" id="release-history">
 <h1>Release history<a class="headerlink" href="#release-history" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="may-5-2023">
+<h2>0.6.0 (May 5, 2023)<a class="headerlink" href="#may-5-2023" title="Permalink to this headline">¶</a></h2>
+<p><em>Compatible with TensorFlow 2.4 - 2.11</em></p>
+<p><strong>Changed</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LMUFeedforward</span></code> can now be used with unknown sequence lengths, and <code class="docutils literal notranslate"><span class="pre">LMU</span></code> will
+use <code class="docutils literal notranslate"><span class="pre">LMUFeedforward</span></code> for unknown sequence lengths (as long as the other conditions
+are met, as before). (<a class="reference external" href="https://github.com/nengo/keras-lmu/pull/52">#52</a>)</p></li>
+<li><p>Allow <code class="docutils literal notranslate"><span class="pre">input_to_hidden=True</span></code> with <code class="docutils literal notranslate"><span class="pre">hidden_cell=None</span></code>. This will act as a skip
+connection. (<a class="reference external" href="https://github.com/nengo/keras-lmu/pull/52">#52</a>)</p></li>
+<li><p>Changed order of LMU states so that the LMU memory state always comes first, and
+any states from the hidden cell come afterwards. (<a class="reference external" href="https://github.com/nengo/keras-lmu/pull/52">#52</a>)</p></li>
+</ul>
+<p><strong>Fixed</strong></p>
+<ul class="simple">
+<li><p>Fixed errors when setting non-default dtype on LMU layers. (<a class="reference external" href="https://github.com/nengo/keras-lmu/pull/52">#52</a>)</p></li>
+</ul>
+</div>
 <div class="section" id="january-26-2023">
 <h2>0.5.0 (January 26, 2023)<a class="headerlink" href="#january-26-2023" title="Permalink to this headline">¶</a></h2>
 <p><em>Compatible with TensorFlow 2.4 - 2.11</em></p>
@@ -463,21 +493,23 @@ now specified directly in the <code class="docutils literal notranslate"><span c
 
     </div>
   </div>
-</div><footer class="text-light footer-main gradient-bottom">
-  <p class="small text-center mb-0">
+</div><footer class="text-light footer-main gradient-bottom-center">
+  <p class="text-center">
     <a class="no-hover-line" href="https://appliedbrainresearch.com">
       <img
-        src="https://appliedbrainresearch.com/img/logo-blue-notext.svg"
-        height="48"
+        class="abr-logo"
+        src="https://www.nengo.ai/img/abr-logo.svg"
+        height="32"
       />
     </a>
     <a href="https://www.nengo.ai/">What is Nengo?</a>
     <a href="https://www.nengo.ai/examples/">Examples</a>
     <a href="https://www.nengo.ai/documentation/">Documentation</a>
+    <a href="https://www.nengo.ai/store/">Store</a>
     <a href="https://www.nengo.ai/getting-started/">Getting started</a>
     <a href="https://www.nengo.ai/privacy/">Privacy</a>
   </p>
-  <p class="small text-center mb-0">&copy; Applied Brain Research</p>
+  <p class="small text-center pb-0 mb-0">&copy; Applied Brain Research</p>
 </footer>
 <script>
   function switchVersion(select) {

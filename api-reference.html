@@ -5,10 +5,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API reference &#8212; KerasLMU 0.5.0 docs</title>
+    <title>API reference &#8212; KerasLMU 0.6.0 docs</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-<link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,600|Rajdhani:700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 <link rel="stylesheet" href="https://www.nengo.ai/css/bootstrap.css" type="text/css">
 <style>
@@ -102,7 +104,7 @@
         </li>
         <li class="nav-item dropdown active">
           <a
-            class="nav-link dropdown-toggle"
+            class="nav-link dropdown-toggle text-nowrap"
             id="navbar-dropdown-docs"
             data-toggle="dropdown"
             aria-haspopup="true"
@@ -138,7 +140,7 @@
         </li>
         <li class="nav-item dropdown">
           <a
-            class="nav-link dropdown-toggle"
+            class="nav-link dropdown-toggle text-nowrap"
             id="navbar-dropdown-community"
             data-toggle="dropdown"
             aria-haspopup="true"
@@ -173,12 +175,21 @@
             <a class="dropdown-item" href="https://www.nengo.ai/caa/">CAA</a>
           </div>
         </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
         <li class="nav-item">
           <a
             class="nav-link btn btn-success btn-sm text-white"
             href="https://www.nengo.ai/getting-started/"
-            >Getting started</a
-          >
+          >Getting started</a
+        >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link btn btn-success btn-sm text-white"
+            href="https://www.nengo.ai/store/"
+          >Store</a
+        >
         </li>
       </ul>
     </div>
@@ -318,7 +329,7 @@
 </table>
 <dl class="py class">
 <dt id="keras_lmu.LMUCell">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">keras_lmu.</span></code><code class="sig-name descname"><span class="pre">LMUCell</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L21-L443"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">keras_lmu.</span></code><code class="sig-name descname"><span class="pre">LMUCell</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L23-L454"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implementation of LMU cell (to be used within Keras RNN wrapper).</p>
 <p>In general, the LMU cell consists of two parts: a memory component (decomposing
 the input signal using Legendre polynomials as a basis), and a hidden component
@@ -409,7 +420,7 @@ initial value passed in to the constructor.</p>
 
 <dl class="py method">
 <dt id="keras_lmu.LMUCell.build">
-<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L243-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.build" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L246-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds the cell.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -419,7 +430,7 @@ with some additional bookkeeping.</p>
 
 <dl class="py method">
 <dt id="keras_lmu.LMUCell.call">
-<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L313-L395"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.call" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L316-L406"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply this cell to inputs.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -429,25 +440,25 @@ with some additional bookkeeping.</p>
 
 <dl class="py method">
 <dt id="keras_lmu.LMUCell.reset_dropout_mask">
-<code class="sig-name descname"><span class="pre">reset_dropout_mask</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L397-L401"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.reset_dropout_mask" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reset_dropout_mask</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L408-L412"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.reset_dropout_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset dropout mask for memory and hidden components.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="keras_lmu.LMUCell.reset_recurrent_dropout_mask">
-<code class="sig-name descname"><span class="pre">reset_recurrent_dropout_mask</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L403-L407"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.reset_recurrent_dropout_mask" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reset_recurrent_dropout_mask</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L414-L418"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.reset_recurrent_dropout_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset recurrent dropout mask for memory and hidden components.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="keras_lmu.LMUCell.get_config">
-<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L409-L436"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.get_config" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L420-L447"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.get_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return config of layer (for serialization during model saving/loading).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="keras_lmu.LMUCell.from_config">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L438-L443"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.from_config" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L449-L454"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.from_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load model from serialized config.</p>
 </dd></dl>
 
@@ -455,7 +466,7 @@ with some additional bookkeeping.</p>
 
 <dl class="py class">
 <dt id="keras_lmu.LMU">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">keras_lmu.</span></code><code class="sig-name descname"><span class="pre">LMU</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L446-L705"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">keras_lmu.</span></code><code class="sig-name descname"><span class="pre">LMU</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L457-L718"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU" title="Permalink to this definition">¶</a></dt>
 <dd><p>A layer of trainable low-dimensional delay systems.</p>
 <p>Each unit buffers its encoded input
 by internally representing a low-dimensional
@@ -552,7 +563,7 @@ initial value passed in to the constructor.</p>
 
 <dl class="py method">
 <dt id="keras_lmu.LMU.build">
-<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shapes</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L596-L655"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.build" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L607-L668"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds the layer.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -562,7 +573,7 @@ with some additional bookkeeping.</p>
 
 <dl class="py method">
 <dt id="keras_lmu.LMU.call">
-<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L657-L668"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.call" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L670-L681"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply this layer to inputs.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -572,13 +583,13 @@ with some additional bookkeeping.</p>
 
 <dl class="py method">
 <dt id="keras_lmu.LMU.get_config">
-<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L670-L698"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.get_config" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L683-L711"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.get_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return config of layer (for serialization during model saving/loading).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="keras_lmu.LMU.from_config">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L700-L705"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.from_config" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L713-L718"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.from_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load model from serialized config.</p>
 </dd></dl>
 
@@ -586,7 +597,7 @@ with some additional bookkeeping.</p>
 
 <dl class="py class">
 <dt id="keras_lmu.layers.LMUFeedforward">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">keras_lmu.layers.</span></code><code class="sig-name descname"><span class="pre">LMUFeedforward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L708-L1037"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">keras_lmu.layers.</span></code><code class="sig-name descname"><span class="pre">LMUFeedforward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L721-L1069"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Layer class for the feedforward variant of the LMU.</p>
 <p>This class assumes no recurrent connections are desired in the memory component.</p>
 <p>Produces the output of the delay system by evaluating the convolution of the input
@@ -649,7 +660,7 @@ truncated elements for a given value of <code class="docutils literal notranslat
 </dl>
 <dl class="py method">
 <dt id="keras_lmu.layers.LMUFeedforward.build">
-<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L836-L918"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.build" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L848-L936"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds the layer.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -659,7 +670,7 @@ with some additional bookkeeping.</p>
 
 <dl class="py method">
 <dt id="keras_lmu.layers.LMUFeedforward.call">
-<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L920-L969"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.call" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L938-L993"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply this layer to inputs.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -669,13 +680,13 @@ with some additional bookkeeping.</p>
 
 <dl class="py method">
 <dt id="keras_lmu.layers.LMUFeedforward.get_config">
-<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L1006-L1030"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.get_config" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L1038-L1062"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.get_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return config of layer (for serialization during model saving/loading).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="keras_lmu.layers.LMUFeedforward.from_config">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.5.0/keras_lmu/layers.py#L1032-L1037"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.from_config" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.6.0/keras_lmu/layers.py#L1064-L1069"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.from_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load model from serialized config.</p>
 </dd></dl>
 
@@ -692,21 +703,23 @@ with some additional bookkeeping.</p>
 
     </div>
   </div>
-</div><footer class="text-light footer-main gradient-bottom">
-  <p class="small text-center mb-0">
+</div><footer class="text-light footer-main gradient-bottom-center">
+  <p class="text-center">
     <a class="no-hover-line" href="https://appliedbrainresearch.com">
       <img
-        src="https://appliedbrainresearch.com/img/logo-blue-notext.svg"
-        height="48"
+        class="abr-logo"
+        src="https://www.nengo.ai/img/abr-logo.svg"
+        height="32"
       />
     </a>
     <a href="https://www.nengo.ai/">What is Nengo?</a>
     <a href="https://www.nengo.ai/examples/">Examples</a>
     <a href="https://www.nengo.ai/documentation/">Documentation</a>
+    <a href="https://www.nengo.ai/store/">Store</a>
     <a href="https://www.nengo.ai/getting-started/">Getting started</a>
     <a href="https://www.nengo.ai/privacy/">Privacy</a>
   </p>
-  <p class="small text-center mb-0">&copy; Applied Brain Research</p>
+  <p class="small text-center pb-0 mb-0">&copy; Applied Brain Research</p>
 </footer>
 <script>
   function switchVersion(select) {
