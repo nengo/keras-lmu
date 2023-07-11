@@ -11,13 +11,17 @@ if version.parse(tf.__version__) < version.parse("2.6.0rc0"):
     from tensorflow.python.keras.layers.recurrent import DropoutRNNCellMixin
 elif version.parse(tf.__version__) < version.parse("2.9.0rc0"):
     from keras.layers.recurrent import DropoutRNNCellMixin
-else:
+elif version.parse(tf.__version__) < version.parse("2.13.0rc0"):
     from keras.layers.rnn.dropout_rnn_cell_mixin import DropoutRNNCellMixin
+else:
+    from keras.src.layers.rnn.dropout_rnn_cell_mixin import DropoutRNNCellMixin
 
 if version.parse(tf.__version__) < version.parse("2.8.0rc0"):
     from tensorflow.keras.layers import Layer as BaseRandomLayer
-else:
+elif version.parse(tf.__version__) < version.parse("2.13.0rc0"):
     from keras.engine.base_layer import BaseRandomLayer
+else:
+    from keras.src.engine.base_layer import BaseRandomLayer
 
 
 @tf.keras.utils.register_keras_serializable("keras-lmu")
@@ -450,7 +454,11 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
     def from_config(cls, config):
         """Load model from serialized config."""
 
-        config["hidden_cell"] = tf.keras.layers.deserialize(config["hidden_cell"])
+        config["hidden_cell"] = (
+            None
+            if config["hidden_cell"] is None
+            else tf.keras.layers.deserialize(config["hidden_cell"])
+        )
         return super().from_config(config)
 
 
@@ -714,7 +722,11 @@ class LMU(tf.keras.layers.Layer):
     def from_config(cls, config):
         """Load model from serialized config."""
 
-        config["hidden_cell"] = tf.keras.layers.deserialize(config["hidden_cell"])
+        config["hidden_cell"] = (
+            None
+            if config["hidden_cell"] is None
+            else tf.keras.layers.deserialize(config["hidden_cell"])
+        )
         return super().from_config(config)
 
 
@@ -1065,5 +1077,9 @@ class LMUFeedforward(tf.keras.layers.Layer):
     def from_config(cls, config):
         """Load model from serialized config."""
 
-        config["hidden_cell"] = tf.keras.layers.deserialize(config["hidden_cell"])
+        config["hidden_cell"] = (
+            None
+            if config["hidden_cell"] is None
+            else tf.keras.layers.deserialize(config["hidden_cell"])
+        )
         return super().from_config(config)
