@@ -39,16 +39,19 @@ jobs:
             coverage-name: remote
             tf-version: tensorflow==2.10
           - script: test
+            python-version: "3.11"
             coverage-name: latest
           - script: test
             tf-version: tensorflow==2.4.4
-            python-version: "3.7"
+            python-version: "3.8"
             coverage-name: oldest
           - script: test
             tf-version: tensorflow~=2.6.0
+            python-version: "3.8"
             coverage-name: tf-2.6
           - script: remote-docs
             tf-version: tensorflow==2.10
+            python-version: "3.9"
           - script: remote-examples
             tf-version: tensorflow==2.10
       fail-fast: false
@@ -60,7 +63,7 @@ jobs:
     steps:
       - uses: nengo/nengo-bones/actions/setup@main
         with:
-          python-version: ${{ matrix.python-version || '3.9' }}
+          python-version: ${{ matrix.python-version || '3.10' }}
       - uses: nengo/nengo-bones/actions/generate-and-check@main
       - name: Write secrets to file
         run: |

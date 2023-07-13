@@ -36,9 +36,10 @@ setup_py:
     - "Intended Audience :: Science/Research"
     - "Operating System :: OS Independent"
     - "Programming Language :: Python "
-    - "Programming Language :: Python :: 3.7"
     - "Programming Language :: Python :: 3.8"
     - "Programming Language :: Python :: 3.9"
+    - "Programming Language :: Python :: 3.10"
+    - "Programming Language :: Python :: 3.11"
     - "Topic :: Scientific/Engineering "
     - "Topic :: Scientific/Engineering :: Artificial Intelligence"
 
@@ -108,6 +109,6 @@ pyproject_toml: {}
 version_py:
   type: semver
   major: 0
-  minor: 6
-  patch: 1
+  minor: 7
+  patch: 0
   release: False

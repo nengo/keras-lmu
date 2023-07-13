@@ -19,10 +19,17 @@ Release history
    - Removed
    - Fixed
 
-0.6.1 (unreleased)
+0.7.0 (unreleased)
 ==================
 
 *Compatible with TensorFlow 2.4 - 2.13*
+
+**Changed**
+
+- Minimum supported Python version is now 3.8 (3.7 reached end of life in June 2023).
+  (`#54`_)
+
+.. _#54: https://github.com/nengo/keras-lmu/pull/54
 
 0.6.0 (May 5, 2023)
 ===================
