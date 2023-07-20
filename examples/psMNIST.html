@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Solving the permuted sequential MNIST (psMNIST) task &#8212; KerasLMU 0.6.0 docs</title>
+    <title>Solving the permuted sequential MNIST (psMNIST) task &#8212; KerasLMU 0.7.0 docs</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
@@ -344,7 +344,7 @@ information contained in the image is distributed evenly throughout the sequence
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-2023-05-05 19:33:05.780912: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 FMA
+2023-07-20 21:47:27.927512: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 FMA
 To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
 </pre></div></div>
 </div>
@@ -526,10 +526,10 @@ and <code class="docutils literal notranslate"><span class="pre">memory_to_memor
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-2023-05-05 19:33:18.186509: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 FMA
+2023-07-20 21:47:39.219410: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 FMA
 To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2023-05-05 19:33:18.694519: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1616] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 10810 MB memory:  -&gt; device: 0, name: Tesla K80, pci bus id: 0001:00:00.0, compute capability: 3.7
-2023-05-05 19:33:29.283110: I tensorflow/core/util/cuda_solvers.cc:179] Creating GpuSolver handles for stream 0x560ad72a69e0
+2023-07-20 21:47:39.784075: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1616] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 10810 MB memory:  -&gt; device: 0, name: Tesla K80, pci bus id: 0001:00:00.0, compute capability: 3.7
+2023-07-20 21:47:46.945498: I tensorflow/core/util/cuda_solvers.cc:179] Creating GpuSolver handles for stream 0x55fd454ceef0
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -641,7 +641,7 @@ _________________________________________________________________
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-313/313 [==============================] - 24s 76ms/step - loss: 0.1210 - accuracy: 0.9643
+313/313 [==============================] - 25s 76ms/step - loss: 0.1210 - accuracy: 0.9643
 Test accuracy: 96.43%
 </pre></div></div>
 </div>
