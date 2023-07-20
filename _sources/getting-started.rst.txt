@@ -14,7 +14,7 @@ To install KerasLMU, we recommend using ``pip``.
 Requirements
 ------------
 
-KerasLMU works with Python 3.6 or later.  After installing NumPy and TensorFlow, ``pip``
+KerasLMU works with Python 3.8 or later.  After installing NumPy and TensorFlow, ``pip``
 will do its best to install all of the package's other requirements when it installs
 KerasLMU. However, if anything goes wrong during this process, you can install each
 required package manually and then try to ``pip install keras-lmu`` again.
