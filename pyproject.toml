@@ -9,6 +9,7 @@ target-version = ['py38']
 [tool.isort]
 profile = "black"
 src_paths = ["keras_lmu"]
+skip_gitignore = true
 
 [tool.docformatter]
 wrap-summaries = 88
