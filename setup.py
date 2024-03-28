@@ -28,12 +28,13 @@ root = pathlib.Path(__file__).parent
 version = runpy.run_path(str(root / "keras_lmu" / "version.py"))["version"]
 
 install_req = [
+    "anyio<4",
     "packaging>=20.9",
     "scipy>=1.0.0",
-    "tensorflow>=2.4.4",
+    "tensorflow>=2.6.0",
 ]
 docs_req = [
-    "matplotlib>=3.0.2,<3.4.3",
+    "matplotlib>=3.8.4",
     "jupyter>=1.0.0",
     "seaborn>=0.9.0",
     "sphinx>=1.8",

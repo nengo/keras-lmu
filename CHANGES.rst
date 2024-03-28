@@ -19,10 +19,10 @@ Release history
    - Removed
    - Fixed
 
-0.7.1 (unreleased)
+0.8.0 (unreleased)
 ==================
 
-*Compatible with TensorFlow 2.4 - 2.13*
+*Compatible with TensorFlow 2.6 - 2.16*
 
 0.7.0 (July 20, 2023)
 =====================

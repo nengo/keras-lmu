@@ -11,13 +11,14 @@ a new LMU layer:
 
 .. testcode::
 
+   import keras
    import keras_lmu
 
    lmu_layer = keras_lmu.LMU(
        memory_d=1,
        order=256,
        theta=784,
-       hidden_cell=tf.keras.layers.SimpleRNNCell(units=10),
+       hidden_cell=keras.layers.SimpleRNNCell(units=10),
    )
 
 Note that the values used above for ``memory_d``, ``order``,

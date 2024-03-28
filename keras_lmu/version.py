@@ -11,7 +11,7 @@ unless the code base represents a release version. Release versions are git
 tagged with the version.
 """
 
-version_info = (0, 7, 1)
+version_info = (0, 8, 0)
 
 name = "keras-lmu"
 dev = 0

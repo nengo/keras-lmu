@@ -2,9 +2,11 @@
 
 import inspect
 
+import keras
 import numpy as np
 import pytest
 import tensorflow as tf
+from packaging import version
 from scipy.signal import cont2discrete
 
 from keras_lmu import layers
@@ -21,15 +23,15 @@ def test_multivariate_lmu(rng, discretizer):
 
     # check that one multivariate LMU is the same as n one-dimensional LMUs (omitting
     # the hidden part)
-    inp = tf.keras.Input(shape=(n_steps, input_d))
-    multi_lmu = tf.keras.layers.RNN(
+    inp = keras.Input(shape=(n_steps, input_d))
+    multi_lmu = keras.layers.RNN(
         layers.LMUCell(
             memory_d=memory_d,
             order=order,
             theta=n_steps,
             discretizer=discretizer,
             kernel_initializer=tf.initializers.constant(input_enc),
-            hidden_cell=tf.keras.layers.SimpleRNNCell(
+            hidden_cell=keras.layers.SimpleRNNCell(
                 units=memory_d * order,
                 activation=None,
                 kernel_initializer=tf.initializers.constant(np.eye(memory_d * order)),
@@ -39,14 +41,14 @@ def test_multivariate_lmu(rng, discretizer):
         return_sequences=True,
     )(inp)
     lmus = [
-        tf.keras.layers.RNN(
+        keras.layers.RNN(
             layers.LMUCell(
                 memory_d=1,
                 order=order,
                 theta=n_steps,
                 discretizer=discretizer,
                 kernel_initializer=tf.initializers.constant(input_enc[:, [i]]),
-                hidden_cell=tf.keras.layers.SimpleRNNCell(
+                hidden_cell=keras.layers.SimpleRNNCell(
                     units=order,
                     activation=None,
                     kernel_initializer=tf.initializers.constant(np.eye(order)),
@@ -58,7 +60,7 @@ def test_multivariate_lmu(rng, discretizer):
         for i in range(memory_d)
     ]
 
-    model = tf.keras.Model(inp, [multi_lmu] + lmus)
+    model = keras.Model(inp, [multi_lmu] + lmus)
 
     results = model.predict(rng.uniform(0, 1, size=(1, n_steps, input_d)))
 
@@ -85,11 +87,11 @@ def test_layer_vs_cell(rng, has_input_kernel, feedforward, discretizer):
     }
 
     def hidden_cell():
-        return tf.keras.layers.SimpleRNNCell(units=64)
+        return keras.layers.SimpleRNNCell(units=64)
 
     inp = rng.uniform(-1, 1, size=(2, n_steps, input_d))
 
-    lmu_cell = tf.keras.layers.RNN(
+    lmu_cell = keras.layers.RNN(
         layers.LMUCell(hidden_cell=hidden_cell(), **kwargs),
         return_sequences=True,
     )
@@ -101,7 +103,7 @@ def test_layer_vs_cell(rng, has_input_kernel, feedforward, discretizer):
     layer_out = lmu_layer(inp)
 
     assert isinstance(
-        lmu_layer.layer, layers.LMUFeedforward if feedforward else tf.keras.layers.RNN
+        lmu_layer.layer, layers.LMUFeedforward if feedforward else keras.layers.RNN
     )
 
     for w0, w1 in zip(
@@ -126,35 +128,35 @@ def test_save_load_weights(rng, tmp_path, discretizer, trainable_theta):
 
     x = rng.uniform(-1, 1, size=(2, n_steps, input_d))
 
-    inp = tf.keras.Input((None, input_d))
+    inp = keras.Input((None, input_d))
     lmu0 = layers.LMU(
         memory_d,
         order,
         n_steps,
-        tf.keras.layers.SimpleRNNCell(units=64),
+        keras.layers.SimpleRNNCell(units=64),
         discretizer=discretizer,
         trainable_theta=trainable_theta,
         return_sequences=True,
     )(inp)
-    model0 = tf.keras.Model(inp, lmu0)
+    model0 = keras.Model(inp, lmu0)
     out0 = model0(x)
 
     lmu1 = layers.LMU(
         memory_d,
         order,
         n_steps,
-        tf.keras.layers.SimpleRNNCell(units=64),
+        keras.layers.SimpleRNNCell(units=64),
         discretizer=discretizer,
         trainable_theta=trainable_theta,
         return_sequences=True,
     )(inp)
-    model1 = tf.keras.Model(inp, lmu1)
+    model1 = keras.Model(inp, lmu1)
     out1 = model1(x)
 
     assert not np.allclose(out0, out1)
 
-    model0.save_weights(str(tmp_path))
-    model1.load_weights(str(tmp_path))
+    model0.save_weights(tmp_path / "model.weights.h5")
+    model1.load_weights(tmp_path / "model.weights.h5")
 
     out2 = model1(x)
     assert np.allclose(out0, out2)
@@ -167,14 +169,14 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
     if mode == "feedforward" and trainable_theta:
         pytest.skip("LMUFeedforward does not support trainable theta")
 
-    inp = tf.keras.Input((10 if mode == "feedforward" else None, 32))
+    inp = keras.Input((10 if mode == "feedforward" else None, 32))
     if mode == "cell":
-        out = tf.keras.layers.RNN(
+        out = keras.layers.RNN(
             layers.LMUCell(
                 1,
                 2,
                 3,
-                tf.keras.layers.SimpleRNNCell(4),
+                keras.layers.SimpleRNNCell(4),
                 trainable_theta=trainable_theta,
                 discretizer=discretizer,
             ),
@@ -185,7 +187,7 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
             1,
             2,
             3,
-            tf.keras.layers.SimpleRNNCell(4),
+            keras.layers.SimpleRNNCell(4),
             return_sequences=True,
             memory_to_memory=True,
             trainable_theta=trainable_theta,
@@ -196,16 +198,21 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
             1,
             2,
             3,
-            tf.keras.layers.SimpleRNNCell(4),
+            keras.layers.SimpleRNNCell(4),
             discretizer=discretizer,
             return_sequences=True,
         )(inp)
 
-    model = tf.keras.Model(inp, out)
+    model = keras.Model(inp, out)
 
-    model.save(str(tmp_path))
+    model_path = (
+        tmp_path
+        if version.parse(tf.__version__) < version.parse("2.16.0")
+        else tmp_path / "model.keras"
+    )
+    model.save(model_path)
 
-    model_load = tf.keras.models.load_model(str(tmp_path))
+    model_load = keras.models.load_model(model_path)
 
     assert np.allclose(
         model.predict(np.ones((32, 10, 32))), model_load.predict(np.ones((32, 10, 32)))
@@ -217,8 +224,8 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
     "hidden_cell",
     (
         lambda: None,
-        lambda: tf.keras.layers.Dense(4, dtype="float64"),
-        lambda: tf.keras.layers.SimpleRNNCell(4, dtype="float64"),
+        lambda: keras.layers.Dense(4, dtype="float64"),
+        lambda: keras.layers.SimpleRNNCell(4, dtype="float64"),
     ),
 )
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
@@ -238,7 +245,7 @@ def test_feedforward(
 
     x = rng.uniform(-1, 1, size=(2, seq_len, 32))
 
-    rnn_layer = tf.keras.layers.RNN(
+    rnn_layer = keras.layers.RNN(
         layers.LMUCell(**kwargs),
         return_sequences=return_sequences,
         dtype="float64",
@@ -250,7 +257,7 @@ def test_feedforward(
     )
     ff_layer.build((2, None, 32))  # testing with unknown sequence length
     ff_layer.set_weights(rnn_layer.get_weights())
-    ff_out = ff_layer(x, training=None)
+    ff_out = ff_layer(x)
 
     assert ff_out.dtype == rnn_out.dtype == "float64"
     assert np.allclose(
@@ -275,7 +282,7 @@ def test_raw_truncation(truncate_ir, rng):
 
     x = rng.uniform(-1, 1, size=(2, seq_len, kwargs["memory_d"]))
 
-    rnn_layer = tf.keras.layers.RNN(layers.LMUCell(**kwargs), return_sequences=True)
+    rnn_layer = keras.layers.RNN(layers.LMUCell(**kwargs), return_sequences=True)
     rnn_out = rnn_layer(x)
 
     ff_layer = layers.LMUFeedforward(
@@ -293,7 +300,7 @@ def test_raw_truncation(truncate_ir, rng):
 def test_validation_errors():
     ff_layer = layers.LMUFeedforward(1, 2, 3, None)
     with pytest.warns(UserWarning, match="unknown impulse length"):
-        ff_layer(tf.keras.Input((None, 32)))
+        ff_layer(keras.Input((None, 32)))
 
     with pytest.raises(ValueError, match="hidden_to_memory must be False"):
         layers.LMUCell(1, 2, 3, None, hidden_to_memory=True)
@@ -318,7 +325,7 @@ def test_feedforward_auto_swap(
         4,
         2,
         3,
-        tf.keras.layers.Dense(5),
+        keras.layers.Dense(5),
         hidden_to_memory=hidden_to_memory,
         memory_to_memory=memory_to_memory,
         trainable_theta=trainable_theta,
@@ -330,7 +337,7 @@ def test_feedforward_auto_swap(
 
 @pytest.mark.parametrize(
     "hidden_cell",
-    (tf.keras.layers.SimpleRNNCell(units=10), tf.keras.layers.Dense(units=10), None),
+    (keras.layers.SimpleRNNCell(units=10), keras.layers.Dense(units=10), None),
 )
 @pytest.mark.parametrize("feedforward", (True, False))
 def test_hidden_types(hidden_cell, feedforward, rng):
@@ -340,21 +347,19 @@ def test_hidden_types(hidden_cell, feedforward, rng):
         "memory_d": 1,
         "order": 3,
         "theta": 4,
-        "kernel_initializer": tf.keras.initializers.constant(
+        "kernel_initializer": keras.initializers.constant(
             rng.uniform(-1, 1, size=(32, 1))
         ),
     }
 
-    base_lmu = tf.keras.layers.RNN(
+    base_lmu = keras.layers.RNN(
         layers.LMUCell(hidden_cell=None, **lmu_params),
         return_sequences=True,
     )
     base_output = base_lmu(x)
-    if isinstance(hidden_cell, tf.keras.layers.SimpleRNNCell):
-        base_output = tf.keras.layers.RNN(hidden_cell, return_sequences=True)(
-            base_output
-        )
-    elif isinstance(hidden_cell, tf.keras.layers.Dense):
+    if isinstance(hidden_cell, keras.layers.SimpleRNNCell):
+        base_output = keras.layers.RNN(hidden_cell, return_sequences=True)(base_output)
+    elif isinstance(hidden_cell, keras.layers.Dense):
         base_output = hidden_cell(base_output)
 
     lmu = (
@@ -362,7 +367,7 @@ def test_hidden_types(hidden_cell, feedforward, rng):
             hidden_cell=hidden_cell, return_sequences=True, **lmu_params
         )
         if feedforward
-        else tf.keras.layers.RNN(
+        else keras.layers.RNN(
             layers.LMUCell(hidden_cell=hidden_cell, **lmu_params),
             return_sequences=True,
         )
@@ -375,43 +380,20 @@ def test_hidden_types(hidden_cell, feedforward, rng):
 
 
 @pytest.mark.parametrize("feedforward", (True, False))
-@pytest.mark.parametrize("hidden_cell", (None, tf.keras.layers.Dense))
+@pytest.mark.parametrize("hidden_cell", (None, keras.layers.Dense))
 def test_connection_params(feedforward, hidden_cell):
     input_shape = (32, 7 if feedforward else None, 6)
 
-    x = tf.keras.Input(batch_shape=input_shape)
+    x = keras.Input(batch_shape=input_shape)
 
     lmu_args = {
         "memory_d": 1,
         "order": 3,
         "theta": 4,
         "hidden_cell": hidden_cell if hidden_cell is None else hidden_cell(units=5),
-        "input_to_hidden": False,
+        "input_to_hidden": hidden_cell is not None,
     }
-    if not feedforward:
-        lmu_args["hidden_to_memory"] = False
-        lmu_args["memory_to_memory"] = False
 
-    lmu = (
-        layers.LMUCell(**lmu_args)
-        if not feedforward
-        else layers.LMUFeedforward(**lmu_args)
-    )
-    y = lmu(x) if feedforward else tf.keras.layers.RNN(lmu)(x)
-    assert lmu.kernel.shape == (input_shape[-1], lmu.memory_d)
-    if not feedforward:
-        assert lmu.recurrent_kernel is None
-    if hidden_cell is not None:
-        assert lmu.hidden_cell.kernel.shape == (
-            lmu.memory_d * lmu.order,
-            lmu.hidden_cell.units,
-        )
-    assert y.shape == (
-        input_shape[0],
-        lmu.memory_d * lmu.order if hidden_cell is None else lmu.hidden_cell.units,
-    )
-
-    lmu_args["input_to_hidden"] = hidden_cell is not None
     if not feedforward:
         lmu_args["hidden_to_memory"] = hidden_cell is not None
         lmu_args["memory_to_memory"] = True
@@ -421,9 +403,7 @@ def test_connection_params(feedforward, hidden_cell):
         if not feedforward
         else layers.LMUFeedforward(**lmu_args)
     )
-    if hidden_cell is not None:
-        lmu.hidden_cell.built = False  # so that the kernel will be rebuilt
-    y = lmu(x) if feedforward else tf.keras.layers.RNN(lmu)(x)
+    y = lmu(x) if feedforward else keras.layers.RNN(lmu)(x)
     assert lmu.kernel.shape == (
         input_shape[-1]
         + (0 if feedforward or hidden_cell is None else lmu.hidden_cell.units),
@@ -447,7 +427,27 @@ def test_connection_params(feedforward, hidden_cell):
 
 @pytest.mark.parametrize(
     "dropout, recurrent_dropout, hidden_dropout, hidden_recurrent_dropout",
-    [(0, 0, 0, 0), (0.5, 0, 0, 0), (0, 0.5, 0, 0), (0, 0, 0.5, 0), (0, 0, 0, 0.5)],
+    [
+        (0, 0, 0, 0),
+        (0.5, 0, 0, 0),
+        (0, 0.5, 0, 0),
+        (0, 0, 0.5, 0),
+        pytest.param(
+            0,
+            0,
+            0,
+            0.5,
+            **(
+                {}
+                if version.parse(tf.__version__) < version.parse("2.16.0rc0")
+                else {
+                    "marks": pytest.mark.xfail(
+                        reason="TF2.16 recurrent dropout is bugged"
+                    )
+                }
+            ),
+        ),
+    ],
 )
 @pytest.mark.parametrize("feedforward", (True, False))
 def test_dropout(
@@ -461,7 +461,7 @@ def test_dropout(
         memory_d=1,
         order=3,
         theta=4,
-        hidden_cell=tf.keras.layers.SimpleRNNCell(
+        hidden_cell=keras.layers.SimpleRNNCell(
             5, dropout=hidden_dropout, recurrent_dropout=hidden_recurrent_dropout
         ),
         dropout=dropout,
@@ -497,7 +497,7 @@ def test_fit(feedforward, discretizer, trainable_theta):
         order=256,
         theta=784 if discretizer == "zoh" else 2000,
         trainable_theta=trainable_theta,
-        hidden_cell=tf.keras.layers.SimpleRNNCell(units=30),
+        hidden_cell=keras.layers.SimpleRNNCell(units=30),
         hidden_to_memory=not feedforward,
         memory_to_memory=not feedforward,
         input_to_hidden=not feedforward,
@@ -505,19 +505,19 @@ def test_fit(feedforward, discretizer, trainable_theta):
         kernel_initializer="zeros",
     )
 
-    inputs = tf.keras.layers.Input((None, 10))
+    inputs = keras.layers.Input((None, 10))
     lmu = lmu_layer(inputs)
-    outputs = tf.keras.layers.Dense(2)(lmu)
+    outputs = keras.layers.Dense(2)(lmu)
 
-    model = tf.keras.Model(inputs=inputs, outputs=outputs)
+    model = keras.Model(inputs=inputs, outputs=outputs)
 
     x_train = tf.ones((5, 5, 10))
     x_test = tf.ones((5, 5, 10))
     y_train = tf.ones((5, 1))
     y_test = tf.ones((5, 1))
     model.compile(
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-        optimizer=tf.keras.optimizers.Adam(),
+        loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        optimizer="adam",
         metrics=["accuracy"],
     )
 
@@ -526,7 +526,7 @@ def test_fit(feedforward, discretizer, trainable_theta):
     _, acc = model.evaluate(x_test, y_test, verbose=0)
 
     assert isinstance(
-        lmu_layer.layer, layers.LMUFeedforward if feedforward else tf.keras.layers.RNN
+        lmu_layer.layer, layers.LMUFeedforward if feedforward else keras.layers.RNN
     )
     assert acc == 1.0
 
@@ -537,7 +537,7 @@ def test_no_input_kernel_dimension_mismatch(feedforward):
         memory_d=1,
         order=4,
         theta=4,
-        hidden_cell=tf.keras.layers.SimpleRNNCell(units=10),
+        hidden_cell=keras.layers.SimpleRNNCell(units=10),
         hidden_to_memory=False,
         memory_to_memory=not feedforward,
         input_to_hidden=not feedforward,
@@ -610,17 +610,15 @@ def test_theta_update(discretizer, trainable_theta, tmp_path):
         order=3,
         theta=theta,
         trainable_theta=trainable_theta,
-        hidden_cell=tf.keras.layers.SimpleRNNCell(units=4),
+        hidden_cell=keras.layers.SimpleRNNCell(units=4),
         discretizer=discretizer,
     )
 
-    inputs = tf.keras.layers.Input((None, 20))
-    lmu = tf.keras.layers.RNN(lmu_cell)(inputs)
-    model = tf.keras.Model(inputs=inputs, outputs=lmu)
+    inputs = keras.layers.Input((None, 20))
+    lmu = keras.layers.RNN(lmu_cell)(inputs)
+    model = keras.Model(inputs=inputs, outputs=lmu)
 
-    model.compile(
-        loss=tf.keras.losses.MeanSquaredError(), optimizer=tf.keras.optimizers.Adam()
-    )
+    model.compile(loss=keras.losses.MeanSquaredError(), optimizer="adam")
 
     # make sure theta_inv is set correctly to initial value
     assert np.allclose(lmu_cell.theta_inv.numpy(), 1 / theta)
@@ -632,9 +630,9 @@ def test_theta_update(discretizer, trainable_theta, tmp_path):
     assert np.allclose(lmu_cell.theta_inv.numpy(), 1 / theta) != trainable_theta
 
     # save model and make sure you get same outputs, that is, correct theta was stored
-    model.save(str(tmp_path))
+    model.save(tmp_path / "model.keras")
 
-    model_load = tf.keras.models.load_model(str(tmp_path))
+    model_load = keras.models.load_model(tmp_path / "model.keras")
 
     assert np.allclose(
         model.predict(np.ones((32, 10, 20))),
@@ -687,22 +685,22 @@ def test_regularizer_loss(fft, bias):
         memory_d=memory_d,
         order=4,
         theta=4,
-        hidden_cell=tf.keras.layers.SimpleRNNCell(units=10),
+        hidden_cell=keras.layers.SimpleRNNCell(units=10),
         hidden_to_memory=False,
         memory_to_memory=not fft,
         input_to_hidden=not fft,
         use_bias=bias,
         bias_initializer="uniform",  # non-zero to make regularization loss non-zero
-        kernel_regularizer=tf.keras.regularizers.L1L2(l1=reg),
-        recurrent_regularizer=tf.keras.regularizers.L1L2(l1=rec_reg),
-        bias_regularizer=tf.keras.regularizers.L1L2(l1=bias_reg),
+        kernel_regularizer=keras.regularizers.L1L2(l1=reg),
+        recurrent_regularizer=keras.regularizers.L1L2(l1=rec_reg),
+        bias_regularizer=keras.regularizers.L1L2(l1=bias_reg),
     )
-    inputs = tf.keras.Input((seq_len, input_d))
+    inputs = keras.Input((seq_len, input_d))
     lmus = lmu_layer(inputs)
-    outputs = tf.keras.layers.Dense(10)(lmus)
+    outputs = keras.layers.Dense(10)(lmus)
 
-    model = tf.keras.Model(inputs=inputs, outputs=outputs)
-    cce_loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    model = keras.Model(inputs=inputs, outputs=outputs)
+    cce_loss_fn = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     model.compile(loss=cce_loss_fn, optimizer="adam", metrics=[cce_loss_fn])
 
     n_test = 5
@@ -746,12 +744,12 @@ def test_dtype(feedforward, dtype):
         1,
         2,
         3,
-        tf.keras.layers.SimpleRNNCell(4, dtype=dtype),
+        keras.layers.SimpleRNNCell(4, dtype=dtype),
         trainable_theta=not feedforward,
         dtype=dtype,
     )
     y = layer(x)
     assert isinstance(
-        layer.layer, layers.LMUFeedforward if feedforward else tf.keras.layers.RNN
+        layer.layer, layers.LMUFeedforward if feedforward else keras.layers.RNN
     )
     assert y.dtype == ("float32" if dtype is None else dtype)

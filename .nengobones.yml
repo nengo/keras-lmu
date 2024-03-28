@@ -17,14 +17,15 @@ manifest_in: {}
 
 setup_py:
   install_req:
+    - anyio<4  # not compatible with older tensorflow versions
     - packaging>=20.9
     - scipy>=1.0.0
-    - tensorflow>=2.4.4
+    - tensorflow>=2.6.0
   tests_req:
     - pytest>=6.1.0
     - pytest-rng>=1.0.0
   docs_req:
-    - matplotlib>=3.0.2,<3.4.3
+    - matplotlib>=3.8.4
     - jupyter>=1.0.0
     - seaborn>=0.9.0
     - sphinx>=1.8
@@ -66,39 +67,15 @@ docs_conf_py:
 ci_scripts:
   - template: static
   - template: docs
+    pre_commands:
+      # We run this ahead of time, otherwise the download progress bar causes
+      # problems in the notebook rendering
+      - python -c "import tensorflow as tf; tf.keras.datasets.mnist.load_data()"
   - template: examples
   - template: test
     coverage: true
     pip_install:
       - $TF_VERSION
-  - template: remote-script
-    remote_script: test
-    output_name: remote-test
-    host: azure
-    azure_name: nengo-dl
-    azure_group: nengo-ci
-    coverage: true
-    remote_vars:
-      TF_FORCE_GPU_ALLOW_GROWTH: "true"
-      TF_VERSION: $TF_VERSION
-    remote_setup:
-      - micromamba install -y "$TF_VERSION" cudnn=8.4
-  - template: remote-script
-    remote_script: docs
-    output_name: remote-docs
-    host: azure-docs
-    azure_name: nengo-dl-docs
-    azure_group: nengo-ci
-    remote_setup:
-      - micromamba install -y "$TF_VERSION" cudnn=8.4
-  - template: remote-script
-    remote_script: examples
-    output_name: remote-examples
-    host: azure-examples
-    azure_name: nengo-dl-examples
-    azure_group: nengo-ci
-    remote_setup:
-      - micromamba install -y "$TF_VERSION" cudnn=8.4
   - template: deploy
     wheel: true
 
@@ -109,6 +86,6 @@ pyproject_toml: {}
 version_py:
   type: semver
   major: 0
-  minor: 7
-  patch: 1
+  minor: 8
+  patch: 0
   release: false

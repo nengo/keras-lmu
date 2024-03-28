@@ -2,30 +2,38 @@
 
 import warnings
 
+import keras
 import numpy as np
 import tensorflow as tf
 from packaging import version
 
 # pylint: disable=ungrouped-imports
-if version.parse(tf.__version__) < version.parse("2.6.0rc0"):
-    from tensorflow.python.keras.layers.recurrent import DropoutRNNCellMixin
-elif version.parse(tf.__version__) < version.parse("2.9.0rc0"):
+tf_version = version.parse(tf.__version__)
+if tf_version < version.parse("2.9.0rc0"):
     from keras.layers.recurrent import DropoutRNNCellMixin
-elif version.parse(tf.__version__) < version.parse("2.13.0rc0"):
+elif tf_version < version.parse("2.13.0rc0"):
     from keras.layers.rnn.dropout_rnn_cell_mixin import DropoutRNNCellMixin
-else:
+elif tf_version < version.parse("2.16.0rc0"):
     from keras.src.layers.rnn.dropout_rnn_cell_mixin import DropoutRNNCellMixin
-
-if version.parse(tf.__version__) < version.parse("2.8.0rc0"):
-    from tensorflow.keras.layers import Layer as BaseRandomLayer
-elif version.parse(tf.__version__) < version.parse("2.13.0rc0"):
-    from keras.engine.base_layer import BaseRandomLayer
 else:
+    from keras.src.layers.rnn.dropout_rnn_cell import (
+        DropoutRNNCell as DropoutRNNCellMixin,
+    )
+
+if tf_version < version.parse("2.8.0rc0"):
+    from tensorflow.keras.layers import Layer as BaseRandomLayer
+elif tf_version < version.parse("2.13.0rc0"):
+    from keras.engine.base_layer import BaseRandomLayer
+elif tf_version < version.parse("2.16.0rc0"):
     from keras.src.engine.base_layer import BaseRandomLayer
+else:
+    from keras.layers import Layer as BaseRandomLayer
 
 
 @tf.keras.utils.register_keras_serializable("keras-lmu")
-class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
+class LMUCell(
+    DropoutRNNCellMixin, BaseRandomLayer
+):  # pylint: disable=too-many-ancestors
     """
     Implementation of LMU cell (to be used within Keras RNN wrapper).
 
@@ -54,7 +62,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         entire sequence will still be processed in order for information to be
         projected to and from the hidden layer. If ``trainable_theta`` is enabled, then
         theta will be updated during the course of training.
-    hidden_cell : ``tf.keras.layers.Layer``
+    hidden_cell : ``keras.layers.Layer``
         Keras Layer/RNNCell implementing the hidden component.
     trainable_theta : bool
         If True, theta is learnt over the course of training. Otherwise, it is kept
@@ -79,15 +87,15 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         no weights will be used, and the input size must match the memory/hidden size.
     recurrent_initializer : ``tf.initializers.Initializer``
         Initializer for ``memory_to_memory`` weights (if that connection is enabled).
-    kernel_regularizer : ``tf.keras.regularizers.Regularizer``
+    kernel_regularizer : ``keras.regularizers.Regularizer``
         Regularizer for weights from input to memory/hidden component.
-    recurrent_regularizer : ``tf.keras.regularizers.Regularizer``
+    recurrent_regularizer : ``keras.regularizers.Regularizer``
         Regularizer for ``memory_to_memory`` weights (if that connection is enabled).
     use_bias : bool
         If True, the memory component includes a bias term.
     bias_initializer : ``tf.initializers.Initializer``
         Initializer for the memory component bias term. Only used if ``use_bias=True``.
-    bias_regularizer : ``tf.keras.regularizers.Regularizer``
+    bias_regularizer : ``keras.regularizers.Regularizer``
         Regularizer for the memory component bias term. Only used if ``use_bias=True``.
     dropout : float
         Dropout rate on input connections.
@@ -124,6 +132,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         bias_regularizer=None,
         dropout=0,
         recurrent_dropout=0,
+        seed=None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -146,6 +155,9 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         self.bias_regularizer = bias_regularizer
         self.dropout = dropout
         self.recurrent_dropout = recurrent_dropout
+        self.seed = seed
+        if tf_version >= version.parse("2.16.0"):
+            self.seed_generator = keras.random.SeedGenerator(seed)
 
         self.kernel = None
         self.recurrent_kernel = None
@@ -189,7 +201,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         initial value passed in to the constructor.
         """
         if self.built:
-            return 1 / tf.keras.backend.get_value(self.theta_inv)
+            return 1 / self.theta_inv.numpy()
 
         return self._init_theta
 
@@ -292,7 +304,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
                 name="theta_inv",
                 shape=(),
                 initializer=tf.initializers.constant(1 / self._init_theta),
-                constraint=tf.keras.constraints.NonNeg(),
+                constraint=keras.constraints.NonNeg(),
             )
         else:
             self.theta_inv = tf.constant(1 / self._init_theta, dtype=self.dtype)
@@ -317,7 +329,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         # generate A and B matrices
         self._gen_AB()
 
-    def call(self, inputs, states, training=None):  # noqa: C901
+    def call(self, inputs, states, training=False):  # noqa: C901
         """
         Apply this cell to inputs.
 
@@ -327,9 +339,6 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         callable behaviour (like ``my_layer(inputs)``), which will apply this method
         with some additional bookkeeping.
         """
-
-        if training is None:
-            training = tf.keras.backend.learning_phase()
 
         states = tf.nest.flatten(states)
 
@@ -344,18 +353,18 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
             if self.hidden_to_memory
             else inputs
         )
-        if self.dropout > 0:
-            u *= self.get_dropout_mask_for_cell(u, training)
+        if training and self.dropout > 0:
+            u *= self.get_dropout_mask(u)
         if self.kernel is not None:
             u = tf.matmul(u, self.kernel, name="kernel_matmul")
         if self.bias is not None:
             u = u + self.bias
 
         if self.memory_to_memory:
-            if self.recurrent_dropout > 0:
+            if training and self.recurrent_dropout > 0:
                 # note: we don't apply dropout to the memory input, only
                 # the recurrent kernel
-                rec_m = m * self.get_recurrent_dropout_mask_for_cell(m, training)
+                rec_m = m * self.get_recurrent_dropout_mask(m)
             else:
                 rec_m = m
 
@@ -409,6 +418,36 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
 
         return o, [m] + h
 
+    def get_dropout_mask(self, step_input):
+        """Get dropout mask for cell input."""
+        if tf_version < version.parse("2.16.0rc0"):
+            return super().get_dropout_mask_for_cell(step_input, True, count=1)
+        return super().get_dropout_mask(step_input)
+
+    def get_recurrent_dropout_mask(self, step_input):
+        """Get dropout mask for recurrent input."""
+        if tf_version < version.parse("2.16.0rc0"):
+            return super().get_recurrent_dropout_mask_for_cell(
+                step_input, True, count=1
+            )
+
+        # This is copied from DropoutRNNCell.get_recurrent_dropout_mask, with the
+        # change noted below in order to fix a bug.
+        # See https://github.com/keras-team/keras/issues/19395
+        if not hasattr(self, "_recurrent_dropout_mask"):
+            self._recurrent_dropout_mask = None
+        if self._recurrent_dropout_mask is None and self.recurrent_dropout > 0:
+            ones = keras.ops.ones_like(step_input)
+            self._recurrent_dropout_mask = keras.src.backend.random.dropout(
+                ones,
+                # --- START DIFF ---
+                # rate=self.dropout,
+                rate=self.recurrent_dropout,
+                # --- END DIFF ---
+                seed=self.seed_generator,
+            )
+        return self._recurrent_dropout_mask
+
     def reset_dropout_mask(self):
         """Reset dropout mask for memory and hidden components."""
         super().reset_dropout_mask()
@@ -430,7 +469,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
                 "memory_d": self.memory_d,
                 "order": self.order,
                 "theta": self._init_theta,
-                "hidden_cell": tf.keras.layers.serialize(self.hidden_cell),
+                "hidden_cell": keras.layers.serialize(self.hidden_cell),
                 "trainable_theta": self.trainable_theta,
                 "hidden_to_memory": self.hidden_to_memory,
                 "memory_to_memory": self.memory_to_memory,
@@ -445,6 +484,7 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
                 "bias_regularizer": self.bias_regularizer,
                 "dropout": self.dropout,
                 "recurrent_dropout": self.recurrent_dropout,
+                "seed": self.seed,
             }
         )
 
@@ -457,13 +497,13 @@ class LMUCell(DropoutRNNCellMixin, BaseRandomLayer):
         config["hidden_cell"] = (
             None
             if config["hidden_cell"] is None
-            else tf.keras.layers.deserialize(config["hidden_cell"])
+            else keras.layers.deserialize(config["hidden_cell"])
         )
         return super().from_config(config)
 
 
 @tf.keras.utils.register_keras_serializable("keras-lmu")
-class LMU(tf.keras.layers.Layer):
+class LMU(keras.layers.Layer):  # pylint: disable=too-many-ancestors,abstract-method
     """
     A layer of trainable low-dimensional delay systems.
 
@@ -495,7 +535,7 @@ class LMU(tf.keras.layers.Layer):
         entire sequence will still be processed in order for information to be
         projected to and from the hidden layer. If ``trainable_theta`` is enabled, then
         theta will be updated during the course of training.
-    hidden_cell : ``tf.keras.layers.Layer``
+    hidden_cell : ``keras.layers.Layer``
         Keras Layer/RNNCell implementing the hidden component.
     trainable_theta : bool
         If True, theta is learnt over the course of training. Otherwise, it is kept
@@ -520,15 +560,15 @@ class LMU(tf.keras.layers.Layer):
         no weights will be used, and the input size must match the memory/hidden size.
     recurrent_initializer : ``tf.initializers.Initializer``
         Initializer for ``memory_to_memory`` weights (if that connection is enabled).
-    kernel_regularizer : ``tf.keras.regularizers.Regularizer``
+    kernel_regularizer : ``keras.regularizers.Regularizer``
         Regularizer for weights from input to memory/hidden component.
-    recurrent_regularizer : ``tf.keras.regularizers.Regularizer``
+    recurrent_regularizer : ``keras.regularizers.Regularizer``
         Regularizer for ``memory_to_memory`` weights (if that connection is enabled).
     use_bias : bool
         If True, the memory component includes a bias term.
     bias_initializer : ``tf.initializers.Initializer``
         Initializer for the memory component bias term. Only used if ``use_bias=True``.
-    bias_regularizer : ``tf.keras.regularizers.Regularizer``
+    bias_regularizer : ``keras.regularizers.Regularizer``
         Regularizer for the memory component bias term. Only used if ``use_bias=True``.
     dropout : float
         Dropout rate on input connections.
@@ -647,7 +687,7 @@ class LMU(tf.keras.layers.Layer):
                 dtype=self.dtype,
             )
         else:
-            self.layer = tf.keras.layers.RNN(
+            self.layer = keras.layers.RNN(
                 LMUCell(
                     memory_d=self.memory_d,
                     order=self.order,
@@ -675,7 +715,7 @@ class LMU(tf.keras.layers.Layer):
 
         self.layer.build(input_shape)
 
-    def call(self, inputs, training=None):
+    def call(self, inputs, training=False):
         """
         Apply this layer to inputs.
 
@@ -697,7 +737,7 @@ class LMU(tf.keras.layers.Layer):
                 "memory_d": self.memory_d,
                 "order": self.order,
                 "theta": self._init_theta,
-                "hidden_cell": tf.keras.layers.serialize(self.hidden_cell),
+                "hidden_cell": keras.layers.serialize(self.hidden_cell),
                 "trainable_theta": self.trainable_theta,
                 "hidden_to_memory": self.hidden_to_memory,
                 "memory_to_memory": self.memory_to_memory,
@@ -725,13 +765,15 @@ class LMU(tf.keras.layers.Layer):
         config["hidden_cell"] = (
             None
             if config["hidden_cell"] is None
-            else tf.keras.layers.deserialize(config["hidden_cell"])
+            else keras.layers.deserialize(config["hidden_cell"])
         )
         return super().from_config(config)
 
 
 @tf.keras.utils.register_keras_serializable("keras-lmu")
-class LMUFeedforward(tf.keras.layers.Layer):
+class LMUFeedforward(
+    keras.layers.Layer
+):  # pylint: disable=too-many-ancestors,abstract-method
     """
     Layer class for the feedforward variant of the LMU.
 
@@ -756,7 +798,7 @@ class LMUFeedforward(tf.keras.layers.Layer):
         number of steps will be represented at the time of prediction, however the
         entire sequence will still be processed in order for information to be
         projected to and from the hidden layer.
-    hidden_cell : ``tf.keras.layers.Layer``
+    hidden_cell : ``keras.layers.Layer``
         Keras Layer implementing the hidden component.
     input_to_hidden : bool
         If True, connect the input directly to the hidden component (in addition to
@@ -770,13 +812,13 @@ class LMUFeedforward(tf.keras.layers.Layer):
     kernel_initializer : ``tf.initializers.Initializer``
         Initializer for weights from input to memory/hidden component. If ``None``,
         no weights will be used, and the input size must match the memory/hidden size.
-    kernel_regularizer : ``tf.keras.regularizers.Regularizer``
+    kernel_regularizer : ``keras.regularizers.Regularizer``
         Regularizer for weights from input to memory/hidden component.
     use_bias : bool
         If True, the memory component includes a bias term.
     bias_initializer : ``tf.initializers.Initializer``
         Initializer for the memory component bias term. Only used if ``use_bias=True``.
-    bias_regularizer : ``tf.keras.regularizers.Regularizer``
+    bias_regularizer : ``keras.regularizers.Regularizer``
         Regularizer for the memory component bias term. Only used if ``use_bias=True``.
     dropout : float
         Dropout rate on input connections.
@@ -835,7 +877,7 @@ class LMUFeedforward(tf.keras.layers.Layer):
         self.truncate_ir = truncate_ir
 
         # create a standard LMUCell to generate the impulse response during `build`
-        self.delay_layer = tf.keras.layers.RNN(
+        self.delay_layer = keras.layers.RNN(
             LMUCell(
                 memory_d=1,
                 order=order,
@@ -856,8 +898,9 @@ class LMUFeedforward(tf.keras.layers.Layer):
         self.impulse_response = None
         self.kernel = None
         self.bias = None
+        self.dropout_layer = None
 
-    def build(self, input_shape):
+    def build(self, input_shape):  # noqa: C901
         """
         Builds the layer.
 
@@ -947,7 +990,13 @@ class LMUFeedforward(tf.keras.layers.Layer):
             with tf.name_scope(self.hidden_cell.name):
                 self.hidden_cell.build((input_shape[0], hidden_input_d))
 
-    def call(self, inputs, training=None):
+        if self.dropout:
+            self.dropout_layer = keras.layers.Dropout(
+                self.dropout, noise_shape=(input_shape[0], 1) + tuple(input_shape[2:])
+            )
+            self.dropout_layer.build(input_shape)
+
+    def call(self, inputs, training=False):
         """
         Apply this layer to inputs.
 
@@ -958,13 +1007,8 @@ class LMUFeedforward(tf.keras.layers.Layer):
         with some additional bookkeeping.
         """
 
-        if training is None:
-            training = tf.keras.backend.learning_phase()
-
         if self.dropout:
-            inputs = tf.keras.layers.Dropout(
-                self.dropout, noise_shape=(inputs.shape[0], 1) + inputs.shape[2:]
-            )(inputs)
+            inputs = self.dropout_layer(inputs)
 
         # Apply input encoders
         u = inputs
@@ -988,7 +1032,7 @@ class LMUFeedforward(tf.keras.layers.Layer):
         if self.hidden_cell is None:
             h = h_in if self.return_sequences else h_in[:, -1]
         elif hasattr(self.hidden_cell, "state_size"):
-            h = tf.keras.layers.RNN(
+            h = keras.layers.RNN(
                 self.hidden_cell,
                 return_sequences=self.return_sequences,
                 dtype=self.dtype,
@@ -998,7 +1042,7 @@ class LMUFeedforward(tf.keras.layers.Layer):
                 # no point applying the hidden cell to the whole sequence
                 h = self.hidden_cell(h_in[:, -1], training=training)
             else:
-                h = tf.keras.layers.TimeDistributed(self.hidden_cell)(
+                h = keras.layers.TimeDistributed(self.hidden_cell)(
                     h_in, training=training
                 )
 
@@ -1056,7 +1100,7 @@ class LMUFeedforward(tf.keras.layers.Layer):
                 "memory_d": self.memory_d,
                 "order": self.order,
                 "theta": self.theta,
-                "hidden_cell": tf.keras.layers.serialize(self.hidden_cell),
+                "hidden_cell": keras.layers.serialize(self.hidden_cell),
                 "input_to_hidden": self.input_to_hidden,
                 "discretizer": self.discretizer,
                 "kernel_initializer": self.kernel_initializer,
@@ -1080,6 +1124,6 @@ class LMUFeedforward(tf.keras.layers.Layer):
         config["hidden_cell"] = (
             None
             if config["hidden_cell"] is None
-            else tf.keras.layers.deserialize(config["hidden_cell"])
+            else keras.layers.deserialize(config["hidden_cell"])
         )
         return super().from_config(config)
