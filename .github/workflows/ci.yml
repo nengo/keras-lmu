@@ -46,13 +46,9 @@ jobs:
             python-version: "3.11"
             coverage-name: latest
           - script: test
-            tf-version: tensorflow==2.4.4
-            python-version: "3.8"
-            coverage-name: oldest
-          - script: test
             tf-version: tensorflow~=2.6.0
             python-version: "3.8"
-            coverage-name: tf-2.6
+            coverage-name: oldest
           - script: remote-docs
             tf-version: tensorflow==2.10
             python-version: "3.9"

@@ -4,7 +4,7 @@
 KerasLMU license
 ****************
 
-Copyright (c) 2019-2023 Applied Brain Research
+Copyright (c) 2019-2024 Applied Brain Research
 
 **ABR License**
 
@@ -26,3 +26,4 @@ please contact `<sales@appliedbrainresearch.com>`_.
 If you have any technical support questions, please post them on the ABR
 community forums at `<https://forum.nengo.ai/>`_ or contact
 `<support@appliedbrainresearch.com>`_.
+

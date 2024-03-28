@@ -2,6 +2,7 @@
 
 import timeit
 
+import keras
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -10,7 +11,7 @@ from keras_lmu import layers
 from keras_lmu.tests import tf_gpu_installed
 
 
-class SteptimeLogger(tf.keras.callbacks.Callback):
+class SteptimeLogger(keras.callbacks.Callback):
     """Callback that records step times."""
 
     def __init__(self, count_mode="samples", stateful_metrics=None):
@@ -53,7 +54,7 @@ def test_performance(mode, min_time, max_time):
 
     kwargs = {"memory_d": dims, "order": 256, "theta": 784, "hidden_cell": None}
     if mode == "rnn":
-        lmu_layer = tf.keras.layers.RNN(
+        lmu_layer = keras.layers.RNN(
             layers.LMUCell(**kwargs),
             return_sequences=False,
         )
@@ -62,18 +63,18 @@ def test_performance(mode, min_time, max_time):
             return_sequences=False, conv_mode=mode, **kwargs
         )
 
-    inputs = tf.keras.layers.Input((seq_len, dims), batch_size=batch_size)
+    inputs = keras.layers.Input((seq_len, dims), batch_size=batch_size)
     lmu = lmu_layer(inputs)
-    outputs = tf.keras.layers.Dense(odims)(lmu)
+    outputs = keras.layers.Dense(odims)(lmu)
 
-    model = tf.keras.Model(inputs=inputs, outputs=outputs)
+    model = keras.Model(inputs=inputs, outputs=outputs)
 
     n_train = 20 * batch_size
     x_train = tf.random.uniform((n_train, seq_len, dims), minval=-1, maxval=1, seed=0)
     y_train = tf.random.uniform((n_train, odims), minval=-1, maxval=1, seed=1)
     model.compile(
         loss="mse",
-        optimizer=tf.keras.optimizers.RMSprop(),
+        optimizer=keras.optimizers.RMSprop(),
     )
 
     steptimes = SteptimeLogger()
