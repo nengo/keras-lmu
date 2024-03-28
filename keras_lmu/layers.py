@@ -9,9 +9,7 @@ from packaging import version
 
 # pylint: disable=ungrouped-imports
 tf_version = version.parse(tf.__version__)
-if tf_version < version.parse("2.6.0rc0"):
-    from tensorflow.python.keras.layers.recurrent import DropoutRNNCellMixin
-elif tf_version < version.parse("2.9.0rc0"):
+if tf_version < version.parse("2.9.0rc0"):
     from keras.layers.recurrent import DropoutRNNCellMixin
 elif tf_version < version.parse("2.13.0rc0"):
     from keras.layers.rnn.dropout_rnn_cell_mixin import DropoutRNNCellMixin
@@ -32,7 +30,7 @@ else:
     from keras.layers import Layer as BaseRandomLayer
 
 
-@keras.utils.register_keras_serializable("keras-lmu")
+@tf.keras.utils.register_keras_serializable("keras-lmu")
 class LMUCell(
     DropoutRNNCellMixin, BaseRandomLayer
 ):  # pylint: disable=too-many-ancestors
@@ -158,7 +156,8 @@ class LMUCell(
         self.dropout = dropout
         self.recurrent_dropout = recurrent_dropout
         self.seed = seed
-        self.seed_generator = keras.random.SeedGenerator(seed)
+        if tf_version >= version.parse("2.16.0"):
+            self.seed_generator = keras.random.SeedGenerator(seed)
 
         self.kernel = None
         self.recurrent_kernel = None
@@ -503,7 +502,7 @@ class LMUCell(
         return super().from_config(config)
 
 
-@keras.utils.register_keras_serializable("keras-lmu")
+@tf.keras.utils.register_keras_serializable("keras-lmu")
 class LMU(keras.layers.Layer):  # pylint: disable=too-many-ancestors,abstract-method
     """
     A layer of trainable low-dimensional delay systems.
@@ -771,7 +770,7 @@ class LMU(keras.layers.Layer):  # pylint: disable=too-many-ancestors,abstract-me
         return super().from_config(config)
 
 
-@keras.utils.register_keras_serializable("keras-lmu")
+@tf.keras.utils.register_keras_serializable("keras-lmu")
 class LMUFeedforward(
     keras.layers.Layer
 ):  # pylint: disable=too-many-ancestors,abstract-method

@@ -205,9 +205,14 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
 
     model = keras.Model(inp, out)
 
-    model.save(tmp_path / "model.keras")
+    model_path = (
+        tmp_path
+        if version.parse(tf.__version__) < version.parse("2.16.0")
+        else tmp_path / "model.keras"
+    )
+    model.save(model_path)
 
-    model_load = keras.models.load_model(tmp_path / "model.keras")
+    model_load = keras.models.load_model(model_path)
 
     assert np.allclose(
         model.predict(np.ones((32, 10, 32))), model_load.predict(np.ones((32, 10, 32)))
@@ -512,7 +517,7 @@ def test_fit(feedforward, discretizer, trainable_theta):
     y_test = tf.ones((5, 1))
     model.compile(
         loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-        optimizer=keras.optimizers.Adam(),
+        optimizer="adam",
         metrics=["accuracy"],
     )
 
@@ -613,9 +618,7 @@ def test_theta_update(discretizer, trainable_theta, tmp_path):
     lmu = keras.layers.RNN(lmu_cell)(inputs)
     model = keras.Model(inputs=inputs, outputs=lmu)
 
-    model.compile(
-        loss=keras.losses.MeanSquaredError(), optimizer=keras.optimizers.Adam()
-    )
+    model.compile(loss=keras.losses.MeanSquaredError(), optimizer="adam")
 
     # make sure theta_inv is set correctly to initial value
     assert np.allclose(lmu_cell.theta_inv.numpy(), 1 / theta)

@@ -19,7 +19,7 @@ setup_py:
   install_req:
     - packaging>=20.9
     - scipy>=1.0.0
-    - tensorflow>=2.4.4
+    - tensorflow>=2.6.0
   tests_req:
     - pytest>=6.1.0
     - pytest-rng>=1.0.0
@@ -109,6 +109,6 @@ pyproject_toml: {}
 version_py:
   type: semver
   major: 0
-  minor: 7
-  patch: 1
+  minor: 8
+  patch: 0
   release: false
