@@ -22,7 +22,7 @@ Release history
 0.7.1 (unreleased)
 ==================
 
-*Compatible with TensorFlow 2.4 - 2.13*
+*Compatible with TensorFlow 2.4 - 2.16*
 
 0.7.0 (July 20, 2023)
 =====================
