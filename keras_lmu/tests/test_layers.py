@@ -308,6 +308,12 @@ def test_validation_errors():
     with pytest.raises(ValueError, match="Unrecognized conv mode"):
         layers.LMUFeedforward(1, 2, 3, None, conv_mode="raw_bad")
 
+    with pytest.raises(ValueError, match="input_d must be specified"):
+        layers.LMUCell(1, 2, 3, None, input_d=None, input_to_hidden=True)
+
+    with pytest.raises(ValueError, match="does not match expected dimensionality"):
+        layers.LMUCell(1, 2, 3, None, input_d=1).build((1, 1, 2))
+
 
 @pytest.mark.parametrize(
     "should_use_feedforward, hidden_to_memory, memory_to_memory, trainable_theta",
@@ -381,7 +387,8 @@ def test_hidden_types(hidden_cell, feedforward, rng):
 
 @pytest.mark.parametrize("feedforward", (True, False))
 @pytest.mark.parametrize("hidden_cell", (None, keras.layers.Dense))
-def test_connection_params(feedforward, hidden_cell):
+@pytest.mark.parametrize("input_to_hidden", (True, False))
+def test_connection_params(feedforward, hidden_cell, input_to_hidden):
     input_shape = (32, 7 if feedforward else None, 6)
 
     x = keras.Input(batch_shape=input_shape)
@@ -391,12 +398,13 @@ def test_connection_params(feedforward, hidden_cell):
         "order": 3,
         "theta": 4,
         "hidden_cell": hidden_cell if hidden_cell is None else hidden_cell(units=5),
-        "input_to_hidden": hidden_cell is not None,
+        "input_to_hidden": input_to_hidden,
     }
 
     if not feedforward:
         lmu_args["hidden_to_memory"] = hidden_cell is not None
         lmu_args["memory_to_memory"] = True
+        lmu_args["input_d"] = input_shape[-1]
 
     lmu = (
         layers.LMUCell(**lmu_args)
@@ -416,13 +424,19 @@ def test_connection_params(feedforward, hidden_cell):
         )
     if hidden_cell is not None:
         assert lmu.hidden_cell.kernel.shape == (
-            lmu.memory_d * lmu.order + input_shape[-1],
+            lmu.memory_d * lmu.order + (input_shape[-1] if input_to_hidden else 0),
             lmu.hidden_cell.units,
         )
     assert y.shape == (
         input_shape[0],
-        lmu.memory_d * lmu.order if hidden_cell is None else lmu.hidden_cell.units,
+        (
+            (lmu.memory_d * lmu.order + (input_shape[-1] if input_to_hidden else 0))
+            if hidden_cell is None
+            else lmu.hidden_cell.units
+        ),
     )
+    if not feedforward:
+        assert lmu.output_size == y.shape[-1]
 
 
 @pytest.mark.parametrize(

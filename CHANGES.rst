@@ -24,6 +24,14 @@ Release history
 
 *Compatible with TensorFlow 2.6 - 2.16*
 
+**Added**
+
+- Added an ``input_d`` parameter to ``LMUCell``. This only needs to be specified
+  when ``hidden_cell=None`` and ``input_to_hidden=True``; in that scenario it is
+  required in order to accurately set ``LMUCell.output_size``. (`#56`_)
+
+.. _#56: https://github.com/nengo/keras-lmu/pull/56
+
 0.7.0 (July 20, 2023)
 =====================
 

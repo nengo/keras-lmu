@@ -101,6 +101,10 @@ class LMUCell(
         Dropout rate on input connections.
     recurrent_dropout : float
         Dropout rate on ``memory_to_memory`` connection.
+    input_d : Optional[int]
+        Size of last axis on input signals. This only needs to be specified if
+        hidden_cell=None and input_to_hidden=True, otherwise the input dimensionality
+        can be inferred dynamically.
 
     References
     ----------
@@ -132,6 +136,7 @@ class LMUCell(
         bias_regularizer=None,
         dropout=0,
         recurrent_dropout=0,
+        input_d=None,
         seed=None,
         **kwargs,
     ):
@@ -155,6 +160,7 @@ class LMUCell(
         self.bias_regularizer = bias_regularizer
         self.dropout = dropout
         self.recurrent_dropout = recurrent_dropout
+        self.input_d = input_d
         self.seed = seed
         if tf_version >= version.parse("2.16.0"):
             self.seed_generator = keras.random.SeedGenerator(seed)
@@ -178,6 +184,15 @@ class LMUCell(
                 )
 
             self.hidden_output_size = self.memory_d * self.order
+
+            if self.input_to_hidden:
+                if self.input_d is None:
+                    raise ValueError(
+                        "input_d must be specified when setting input_to_hidden=True "
+                        "with hidden_cell=None"
+                    )
+                self.hidden_output_size += self.input_d
+
             self.hidden_state_size = []
         elif hasattr(self.hidden_cell, "state_size"):
             self.hidden_output_size = self.hidden_cell.output_size
@@ -271,6 +286,12 @@ class LMUCell(
         """
 
         super().build(input_shape)
+
+        if self.input_d is not None and input_shape[-1] != self.input_d:
+            raise ValueError(
+                f"Input dimensionality ({input_shape[-1]}) does not match expected "
+                f"dimensionality ({self.input_d})"
+            )
 
         enc_d = input_shape[-1]
         if self.hidden_to_memory:
@@ -484,6 +505,7 @@ class LMUCell(
                 "bias_regularizer": self.bias_regularizer,
                 "dropout": self.dropout,
                 "recurrent_dropout": self.recurrent_dropout,
+                "input_d": self.input_d,
                 "seed": self.seed,
             }
         )
