@@ -29,8 +29,13 @@ elif tf_version < version.parse("2.16.0rc0"):
 else:
     from keras.layers import Layer as BaseRandomLayer
 
+if tf_version < version.parse("2.16.0rc0"):
+    from tensorflow.keras.utils import register_keras_serializable
+else:
+    from keras.saving import register_keras_serializable
 
-@tf.keras.utils.register_keras_serializable("keras-lmu")
+
+@register_keras_serializable("keras-lmu")
 class LMUCell(
     DropoutRNNCellMixin, BaseRandomLayer
 ):  # pylint: disable=too-many-ancestors
@@ -524,7 +529,7 @@ class LMUCell(
         return super().from_config(config)
 
 
-@tf.keras.utils.register_keras_serializable("keras-lmu")
+@register_keras_serializable("keras-lmu")
 class LMU(keras.layers.Layer):  # pylint: disable=too-many-ancestors,abstract-method
     """
     A layer of trainable low-dimensional delay systems.
@@ -792,7 +797,7 @@ class LMU(keras.layers.Layer):  # pylint: disable=too-many-ancestors,abstract-me
         return super().from_config(config)
 
 
-@tf.keras.utils.register_keras_serializable("keras-lmu")
+@register_keras_serializable("keras-lmu")
 class LMUFeedforward(
     keras.layers.Layer
 ):  # pylint: disable=too-many-ancestors,abstract-method

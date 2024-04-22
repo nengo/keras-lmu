@@ -41,14 +41,11 @@ a 10-dimensional input and a 20-dimensional output.
 
 .. testcode::
 
-   from tensorflow.keras import Input, Model
-   from tensorflow.keras.layers import Dense
-
-   inputs = Input((None, 10))
+   inputs = keras.Input((None, 10))
    lmus = lmu_layer(inputs)
-   outputs = Dense(20)(lmus)
+   outputs = keras.layers.Dense(20)(lmus)
 
-   model = Model(inputs=inputs, outputs=outputs)
+   model = keras.Model(inputs=inputs, outputs=outputs)
 
 
 Other parameters

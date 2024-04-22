@@ -70,7 +70,7 @@ ci_scripts:
     pre_commands:
       # We run this ahead of time, otherwise the download progress bar causes
       # problems in the notebook rendering
-      - python -c "import tensorflow as tf; tf.keras.datasets.mnist.load_data()"
+      - python -c "import keras; keras.datasets.mnist.load_data()"
   - template: examples
   - template: test
     coverage: true
