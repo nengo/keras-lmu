@@ -1046,7 +1046,8 @@ class LMUFeedforward(
 
         if self.conv_mode == "fft":
             m = self._fft_convolution(u)
-        elif self.conv_mode == "raw":
+        else:
+            assert self.conv_mode == "raw"
             m = self._raw_convolution(u)
 
         # apply hidden cell

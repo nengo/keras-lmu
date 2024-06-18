@@ -193,7 +193,8 @@ def test_save_load_serialization(mode, tmp_path, trainable_theta, discretizer):
             trainable_theta=trainable_theta,
             discretizer=discretizer,
         )(inp)
-    elif mode == "feedforward":
+    else:
+        assert mode == "feedforward"
         out = layers.LMUFeedforward(
             1,
             2,
@@ -663,7 +664,8 @@ def test_theta_attribute(mode):
         layer = layers.LMUCell(1, 2, theta, None, trainable_theta=True)
     elif mode == "rnn":
         layer = layers.LMU(1, 2, theta, None, trainable_theta=True)
-    elif mode == "feedforward":
+    else:
+        assert mode == "feedforward"
         layer = layers.LMU(1, 2, theta, None, trainable_theta=False)
 
     assert not layer.built

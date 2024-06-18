@@ -58,7 +58,8 @@ def test_performance(mode, min_time, max_time):
             layers.LMUCell(**kwargs),
             return_sequences=False,
         )
-    elif mode in ("fft", "raw"):
+    else:
+        assert mode in ["fft", "raw"]
         lmu_layer = layers.LMUFeedforward(
             return_sequences=False, conv_mode=mode, **kwargs
         )
