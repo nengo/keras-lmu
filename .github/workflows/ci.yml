@@ -51,6 +51,7 @@ jobs:
             coverage-name: oldest
           - script: test
             tf-version: tensorflow~=2.9.0
+            numpy-version: numpy<2
             coverage-name: tf-2.9
           - script: test
             tf-version: tensorflow~=2.13.0
@@ -65,6 +66,7 @@ jobs:
       fail-fast: false
     env:
       TF_VERSION: ${{ matrix.tf-version || 'tensorflow' }}
+      NUMPY_VERSION: ${{ matrix.numpy-version || 'numpy' }}
       TF_FORCE_GPU_ALLOW_GROWTH: true
       GH_TOKEN: ${{ secrets.PUBLIC_GH_TOKEN }}
     runs-on: ${{ matrix.runs-on || 'ubuntu-latest' }}

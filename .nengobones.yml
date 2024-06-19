@@ -76,6 +76,7 @@ ci_scripts:
     coverage: true
     pip_install:
       - $TF_VERSION
+      - $NUMPY_VERSION
   - template: deploy
     wheel: true
 
