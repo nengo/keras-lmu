@@ -20,9 +20,7 @@ else:
         DropoutRNNCell as DropoutRNNCellMixin,
     )
 
-if tf_version < version.parse("2.8.0rc0"):
-    from tensorflow.keras.layers import Layer as BaseRandomLayer
-elif tf_version < version.parse("2.13.0rc0"):
+if tf_version < version.parse("2.13.0rc0"):
     from keras.engine.base_layer import BaseRandomLayer
 elif tf_version < version.parse("2.16.0rc0"):
     from keras.src.engine.base_layer import BaseRandomLayer
