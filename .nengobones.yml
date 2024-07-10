@@ -90,4 +90,4 @@ version_py:
   major: 0
   minor: 8
   patch: 0
-  release: false
+  release: true
