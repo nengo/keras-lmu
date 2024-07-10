@@ -46,7 +46,7 @@ jobs:
             python-version: "3.11"
             coverage-name: latest
           - script: test
-            tf-version: tensorflow~=2.6.0
+            tf-version: tensorflow~=2.8.0
             python-version: "3.8"
             coverage-name: oldest
           - script: test

@@ -73,7 +73,9 @@ def test_multivariate_lmu(rng, discretizer):
 @pytest.mark.parametrize("has_input_kernel", (True, False))
 @pytest.mark.parametrize("feedforward", (True, False))
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
-def test_layer_vs_cell(rng, has_input_kernel, feedforward, discretizer):
+def test_layer_vs_cell(rng, has_input_kernel, feedforward, discretizer, seed):
+    tf.keras.utils.set_random_seed(seed)
+
     n_steps = 10
     input_d = 32
     kwargs = {
@@ -112,10 +114,8 @@ def test_layer_vs_cell(rng, has_input_kernel, feedforward, discretizer):
     ):
         assert np.allclose(w0.numpy(), w1.numpy())
 
-    assert np.allclose(cell_out, lmu_cell(inp))
-    assert np.allclose(cell_out, layer_out, atol=3e-6 if feedforward else 1e-8), np.max(
-        np.abs(cell_out - layer_out)
-    )
+    np.testing.assert_allclose(cell_out, lmu_cell(inp))
+    np.testing.assert_allclose(cell_out, layer_out, atol=3e-6 if feedforward else 1e-8)
 
 
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
@@ -534,6 +534,8 @@ def test_fit(feedforward, discretizer, trainable_theta):
         loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
         optimizer="adam",
         metrics=["accuracy"],
+        # can't JIT compile the `tf.linalg.expm` operation used in this particular case
+        jit_compile=not (trainable_theta and discretizer == "zoh"),
     )
 
     model.fit(x_train, y_train, epochs=10, validation_split=0.2)
@@ -633,7 +635,12 @@ def test_theta_update(discretizer, trainable_theta, tmp_path):
     lmu = keras.layers.RNN(lmu_cell)(inputs)
     model = keras.Model(inputs=inputs, outputs=lmu)
 
-    model.compile(loss=keras.losses.MeanSquaredError(), optimizer="adam")
+    model.compile(
+        loss=keras.losses.MeanSquaredError(),
+        optimizer="adam",
+        # can't JIT compile the `tf.linalg.expm` operation used in this particular case
+        jit_compile=not (trainable_theta and discretizer == "zoh"),
+    )
 
     # make sure theta_inv is set correctly to initial value
     assert np.allclose(lmu_cell.theta_inv.numpy(), 1 / theta)

@@ -6,7 +6,7 @@ from packaging import version
 
 
 def pytest_configure(config):
-    if version.parse(tf.__version__) >= version.parse("2.7.0"):
-        tf.debugging.disable_traceback_filtering()
+    tf.debugging.disable_traceback_filtering()
+    tf.keras.utils.set_random_seed(0)
     if version.parse(tf.__version__) >= version.parse("2.16.0"):
         keras.config.disable_traceback_filtering()

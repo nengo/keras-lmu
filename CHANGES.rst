@@ -22,7 +22,7 @@ Release history
 0.8.0 (unreleased)
 ==================
 
-*Compatible with TensorFlow 2.6 - 2.16*
+*Compatible with TensorFlow 2.8 - 2.19*
 
 **Added**
 
