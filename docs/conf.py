@@ -88,7 +88,7 @@ autodoc_inherit_docstrings = False
 
 project = "KerasLMU"
 authors = "Applied Brain Research"
-copyright = "2019-2024 Applied Brain Research"
+copyright = "2019-2025 Applied Brain Research"
 version = ".".join(keras_lmu.__version__.split(".")[:2])  # Short X.Y version
 release = keras_lmu.__version__  # Full version, with tags
 
