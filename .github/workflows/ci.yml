@@ -87,6 +87,7 @@ jobs:
         with:
           name: coverage-${{ matrix.coverage-name }}
           path: .coverage
+          include-hidden-files: true
   coverage:
     runs-on: ubuntu-latest
     timeout-minutes: 10
