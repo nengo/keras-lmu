@@ -58,12 +58,7 @@ jobs:
             tf-version: tensorflow~=2.13.0
             coverage-name: tf-2.13
           - script: docs
-            tf-version: tensorflow[and-cuda]==2.16.1
-            python-version: "3.9"
-            runs-on: [self-hosted, gpu]
           - script: examples
-            tf-version: tensorflow[and-cuda]==2.16.1
-            runs-on: [self-hosted, gpu]
       fail-fast: false
     env:
       TF_VERSION: ${{ matrix.tf-version || 'tensorflow' }}

@@ -62,6 +62,7 @@ docs_conf_py:
     - import tensorflow as tf
   sphinx_options:
     autodoc_inherit_docstrings: False
+    linkcheck_ignore: "linkcheck_ignore+['https://www.appliedbrainresearch.com/license', 'https://www.appliedbrainresearch.com/store']"
 
 ci_scripts:
   - template: static
