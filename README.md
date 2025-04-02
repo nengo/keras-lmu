@@ -5,11 +5,11 @@
 | Name                             |    Stmts |     Miss |    Cover |   Missing |
 |--------------------------------- | -------: | -------: | -------: | --------: |
 | keras\_lmu/\_\_init\_\_.py       |        4 |        0 |     100% |           |
-| keras\_lmu/layers.py             |      346 |        0 |     100% |           |
+| keras\_lmu/layers.py             |      344 |        0 |     100% |           |
 | keras\_lmu/tests/\_\_init\_\_.py |        3 |        0 |     100% |           |
 | keras\_lmu/tests/conftest.py     |        8 |        0 |     100% |           |
 | keras\_lmu/version.py            |        6 |        0 |     100% |           |
-|                        **TOTAL** |  **367** |    **0** | **100%** |           |
+|                        **TOTAL** |  **365** |    **0** | **100%** |           |
 
 
 ## Setup coverage badge
