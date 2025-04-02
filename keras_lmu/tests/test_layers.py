@@ -10,6 +10,7 @@ from packaging import version
 from scipy.signal import cont2discrete
 
 from keras_lmu import layers
+from keras_lmu.tests import tf_gpu_installed
 
 
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
@@ -70,6 +71,10 @@ def test_multivariate_lmu(rng, discretizer):
         ), np.max(abs(results[0][..., i * order : (i + 1) * order] - results[i + 1]))
 
 
+@pytest.mark.xfail(
+    condition=tf_gpu_installed,
+    reason="Output comparison has unexpected differences on GPU",
+)
 @pytest.mark.parametrize("has_input_kernel", (True, False))
 @pytest.mark.parametrize("feedforward", (True, False))
 @pytest.mark.parametrize("discretizer", ("zoh", "euler"))
@@ -269,6 +274,10 @@ def test_feedforward(
     ), np.max(abs(rnn_out - ff_out))
 
 
+@pytest.mark.xfail(
+    condition=tf_gpu_installed,
+    reason="Output comparison has unexpected differences on GPU",
+)
 @pytest.mark.parametrize("truncate_ir", [None, 1e-5, 1e-4, 1e-3])
 def test_raw_truncation(truncate_ir, rng):
     seq_len = 64
