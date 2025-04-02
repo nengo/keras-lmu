@@ -85,6 +85,10 @@ default_role = "py:obj"
 pygments_style = "sphinx"
 user_agent = "keras_lmu"
 autodoc_inherit_docstrings = False
+linkcheck_ignore = linkcheck_ignore + [
+    "https://www.appliedbrainresearch.com/license",
+    "https://www.appliedbrainresearch.com/store",
+]
 
 project = "KerasLMU"
 authors = "Applied Brain Research"
