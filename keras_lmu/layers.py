@@ -957,7 +957,12 @@ class LMUFeedforward(
             self.delay_layer(impulse, training=False), axis=0
         )
 
-        if self.conv_mode == "fft":
+        if not self.return_sequences and not hasattr(self.hidden_cell, "state_size"):
+            # when return_sequences=False and the hidden cell is not an RNN,
+            # it is computationally more efficient to compute the output as
+            # described in equation (25) in https://arxiv.org/pdf/2102.11417.pdf.
+            self.conv_mode = "matmul"
+        elif self.conv_mode == "fft":
             self.impulse_response_fft = (
                 None
                 if seq_len is None
@@ -1042,21 +1047,28 @@ class LMUFeedforward(
         if self.bias is not None:
             u = u + self.bias
 
-        if self.conv_mode == "fft":
+        if self.conv_mode == "matmul":
+            m = self._matmul(u)
+        elif self.conv_mode == "fft":
             m = self._fft_convolution(u)
         else:
             assert self.conv_mode == "raw"
             m = self._raw_convolution(u)
 
         # apply hidden cell
-        h_in = (
-            tf.concat((m, inputs), axis=-1)  # pylint: disable=no-value-for-parameter
-            if self.input_to_hidden
-            else m
-        )
+        if self.conv_mode == "matmul" and self.input_to_hidden:
+            h_in = tf.concat(
+                (m, inputs[:, -1]), axis=-1
+            )  # pylint: disable=no-value-for-parameter
+        elif self.input_to_hidden:
+            h_in = tf.concat(
+                (m, inputs), axis=-1
+            )  # pylint: disable=no-value-for-parameter
+        else:
+            h_in = m
 
         if self.hidden_cell is None:
-            h = h_in if self.return_sequences else h_in[:, -1]
+            h = h_in
         elif hasattr(self.hidden_cell, "state_size"):
             h = keras.layers.RNN(
                 self.hidden_cell,
@@ -1065,14 +1077,32 @@ class LMUFeedforward(
             )(h_in, training=training)
         else:
             if not self.return_sequences:
-                # no point applying the hidden cell to the whole sequence
-                h = self.hidden_cell(h_in[:, -1], training=training)
+                h = self.hidden_cell(h_in, training=training)
             else:
                 h = keras.layers.TimeDistributed(self.hidden_cell)(
                     h_in, training=training
                 )
 
         return h
+
+    def _matmul(self, u):
+        seq_len = tf.shape(u)[1]
+        impulse_len = self.impulse_response.shape[0]
+
+        if seq_len >= impulse_len:
+            impulse_response = tf.pad(
+                self.impulse_response,
+                paddings=[
+                    [0, seq_len - impulse_len],
+                    [0, 0],
+                ],
+            )
+        else:
+            impulse_response = impulse_response[:seq_len, :]
+
+        u = tf.transpose(tf.reverse(u, axis=[1]), perm=[0, 2, 1])
+        m = tf.reshape(tf.matmul(u, impulse_response), (-1, self.memory_d * self.order))
+        return m
 
     def _fft_convolution(self, u):
         seq_len = tf.shape(u)[1]
