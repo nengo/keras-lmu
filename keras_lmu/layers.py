@@ -454,23 +454,7 @@ class LMUCell(
             return super().get_recurrent_dropout_mask_for_cell(
                 step_input, True, count=1
             )
-
-        # This is copied from DropoutRNNCell.get_recurrent_dropout_mask, with the
-        # change noted below in order to fix a bug.
-        # See https://github.com/keras-team/keras/issues/19395
-        if not hasattr(self, "_recurrent_dropout_mask"):
-            self._recurrent_dropout_mask = None
-        if self._recurrent_dropout_mask is None and self.recurrent_dropout > 0:
-            ones = keras.ops.ones_like(step_input)
-            self._recurrent_dropout_mask = keras.src.backend.random.dropout(
-                ones,
-                # --- START DIFF ---
-                # rate=self.dropout,
-                rate=self.recurrent_dropout,
-                # --- END DIFF ---
-                seed=self.seed_generator,
-            )
-        return self._recurrent_dropout_mask
+        return super().get_recurrent_dropout_mask(step_input)
 
     def reset_dropout_mask(self):
         """Reset dropout mask for memory and hidden components."""
