@@ -5,6 +5,7 @@ keras_lmu.egg-info
 __pycache__
 /.idea
 /bones-scripts
+/build
 /docs/_build
 /secret
 /tmp
