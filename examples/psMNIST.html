@@ -1,19 +1,19 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Solving the permuted sequential MNIST (psMNIST) task &#8212; KerasLMU 0.7.0 docs</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Solving the permuted sequential MNIST (psMNIST) task &#8212; KerasLMU 0.8.1.dev0 docs</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=5c69cfe2" />
+    <link rel="stylesheet" type="text/css" href="../_static/nengo.css?v=1e9b7ed3" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
-<link rel="stylesheet" href="https://www.nengo.ai/css/bootstrap.css" type="text/css">
 <style>
  body .title-bar,
  body .documentation-source h1:after {
@@ -28,20 +28,22 @@
 <!-- From basic/layout.html -->
 <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
 
+<script src="../_static/documentation_options.js?v=2556cadf"></script>
 
-<script src="../_static/underscore.js"></script>
+
+<script src="../_static/doctools.js?v=9bcbadda"></script>
 
 
-<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
 
 
 <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 
 
-<script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
 
 
-<script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "tex2jax_ignore|mathjax_ignore|document", "processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+<script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-GT8XEDLTMJ"></script>
@@ -57,7 +59,7 @@
          var _paq = window._paq = window._paq || [];
          _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
          _paq.push(["setCookieDomain", "*.appliedbrainresearch.com"]);
-         _paq.push(["setDomains", ["*.appliedbrainresearch.com","*.edge.nengo.ai","*.forum.nengo.ai","*.labs.nengo.ai","*.nengo.ai"]]);
+         _paq.push(["setDomains", ["*.appliedbrainresearch.com","*.edge.nengo.ai","*.forum.nengo.ai","*.nengo.ai"]]);
          _paq.push(["enableCrossDomainLinking"]);
          _paq.push(["setDoNotTrack", true]);
          _paq.push(['trackPageView']);
@@ -72,33 +74,23 @@
         </script>
         <!-- End Matomo Code -->
     
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Project information" href="../project.html" />
     <link rel="prev" title="Examples" href="../examples.html" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  </head><body class="bg-dark">
+  </head><body class="bg-dark"><!-- prettier-ignore -->
+
 
 <header class="fixed-top header-top shadow-sm">
   <nav class="navbar navbar-expand-md navbar-light bg-white">
     <a class="navbar-brand" href="https://www.nengo.ai/">
-      <img
-        src="https://www.nengo.ai/design/_images/general-full-light.svg"
-        alt="Nengo"
-        class="logo"
-      />
+      <img src="https://www.nengo.ai/design/_images/general-full-light.svg" alt="Nengo" class="logo" />
     </a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbar-collapse"
-      aria-controls="navbar-collapse"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse"
+      aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -110,19 +102,9 @@
           <a class="nav-link" href="https://www.nengo.ai/examples/">Examples</a>
         </li>
         <li class="nav-item dropdown active">
-          <a
-            class="nav-link dropdown-toggle text-nowrap"
-            id="navbar-dropdown-docs"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-            href="#"
-            >Documentation</a
-          >
-          <div
-            class="dropdown-menu shadow-lg border-0"
-            aria-labelledby="navbar-dropdown-docs"
-          >
+          <a class="nav-link dropdown-toggle text-nowrap" id="navbar-dropdown-docs" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" href="#">Documentation</a>
+          <div class="dropdown-menu shadow-lg border-0" aria-labelledby="navbar-dropdown-docs">
             
             <a class="dropdown-item" href="https://www.nengo.ai/nengo/">Nengo core</a>
             <a class="dropdown-item" href="https://github.com/nengo/nengo-gui/">NengoGUI</a>
@@ -136,67 +118,33 @@
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="https://www.nengo.ai/nengo-fpga/">NengoFPGA</a>
             <a class="dropdown-item" href="https://www.nengo.ai/nengo-loihi/">NengoLoihi</a>
-            <a class="dropdown-item" href="https://labs.nengo.ai/nengo-ocl/">NengoOCL</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/nengo-ocl/">NengoOCL</a>
             <a class="dropdown-item" href="https://github.com/project-rig/nengo_spinnaker">NengoSpiNNaker</a>
-            <a class="dropdown-item" href="https://github.com/nengo-labs/nengo-mpi">NengoMPI</a>
+            <a class="dropdown-item" href="https://github.com/nengo/nengo-mpi">NengoMPI</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="https://www.nengo.ai/documentation/"
-              >All documentation</a
-            >
+            <a class="dropdown-item" href="https://www.nengo.ai/documentation/">All documentation</a>
           </div>
         </li>
         <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle text-nowrap"
-            id="navbar-dropdown-community"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-            href="#"
-            >Community</a
-          >
-          <div
-            class="dropdown-menu shadow-lg border-0"
-            aria-labelledby="navbar-dropdown-community"
-          >
+          <a class="nav-link dropdown-toggle text-nowrap" id="navbar-dropdown-community" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" href="#">Community</a>
+          <div class="dropdown-menu shadow-lg border-0" aria-labelledby="navbar-dropdown-community">
             <a class="dropdown-item" href="https://forum.nengo.ai">Forum</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="https://www.nengo.ai/people/"
-              >People</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/summer-school/"
-              >Summer school</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/contributing/"
-              >Contributing</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/publications/"
-              >Publications</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/videos/"
-              >Videos</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/conduct/"
-              >Code of conduct</a
-            >
+            <a class="dropdown-item" href="https://www.nengo.ai/people/">People</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/summer-school/">Summer school</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/contributing/">Contributing</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/publications/">Publications</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/videos/">Videos</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/conduct/">Code of conduct</a>
             <a class="dropdown-item" href="https://www.nengo.ai/caa/">CAA</a>
           </div>
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a
-            class="nav-link btn btn-success btn-sm text-white"
-            href="https://www.nengo.ai/getting-started/"
-          >Getting started</a
-        >
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link btn btn-success btn-sm text-white"
-            href="https://www.nengo.ai/store/"
-          >Store</a
-        >
+          <a class="nav-link btn btn-success btn-sm text-white" href="https://www.nengo.ai/getting-started/">Getting
+            started</a>
         </li>
       </ul>
     </div>
@@ -259,6 +207,12 @@
         
         
           
+        <option value="../v0.8.0/examples/psMNIST.html">
+          v0.8.0
+        </option>
+          
+        
+          
         <option value="../v0.4.2/examples/psMNIST.html">
           v0.4.2
         </option>
@@ -311,15 +265,15 @@
                   <p class="admonition-title">Note</p>
                   <p>
                   This documentation is for a development version.
-                  <a href="../v0.4.2/examples/psMNIST.html">
-                  Click here for the latest stable release (v0.4.2).
+                  <a href="../v0.8.0/examples/psMNIST.html">
+                  Click here for the latest stable release (v0.8.0).
                   </a>
                   </p>
               </div>
               
               
-  <div class="section" id="Solving-the-permuted-sequential-MNIST-(psMNIST)-task">
-<h1>Solving the permuted sequential MNIST (psMNIST) task<a class="headerlink" href="#Solving-the-permuted-sequential-MNIST-(psMNIST)-task" title="Permalink to this headline">¶</a></h1>
+  <section id="Solving-the-permuted-sequential-MNIST-(psMNIST)-task">
+<h1>Solving the permuted sequential MNIST (psMNIST) task<a class="headerlink" href="#Solving-the-permuted-sequential-MNIST-(psMNIST)-task" title="Link to this heading">¶</a></h1>
 <p>The psMNIST (Permuted Sequential MNIST) task is a image classification task introduced in 2015 by Le, Jaitly, and Hinton (<a class="reference external" href="https://arxiv.org/pdf/1504.00941.pdf">see paper</a>). It is based on the Sequential MNIST task, which itself is a derivative of the MNIST task. Like the MNIST task, the goal of the psMNIST task is to have a neural network process a 28 x 28 pixel image (of a handwritten digit) into one of ten digits (0 to 9).</p>
 <p>However, while the MNIST task presents the entire image to the network all at once, the Sequential MNIST and psMNIST tasks turn the image into a stream of 784 (28x28) individual pixels, presented to the network one at a time. The goal of the network is then to classify the pixel sequence as the appropriate digit after the last pixel has been shown. The psMNIST task adds more complexity to the input by applying a fixed permutation to all of the pixel sequences. This is done to ensure that the
 information contained in the image is distributed evenly throughout the sequence, so that in order to perform the task successfully the network needs to process information across the whole length of the input sequence.</p>
@@ -330,12 +284,13 @@ information contained in the image is distributed evenly throughout the sequence
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">display</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">display</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
 
-<span class="kn">import</span> <span class="nn">keras_lmu</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras_lmu</span>
 </pre></div>
 </div>
 </div>
@@ -344,12 +299,22 @@ information contained in the image is distributed evenly throughout the sequence
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-2023-07-20 21:47:27.927512: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 FMA
-To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-06-03 23:18:28.107150: I external/local_xla/xla/tsl/cuda/cudart_stub.cc:32] Could not find cuda drivers on your machine, GPU will not be used.
+2025-06-03 23:18:28.110030: I external/local_xla/xla/tsl/cuda/cudart_stub.cc:32] Could not find cuda drivers on your machine, GPU will not be used.
+2025-06-03 23:18:28.118565: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1748992708.132541    3686 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1748992708.136798    3686 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1748992708.148115    3686 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1748992708.148128    3686 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1748992708.148130    3686 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1748992708.148131    3686 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+2025-06-03 23:18:28.152023: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
 </pre></div></div>
 </div>
-<div class="section" id="Loading-and-formatting-the-dataset">
-<h2>Loading and formatting the dataset<a class="headerlink" href="#Loading-and-formatting-the-dataset" title="Permalink to this headline">¶</a></h2>
+<section id="Loading-and-formatting-the-dataset">
+<h2>Loading and formatting the dataset<a class="headerlink" href="#Loading-and-formatting-the-dataset" title="Link to this heading">¶</a></h2>
 <p>First we set a seed to ensure that the results in this example are reproducible. A random number generator (<code class="docutils literal notranslate"><span class="pre">rng</span></code>) is also created, and this will later be used to generate the fixed permutation to be applied to the image data.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -362,7 +327,7 @@ To enable them in other operations, rebuild TensorFlow with the appropriate comp
 </pre></div>
 </div>
 </div>
-<p>We now obtain the standard MNIST dataset of handwritten digits from <code class="docutils literal notranslate"><span class="pre">tf.keras.datasets</span></code>.</p>
+<p>We now obtain the standard MNIST dataset of handwritten digits from <code class="docutils literal notranslate"><span class="pre">keras.datasets</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -370,7 +335,7 @@ To enable them in other operations, rebuild TensorFlow with the appropriate comp
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">train_images</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">),</span> <span class="p">(</span>
     <span class="n">test_images</span><span class="p">,</span>
     <span class="n">test_labels</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<span class="p">)</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -482,9 +447,9 @@ Validation inputs shape: (10000, 784, 1), Validation targets shape: (10000,)
 Testing inputs shape: (10000, 784, 1), Testing targets shape: (10000,)
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="Defining-the-model">
-<h2>Defining the model<a class="headerlink" href="#Defining-the-model" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Defining-the-model">
+<h2>Defining the model<a class="headerlink" href="#Defining-the-model" title="Link to this heading">¶</a></h2>
 <p>Our model uses a single LMU layer configured with 212 hidden <code class="docutils literal notranslate"><span class="pre">units</span></code> and an <code class="docutils literal notranslate"><span class="pre">order</span></code> of 256 dimensions for the memory, maintaining <code class="docutils literal notranslate"><span class="pre">units</span></code> + <code class="docutils literal notranslate"><span class="pre">order</span></code> = 468 variables in memory between time-steps. These numbers were chosen primarily to have a comparable number of internal variables to the models that were being compared against in the <a class="reference external" href="https://arxiv.org/pdf/1504.00941.pdf">paper</a>. We set <code class="docutils literal notranslate"><span class="pre">theta</span></code> to 784 (the number of pixels in each sequence). We also disable the <code class="docutils literal notranslate"><span class="pre">hidden_to_memory</span></code>
 and <code class="docutils literal notranslate"><span class="pre">memory_to_memory</span></code> connections, as based on our experimentation they are not needed/helpful in this problem.</p>
 <p>The output of the LMU layer is connected to a <code class="docutils literal notranslate"><span class="pre">Dense</span></code> linear layer with an output dimensionality of 10, one for each possible digit class.</p>
@@ -498,7 +463,7 @@ and <code class="docutils literal notranslate"><span class="pre">memory_to_memor
     <span class="n">memory_d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">order</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
     <span class="n">theta</span><span class="o">=</span><span class="n">n_pixels</span><span class="p">,</span>
-    <span class="n">hidden_cell</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">SimpleRNNCell</span><span class="p">(</span><span class="mi">212</span><span class="p">),</span>
+    <span class="n">hidden_cell</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">SimpleRNNCell</span><span class="p">(</span><span class="mi">212</span><span class="p">),</span>
     <span class="n">hidden_to_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">memory_to_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">input_to_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -506,14 +471,14 @@ and <code class="docutils literal notranslate"><span class="pre">memory_to_memor
 <span class="p">)</span>
 
 <span class="c1"># TensorFlow layer definition</span>
-<span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">((</span><span class="n">n_pixels</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">((</span><span class="n">n_pixels</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 <span class="n">lmus</span> <span class="o">=</span> <span class="n">lmu_layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-<span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">)(</span><span class="n">lmus</span><span class="p">)</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">)(</span><span class="n">lmus</span><span class="p">)</span>
 
 <span class="c1"># TensorFlow model definition</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="n">loss</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
     <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span>
     <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
 <span class="p">)</span>
@@ -526,37 +491,55 @@ and <code class="docutils literal notranslate"><span class="pre">memory_to_memor
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-2023-07-20 21:47:39.219410: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 FMA
-To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2023-07-20 21:47:39.784075: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1616] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 10810 MB memory:  -&gt; device: 0, name: Tesla K80, pci bus id: 0001:00:00.0, compute capability: 3.7
-2023-07-20 21:47:46.945498: I tensorflow/core/util/cuda_solvers.cc:179] Creating GpuSolver handles for stream 0x55fd454ceef0
+2025-06-03 23:18:30.497016: E external/local_xla/xla/stream_executor/cuda/cuda_platform.cc:51] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
 </pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Model: "functional"</span>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold"> Layer (type)                    </span>┃<span style="font-weight: bold"> Output Shape           </span>┃<span style="font-weight: bold">       Param # </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ input_layer (<span style="color: #0087ff; text-decoration-color: #0087ff">InputLayer</span>)        │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">784</span>, <span style="color: #00af00; text-decoration-color: #00af00">1</span>)         │             <span style="color: #00af00; text-decoration-color: #00af00">0</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ lmu (<span style="color: #0087ff; text-decoration-color: #0087ff">LMU</span>)                       │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">212</span>)            │        <span style="color: #00af00; text-decoration-color: #00af00">99,641</span> │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (<span style="color: #0087ff; text-decoration-color: #0087ff">Dense</span>)                   │ (<span style="color: #00d7ff; text-decoration-color: #00d7ff">None</span>, <span style="color: #00af00; text-decoration-color: #00af00">10</span>)             │         <span style="color: #00af00; text-decoration-color: #00af00">2,130</span> │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Total params: </span><span style="color: #00af00; text-decoration-color: #00af00">101,771</span> (397.54 KB)
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">101,771</span> (397.54 KB)
+</pre></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Model: &#34;model&#34;
-_________________________________________________________________
- Layer (type)                Output Shape              Param #
-=================================================================
- input_1 (InputLayer)        [(None, 784, 1)]          0
-
- lmu (LMU)                   (None, 212)               99641
-
- dense (Dense)               (None, 10)                2130
-
-=================================================================
-Total params: 101,771
-Trainable params: 101,771
-Non-trainable params: 0
-_________________________________________________________________
-</pre></div></div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold"> Non-trainable params: </span><span style="color: #00af00; text-decoration-color: #00af00">0</span> (0.00 B)
+</pre></div>
 </div>
-</div>
-<div class="section" id="Training-the-model">
-<h2>Training the model<a class="headerlink" href="#Training-the-model" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Training-the-model">
+<h2>Training the model<a class="headerlink" href="#Training-the-model" title="Link to this heading">¶</a></h2>
 <p>To train our model we use a <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> of 100 and train for 10 <code class="docutils literal notranslate"><span class="pre">epochs</span></code>, which is far less than most other solutions to the psMNIST task. We could train for more epochs if we wished to fine-tune performance, but that is not necessary for the purposes of this example. We also create a <code class="docutils literal notranslate"><span class="pre">ModelCheckpoint</span></code> callback that saves the weights of the model to a file after each epoch.</p>
 <p>Training may take a long time to complete, and to save time this notebook defaults to using pre-trained weights. To train the model from scratch, simply change the <code class="docutils literal notranslate"><span class="pre">do_training</span></code> variable to <code class="docutils literal notranslate"><span class="pre">True</span></code> before running the cell below.</p>
 <div class="nbinput nblast docutils container">
@@ -567,10 +550,13 @@ _________________________________________________________________
 <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="n">epochs</span> <span class="o">=</span> <span class="mi">10</span>
 
-<span class="n">saved_weights_fname</span> <span class="o">=</span> <span class="s2">&quot;./psMNIST-weights.hdf5&quot;</span>
+<span class="n">saved_model_fname</span> <span class="o">=</span> <span class="s2">&quot;./psMNIST.keras&quot;</span>
 <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
-        <span class="n">filepath</span><span class="o">=</span><span class="n">saved_weights_fname</span><span class="p">,</span> <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;val_loss&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">save_best_only</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
+        <span class="n">filepath</span><span class="o">=</span><span class="n">saved_model_fname</span><span class="p">,</span>
+        <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;val_accuracy&quot;</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">save_best_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">]</span>
 
@@ -622,32 +608,40 @@ _________________________________________________________________
 <img alt="../_images/examples_psMNIST_23_0.png" src="../_images/examples_psMNIST_23_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Testing-the-model">
-<h2>Testing the model<a class="headerlink" href="#Testing-the-model" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Testing-the-model">
+<h2>Testing the model<a class="headerlink" href="#Testing-the-model" title="Link to this heading">¶</a></h2>
 <p>With the training complete, let’s use the trained weights to test the model. Since the best weights are saved to file, we can simply load the saved weights, then test it against the permuted sequences in the test set.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="n">saved_weights_fname</span><span class="p">)</span>
-<span class="n">accuracy</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="n">saved_model_fname</span><span class="p">)</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test accuracy: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">accuracy</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">:</span><span class="s2">0.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/micromamba/envs/ci/lib/python3.10/site-packages/keras/src/saving/saving_lib.py:802: UserWarning: Skipping variable loading for optimizer &#39;adam&#39;, because it has 2 variables whereas the saved optimizer has 14 variables.
+  saveable.load_own_variables(weights_store.get(inner_path))
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-313/313 [==============================] - 25s 76ms/step - loss: 0.1210 - accuracy: 0.9643
-Test accuracy: 96.43%
+Test accuracy: 96.41%
 </pre></div></div>
 </div>
 <p>As the results demonstrate, the LMU network has achieved greater than 96% accuracy on the test dataset. This is considered state-of-the-art for the psMNIST task, which is made more impressive considering the model has only been trained for 10 epochs.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             </div>
@@ -660,16 +654,11 @@ Test accuracy: 96.43%
 </div><footer class="text-light footer-main gradient-bottom-center">
   <p class="text-center">
     <a class="no-hover-line" href="https://appliedbrainresearch.com">
-      <img
-        class="abr-logo"
-        src="https://www.nengo.ai/img/abr-logo.svg"
-        height="32"
-      />
+      <img class="abr-logo" src="https://www.nengo.ai/img/abr-logo.svg" height="32" />
     </a>
     <a href="https://www.nengo.ai/">What is Nengo?</a>
     <a href="https://www.nengo.ai/examples/">Examples</a>
     <a href="https://www.nengo.ai/documentation/">Documentation</a>
-    <a href="https://www.nengo.ai/store/">Store</a>
     <a href="https://www.nengo.ai/getting-started/">Getting started</a>
     <a href="https://www.nengo.ai/privacy/">Privacy</a>
   </p>

@@ -1,18 +1,18 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API reference &#8212; KerasLMU 0.7.0 docs</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API reference &#8212; KerasLMU 0.8.1.dev0 docs</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=5c69cfe2" />
+    <link rel="stylesheet" type="text/css" href="_static/nengo.css?v=1e9b7ed3" />
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
-<link rel="stylesheet" href="https://www.nengo.ai/css/bootstrap.css" type="text/css">
 <style>
  body .title-bar,
  body .documentation-source h1:after {
@@ -27,11 +27,13 @@
 <!-- From basic/layout.html -->
 <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
 
+<script src="_static/documentation_options.js?v=2556cadf"></script>
 
-<script src="_static/underscore.js"></script>
+
+<script src="_static/doctools.js?v=9bcbadda"></script>
 
 
-<script src="_static/doctools.js"></script>
+<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
 
 
 <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -50,7 +52,7 @@
          var _paq = window._paq = window._paq || [];
          _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
          _paq.push(["setCookieDomain", "*.appliedbrainresearch.com"]);
-         _paq.push(["setDomains", ["*.appliedbrainresearch.com","*.edge.nengo.ai","*.forum.nengo.ai","*.labs.nengo.ai","*.nengo.ai"]]);
+         _paq.push(["setDomains", ["*.appliedbrainresearch.com","*.edge.nengo.ai","*.forum.nengo.ai","*.nengo.ai"]]);
          _paq.push(["enableCrossDomainLinking"]);
          _paq.push(["setDoNotTrack", true]);
          _paq.push(['trackPageView']);
@@ -65,33 +67,23 @@
         </script>
         <!-- End Matomo Code -->
     
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="Basic usage" href="basic-usage.html" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  </head><body class="bg-dark">
+  </head><body class="bg-dark"><!-- prettier-ignore -->
+
 
 <header class="fixed-top header-top shadow-sm">
   <nav class="navbar navbar-expand-md navbar-light bg-white">
     <a class="navbar-brand" href="https://www.nengo.ai/">
-      <img
-        src="https://www.nengo.ai/design/_images/general-full-light.svg"
-        alt="Nengo"
-        class="logo"
-      />
+      <img src="https://www.nengo.ai/design/_images/general-full-light.svg" alt="Nengo" class="logo" />
     </a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbar-collapse"
-      aria-controls="navbar-collapse"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse"
+      aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -103,19 +95,9 @@
           <a class="nav-link" href="https://www.nengo.ai/examples/">Examples</a>
         </li>
         <li class="nav-item dropdown active">
-          <a
-            class="nav-link dropdown-toggle text-nowrap"
-            id="navbar-dropdown-docs"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-            href="#"
-            >Documentation</a
-          >
-          <div
-            class="dropdown-menu shadow-lg border-0"
-            aria-labelledby="navbar-dropdown-docs"
-          >
+          <a class="nav-link dropdown-toggle text-nowrap" id="navbar-dropdown-docs" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" href="#">Documentation</a>
+          <div class="dropdown-menu shadow-lg border-0" aria-labelledby="navbar-dropdown-docs">
             
             <a class="dropdown-item" href="https://www.nengo.ai/nengo/">Nengo core</a>
             <a class="dropdown-item" href="https://github.com/nengo/nengo-gui/">NengoGUI</a>
@@ -129,67 +111,33 @@
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="https://www.nengo.ai/nengo-fpga/">NengoFPGA</a>
             <a class="dropdown-item" href="https://www.nengo.ai/nengo-loihi/">NengoLoihi</a>
-            <a class="dropdown-item" href="https://labs.nengo.ai/nengo-ocl/">NengoOCL</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/nengo-ocl/">NengoOCL</a>
             <a class="dropdown-item" href="https://github.com/project-rig/nengo_spinnaker">NengoSpiNNaker</a>
-            <a class="dropdown-item" href="https://github.com/nengo-labs/nengo-mpi">NengoMPI</a>
+            <a class="dropdown-item" href="https://github.com/nengo/nengo-mpi">NengoMPI</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="https://www.nengo.ai/documentation/"
-              >All documentation</a
-            >
+            <a class="dropdown-item" href="https://www.nengo.ai/documentation/">All documentation</a>
           </div>
         </li>
         <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle text-nowrap"
-            id="navbar-dropdown-community"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-            href="#"
-            >Community</a
-          >
-          <div
-            class="dropdown-menu shadow-lg border-0"
-            aria-labelledby="navbar-dropdown-community"
-          >
+          <a class="nav-link dropdown-toggle text-nowrap" id="navbar-dropdown-community" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" href="#">Community</a>
+          <div class="dropdown-menu shadow-lg border-0" aria-labelledby="navbar-dropdown-community">
             <a class="dropdown-item" href="https://forum.nengo.ai">Forum</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="https://www.nengo.ai/people/"
-              >People</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/summer-school/"
-              >Summer school</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/contributing/"
-              >Contributing</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/publications/"
-              >Publications</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/videos/"
-              >Videos</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/conduct/"
-              >Code of conduct</a
-            >
+            <a class="dropdown-item" href="https://www.nengo.ai/people/">People</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/summer-school/">Summer school</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/contributing/">Contributing</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/publications/">Publications</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/videos/">Videos</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/conduct/">Code of conduct</a>
             <a class="dropdown-item" href="https://www.nengo.ai/caa/">CAA</a>
           </div>
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a
-            class="nav-link btn btn-success btn-sm text-white"
-            href="https://www.nengo.ai/getting-started/"
-          >Getting started</a
-        >
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link btn btn-success btn-sm text-white"
-            href="https://www.nengo.ai/store/"
-          >Store</a
-        >
+          <a class="nav-link btn btn-success btn-sm text-white" href="https://www.nengo.ai/getting-started/">Getting
+            started</a>
         </li>
       </ul>
     </div>
@@ -226,7 +174,12 @@
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic-usage.html">Basic usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-keras_lmu.layers">LMU Layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-keras_lmu.layers">LMU Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#keras_lmu.LMUCell"><code class="docutils literal notranslate"><span class="pre">LMUCell</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keras_lmu.LMU"><code class="docutils literal notranslate"><span class="pre">LMU</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keras_lmu.layers.LMUFeedforward"><code class="docutils literal notranslate"><span class="pre">LMUFeedforward</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
@@ -244,6 +197,12 @@
         
         <option selected>latest</option>
         
+        
+          
+        <option value="v0.8.0/api-reference.html">
+          v0.8.0
+        </option>
+          
         
           
         <option value="v0.4.2/api-reference.html">
@@ -298,23 +257,19 @@
                   <p class="admonition-title">Note</p>
                   <p>
                   This documentation is for a development version.
-                  <a href="v0.4.2/api-reference.html">
-                  Click here for the latest stable release (v0.4.2).
+                  <a href="v0.8.0/api-reference.html">
+                  Click here for the latest stable release (v0.8.0).
                   </a>
                   </p>
               </div>
               
               
-  <div class="section" id="api-reference">
-<span id="id1"></span><h1>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-keras_lmu.layers">
-<span id="lmu-layers"></span><span id="api-reference-lc"></span><h2>LMU Layers<a class="headerlink" href="#module-keras_lmu.layers" title="Permalink to this headline">¶</a></h2>
+  <section id="api-reference">
+<span id="id1"></span><h1>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h1>
+<section id="module-keras_lmu.layers">
+<span id="lmu-layers"></span><span id="api-reference-lc"></span><h2>LMU Layers<a class="headerlink" href="#module-keras_lmu.layers" title="Link to this heading">¶</a></h2>
 <p>Core classes for the KerasLMU package.</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#keras_lmu.LMUCell" title="keras_lmu.LMUCell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keras_lmu.LMUCell</span></code></a></p></td>
 <td><p>Implementation of LMU cell (to be used within Keras RNN wrapper).</p></td>
@@ -328,8 +283,8 @@
 </tbody>
 </table>
 <dl class="py class">
-<dt id="keras_lmu.LMUCell">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">keras_lmu.</span></code><code class="sig-name descname"><span class="pre">LMUCell</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L27-L462"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMUCell">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">keras_lmu.</span></span><span class="sig-name descname"><span class="pre">LMUCell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L36-L511"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell" title="Link to this definition">¶</a></dt>
 <dd><p>Implementation of LMU cell (to be used within Keras RNN wrapper).</p>
 <p>In general, the LMU cell consists of two parts: a memory component (decomposing
 the input signal using Legendre polynomials as a basis), and a hidden component
@@ -338,7 +293,7 @@ the input signal using Legendre polynomials as a basis), and a hidden component
 class to create a recurrent Keras layer to process the whole sequence. Calling
 <code class="docutils literal notranslate"><span class="pre">LMU()</span></code> is equivalent to doing <code class="docutils literal notranslate"><span class="pre">RNN(LMUCell())</span></code>.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>memory_d</strong><span class="classifier">int</span></dt><dd><p>Dimensionality of input to memory component.</p>
 </dd>
@@ -355,7 +310,7 @@ entire sequence will still be processed in order for information to be
 projected to and from the hidden layer. If <code class="docutils literal notranslate"><span class="pre">trainable_theta</span></code> is enabled, then
 theta will be updated during the course of training.</p>
 </dd>
-<dt><strong>hidden_cell</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.layers.Layer</span></code></span></dt><dd><p>Keras Layer/RNNCell implementing the hidden component.</p>
+<dt><strong>hidden_cell</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.layers.Layer</span></code></span></dt><dd><p>Keras Layer/RNNCell implementing the hidden component.</p>
 </dd>
 <dt><strong>trainable_theta</strong><span class="classifier">bool</span></dt><dd><p>If True, theta is learnt over the course of training. Otherwise, it is kept
 constant.</p>
@@ -380,47 +335,53 @@ no weights will be used, and the input size must match the memory/hidden size.</
 </dd>
 <dt><strong>recurrent_initializer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.initializers.Initializer</span></code></span></dt><dd><p>Initializer for <code class="docutils literal notranslate"><span class="pre">memory_to_memory</span></code> weights (if that connection is enabled).</p>
 </dd>
-<dt><strong>kernel_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for weights from input to memory/hidden component.</p>
+<dt><strong>kernel_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for weights from input to memory/hidden component.</p>
 </dd>
-<dt><strong>recurrent_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for <code class="docutils literal notranslate"><span class="pre">memory_to_memory</span></code> weights (if that connection is enabled).</p>
+<dt><strong>recurrent_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for <code class="docutils literal notranslate"><span class="pre">memory_to_memory</span></code> weights (if that connection is enabled).</p>
 </dd>
 <dt><strong>use_bias</strong><span class="classifier">bool</span></dt><dd><p>If True, the memory component includes a bias term.</p>
 </dd>
 <dt><strong>bias_initializer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.initializers.Initializer</span></code></span></dt><dd><p>Initializer for the memory component bias term. Only used if <code class="docutils literal notranslate"><span class="pre">use_bias=True</span></code>.</p>
 </dd>
-<dt><strong>bias_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for the memory component bias term. Only used if <code class="docutils literal notranslate"><span class="pre">use_bias=True</span></code>.</p>
+<dt><strong>bias_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for the memory component bias term. Only used if <code class="docutils literal notranslate"><span class="pre">use_bias=True</span></code>.</p>
 </dd>
 <dt><strong>dropout</strong><span class="classifier">float</span></dt><dd><p>Dropout rate on input connections.</p>
 </dd>
 <dt><strong>recurrent_dropout</strong><span class="classifier">float</span></dt><dd><p>Dropout rate on <code class="docutils literal notranslate"><span class="pre">memory_to_memory</span></code> connection.</p>
 </dd>
+<dt><strong>input_d</strong><span class="classifier">Optional[int]</span></dt><dd><p>Size of last axis on input signals. This only needs to be specified if
+hidden_cell=None and input_to_hidden=True, otherwise the input dimensionality
+can be inferred dynamically.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">References</p>
-<dl class="citation">
-<dt class="label" id="r085f819d642b-1"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
-<dd><p>Voelker and Eliasmith (2018). Improving spiking dynamical
+<div role="list" class="citation-list">
+<div class="citation" id="r085f819d642b-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>Voelker and Eliasmith (2018). Improving spiking dynamical
 networks: Accurate delays, higher-order synapses, and time cells.
 Neural Computation, 30(3): 569-609.</p>
-</dd>
-<dt class="label" id="r085f819d642b-2"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
-<dd><p>Voelker and Eliasmith. “Methods and systems for implementing
+</div>
+<div class="citation" id="r085f819d642b-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>Voelker and Eliasmith. “Methods and systems for implementing
 dynamic neural networks.” U.S. Patent Application No. 15/243,223.
 Filing date: 2016-08-22.</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt id="keras_lmu.layers.LMUCell.theta">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">theta</span></code><a class="headerlink" href="#keras_lmu.layers.LMUCell.theta" title="Permalink to this definition">¶</a></dt>
+</div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="keras_lmu.layers.LMUCell.theta">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">theta</span></span><a class="headerlink" href="#keras_lmu.layers.LMUCell.theta" title="Link to this definition">¶</a></dt>
 <dd><p>Value of the <code class="docutils literal notranslate"><span class="pre">theta</span></code> parameter.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">trainable_theta=True</span></code> this returns the trained value, not the
 initial value passed in to the constructor.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMUCell.build">
-<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L250-L318"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.build" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMUCell.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L280-L354"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.build" title="Link to this definition">¶</a></dt>
 <dd><p>Builds the cell.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -429,8 +390,8 @@ with some additional bookkeeping.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMUCell.call">
-<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L320-L410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.call" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMUCell.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L356-L443"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.call" title="Link to this definition">¶</a></dt>
 <dd><p>Apply this cell to inputs.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -439,34 +400,46 @@ with some additional bookkeeping.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMUCell.reset_dropout_mask">
-<code class="sig-name descname"><span class="pre">reset_dropout_mask</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L412-L416"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.reset_dropout_mask" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMUCell.get_dropout_mask">
+<span class="sig-name descname"><span class="pre">get_dropout_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_input</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L445-L449"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.get_dropout_mask" title="Link to this definition">¶</a></dt>
+<dd><p>Get dropout mask for cell input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="keras_lmu.LMUCell.get_recurrent_dropout_mask">
+<span class="sig-name descname"><span class="pre">get_recurrent_dropout_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_input</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L451-L457"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.get_recurrent_dropout_mask" title="Link to this definition">¶</a></dt>
+<dd><p>Get dropout mask for recurrent input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="keras_lmu.LMUCell.reset_dropout_mask">
+<span class="sig-name descname"><span class="pre">reset_dropout_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L459-L463"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.reset_dropout_mask" title="Link to this definition">¶</a></dt>
 <dd><p>Reset dropout mask for memory and hidden components.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMUCell.reset_recurrent_dropout_mask">
-<code class="sig-name descname"><span class="pre">reset_recurrent_dropout_mask</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L418-L422"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.reset_recurrent_dropout_mask" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMUCell.reset_recurrent_dropout_mask">
+<span class="sig-name descname"><span class="pre">reset_recurrent_dropout_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L465-L469"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.reset_recurrent_dropout_mask" title="Link to this definition">¶</a></dt>
 <dd><p>Reset recurrent dropout mask for memory and hidden components.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMUCell.get_config">
-<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L424-L451"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.get_config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMUCell.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L471-L500"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.get_config" title="Link to this definition">¶</a></dt>
 <dd><p>Return config of layer (for serialization during model saving/loading).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMUCell.from_config">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L453-L462"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.from_config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMUCell.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L502-L511"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMUCell.from_config" title="Link to this definition">¶</a></dt>
 <dd><p>Load model from serialized config.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="keras_lmu.LMU">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">keras_lmu.</span></code><code class="sig-name descname"><span class="pre">LMU</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L465-L730"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">keras_lmu.</span></span><span class="sig-name descname"><span class="pre">LMU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L514-L779"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU" title="Link to this definition">¶</a></dt>
 <dd><p>A layer of trainable low-dimensional delay systems.</p>
 <p>Each unit buffers its encoded input
 by internally representing a low-dimensional
@@ -478,7 +451,7 @@ derivative, energy, median value, etc (<a class="reference internal" href="#rd58
 Note that these decoder matrices can span across
 all of the units of an input sequence.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>memory_d</strong><span class="classifier">int</span></dt><dd><p>Dimensionality of input to memory component.</p>
 </dd>
@@ -495,7 +468,7 @@ entire sequence will still be processed in order for information to be
 projected to and from the hidden layer. If <code class="docutils literal notranslate"><span class="pre">trainable_theta</span></code> is enabled, then
 theta will be updated during the course of training.</p>
 </dd>
-<dt><strong>hidden_cell</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.layers.Layer</span></code></span></dt><dd><p>Keras Layer/RNNCell implementing the hidden component.</p>
+<dt><strong>hidden_cell</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.layers.Layer</span></code></span></dt><dd><p>Keras Layer/RNNCell implementing the hidden component.</p>
 </dd>
 <dt><strong>trainable_theta</strong><span class="classifier">bool</span></dt><dd><p>If True, theta is learnt over the course of training. Otherwise, it is kept
 constant.</p>
@@ -520,15 +493,15 @@ no weights will be used, and the input size must match the memory/hidden size.</
 </dd>
 <dt><strong>recurrent_initializer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.initializers.Initializer</span></code></span></dt><dd><p>Initializer for <code class="docutils literal notranslate"><span class="pre">memory_to_memory</span></code> weights (if that connection is enabled).</p>
 </dd>
-<dt><strong>kernel_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for weights from input to memory/hidden component.</p>
+<dt><strong>kernel_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for weights from input to memory/hidden component.</p>
 </dd>
-<dt><strong>recurrent_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for <code class="docutils literal notranslate"><span class="pre">memory_to_memory</span></code> weights (if that connection is enabled).</p>
+<dt><strong>recurrent_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for <code class="docutils literal notranslate"><span class="pre">memory_to_memory</span></code> weights (if that connection is enabled).</p>
 </dd>
 <dt><strong>use_bias</strong><span class="classifier">bool</span></dt><dd><p>If True, the memory component includes a bias term.</p>
 </dd>
 <dt><strong>bias_initializer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.initializers.Initializer</span></code></span></dt><dd><p>Initializer for the memory component bias term. Only used if <code class="docutils literal notranslate"><span class="pre">use_bias=True</span></code>.</p>
 </dd>
-<dt><strong>bias_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for the memory component bias term. Only used if <code class="docutils literal notranslate"><span class="pre">use_bias=True</span></code>.</p>
+<dt><strong>bias_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for the memory component bias term. Only used if <code class="docutils literal notranslate"><span class="pre">use_bias=True</span></code>.</p>
 </dd>
 <dt><strong>dropout</strong><span class="classifier">float</span></dt><dd><p>Dropout rate on input connections.</p>
 </dd>
@@ -541,29 +514,31 @@ output in the output sequence.</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
-<dl class="citation">
-<dt class="label" id="rd58db2ef7c7f-1"><span class="brackets"><a class="fn-backref" href="#id6">1</a></span></dt>
-<dd><p>Voelker and Eliasmith (2018). Improving spiking dynamical
+<div role="list" class="citation-list">
+<div class="citation" id="rd58db2ef7c7f-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">1</a><span class="fn-bracket">]</span></span>
+<p>Voelker and Eliasmith (2018). Improving spiking dynamical
 networks: Accurate delays, higher-order synapses, and time cells.
 Neural Computation, 30(3): 569-609.</p>
-</dd>
-<dt class="label" id="rd58db2ef7c7f-2"><span class="brackets"><a class="fn-backref" href="#id7">2</a></span></dt>
-<dd><p>Voelker and Eliasmith. “Methods and systems for implementing
+</div>
+<div class="citation" id="rd58db2ef7c7f-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">2</a><span class="fn-bracket">]</span></span>
+<p>Voelker and Eliasmith. “Methods and systems for implementing
 dynamic neural networks.” U.S. Patent Application No. 15/243,223.
 Filing date: 2016-08-22.</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt id="keras_lmu.layers.LMU.theta">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">theta</span></code><a class="headerlink" href="#keras_lmu.layers.LMU.theta" title="Permalink to this definition">¶</a></dt>
+</div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="keras_lmu.layers.LMU.theta">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">theta</span></span><a class="headerlink" href="#keras_lmu.layers.LMU.theta" title="Link to this definition">¶</a></dt>
 <dd><p>Value of the <code class="docutils literal notranslate"><span class="pre">theta</span></code> parameter.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">trainable_theta=True</span></code> this returns the trained value, not the
 initial value passed in to the constructor.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMU.build">
-<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L615-L676"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.build" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMU.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L664-L725"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.build" title="Link to this definition">¶</a></dt>
 <dd><p>Builds the layer.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -572,8 +547,8 @@ with some additional bookkeeping.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMU.call">
-<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L678-L689"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.call" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMU.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L727-L738"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.call" title="Link to this definition">¶</a></dt>
 <dd><p>Apply this layer to inputs.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -582,28 +557,28 @@ with some additional bookkeeping.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMU.get_config">
-<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L691-L719"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.get_config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMU.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L740-L768"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.get_config" title="Link to this definition">¶</a></dt>
 <dd><p>Return config of layer (for serialization during model saving/loading).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.LMU.from_config">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L721-L730"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.from_config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.LMU.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L770-L779"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.LMU.from_config" title="Link to this definition">¶</a></dt>
 <dd><p>Load model from serialized config.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="keras_lmu.layers.LMUFeedforward">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">keras_lmu.layers.</span></code><code class="sig-name descname"><span class="pre">LMUFeedforward</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L733-L1085"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.layers.LMUFeedforward">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">keras_lmu.layers.</span></span><span class="sig-name descname"><span class="pre">LMUFeedforward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L782-L1139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward" title="Link to this definition">¶</a></dt>
 <dd><p>Layer class for the feedforward variant of the LMU.</p>
 <p>This class assumes no recurrent connections are desired in the memory component.</p>
 <p>Produces the output of the delay system by evaluating the convolution of the input
 sequence with the impulse response from the LMU cell.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>memory_d</strong><span class="classifier">int</span></dt><dd><p>Dimensionality of input to memory component.</p>
 </dd>
@@ -619,7 +594,7 @@ number of steps will be represented at the time of prediction, however the
 entire sequence will still be processed in order for information to be
 projected to and from the hidden layer.</p>
 </dd>
-<dt><strong>hidden_cell</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.layers.Layer</span></code></span></dt><dd><p>Keras Layer implementing the hidden component.</p>
+<dt><strong>hidden_cell</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.layers.Layer</span></code></span></dt><dd><p>Keras Layer implementing the hidden component.</p>
 </dd>
 <dt><strong>input_to_hidden</strong><span class="classifier">bool</span></dt><dd><p>If True, connect the input directly to the hidden component (in addition to
 the connection from the memory component) (default False).</p>
@@ -633,13 +608,13 @@ using “euler” (a value that is larger than <code class="docutils literal not
 <dt><strong>kernel_initializer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.initializers.Initializer</span></code></span></dt><dd><p>Initializer for weights from input to memory/hidden component. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 no weights will be used, and the input size must match the memory/hidden size.</p>
 </dd>
-<dt><strong>kernel_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for weights from input to memory/hidden component.</p>
+<dt><strong>kernel_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for weights from input to memory/hidden component.</p>
 </dd>
 <dt><strong>use_bias</strong><span class="classifier">bool</span></dt><dd><p>If True, the memory component includes a bias term.</p>
 </dd>
 <dt><strong>bias_initializer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.initializers.Initializer</span></code></span></dt><dd><p>Initializer for the memory component bias term. Only used if <code class="docutils literal notranslate"><span class="pre">use_bias=True</span></code>.</p>
 </dd>
-<dt><strong>bias_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">tf.keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for the memory component bias term. Only used if <code class="docutils literal notranslate"><span class="pre">use_bias=True</span></code>.</p>
+<dt><strong>bias_regularizer</strong><span class="classifier"><code class="docutils literal notranslate"><span class="pre">keras.regularizers.Regularizer</span></code></span></dt><dd><p>Regularizer for the memory component bias term. Only used if <code class="docutils literal notranslate"><span class="pre">use_bias=True</span></code>.</p>
 </dd>
 <dt><strong>dropout</strong><span class="classifier">float</span></dt><dd><p>Dropout rate on input connections.</p>
 </dd>
@@ -659,8 +634,8 @@ truncated elements for a given value of <code class="docutils literal notranslat
 </dd>
 </dl>
 <dl class="py method">
-<dt id="keras_lmu.layers.LMUFeedforward.build">
-<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L860-L948"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.build" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.layers.LMUFeedforward.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L912-L1006"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.build" title="Link to this definition">¶</a></dt>
 <dd><p>Builds the layer.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -669,8 +644,8 @@ with some additional bookkeeping.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.layers.LMUFeedforward.call">
-<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L950-L1005"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.call" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.layers.LMUFeedforward.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L1008-L1059"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.call" title="Link to this definition">¶</a></dt>
 <dd><p>Apply this layer to inputs.</p>
 <p class="rubric">Notes</p>
 <p>This method should not be called manually; rather, use the implicit layer
@@ -679,21 +654,21 @@ with some additional bookkeeping.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.layers.LMUFeedforward.get_config">
-<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L1050-L1074"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.get_config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.layers.LMUFeedforward.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L1104-L1128"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.get_config" title="Link to this definition">¶</a></dt>
 <dd><p>Return config of layer (for serialization during model saving/loading).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="keras_lmu.layers.LMUFeedforward.from_config">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/v0.7.0/keras_lmu/layers.py#L1076-L1085"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.from_config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="keras_lmu.layers.LMUFeedforward.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/nengo/keras-lmu/blob/master/keras_lmu/layers.py#L1130-L1139"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#keras_lmu.layers.LMUFeedforward.from_config" title="Link to this definition">¶</a></dt>
 <dd><p>Load model from serialized config.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
             </div>
@@ -706,16 +681,11 @@ with some additional bookkeeping.</p>
 </div><footer class="text-light footer-main gradient-bottom-center">
   <p class="text-center">
     <a class="no-hover-line" href="https://appliedbrainresearch.com">
-      <img
-        class="abr-logo"
-        src="https://www.nengo.ai/img/abr-logo.svg"
-        height="32"
-      />
+      <img class="abr-logo" src="https://www.nengo.ai/img/abr-logo.svg" height="32" />
     </a>
     <a href="https://www.nengo.ai/">What is Nengo?</a>
     <a href="https://www.nengo.ai/examples/">Examples</a>
     <a href="https://www.nengo.ai/documentation/">Documentation</a>
-    <a href="https://www.nengo.ai/store/">Store</a>
     <a href="https://www.nengo.ai/getting-started/">Getting started</a>
     <a href="https://www.nengo.ai/privacy/">Privacy</a>
   </p>

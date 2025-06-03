@@ -42,6 +42,7 @@
    "source": [
     "%matplotlib inline\n",
     "\n",
+    "import keras\n",
     "import numpy as np\n",
     "import matplotlib.pyplot as plt\n",
     "from IPython.display import Image, display\n",
@@ -81,9 +82,7 @@
   {
    "cell_type": "markdown",
    "metadata": {},
-   "source": [
-    "We now obtain the standard MNIST dataset of handwritten digits from `tf.keras.datasets`."
-   ]
+   "source": "We now obtain the standard MNIST dataset of handwritten digits from `keras.datasets`."
   },
   {
    "cell_type": "code",
@@ -94,7 +93,7 @@
     "(train_images, train_labels), (\n",
     "    test_images,\n",
     "    test_labels,\n",
-    ") = tf.keras.datasets.mnist.load_data()"
+    ") = keras.datasets.mnist.load_data()"
    ]
   },
   {
@@ -261,7 +260,7 @@
     "    memory_d=1,\n",
     "    order=256,\n",
     "    theta=n_pixels,\n",
-    "    hidden_cell=tf.keras.layers.SimpleRNNCell(212),\n",
+    "    hidden_cell=keras.layers.SimpleRNNCell(212),\n",
     "    hidden_to_memory=False,\n",
     "    memory_to_memory=False,\n",
     "    input_to_hidden=True,\n",
@@ -269,14 +268,14 @@
     ")\n",
     "\n",
     "# TensorFlow layer definition\n",
-    "inputs = tf.keras.Input((n_pixels, 1))\n",
+    "inputs = keras.Input((n_pixels, 1))\n",
     "lmus = lmu_layer(inputs)\n",
-    "outputs = tf.keras.layers.Dense(10)(lmus)\n",
+    "outputs = keras.layers.Dense(10)(lmus)\n",
     "\n",
     "# TensorFlow model definition\n",
-    "model = tf.keras.Model(inputs=inputs, outputs=outputs)\n",
+    "model = keras.Model(inputs=inputs, outputs=outputs)\n",
     "model.compile(\n",
-    "    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),\n",
+    "    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),\n",
     "    optimizer=\"adam\",\n",
     "    metrics=[\"accuracy\"],\n",
     ")\n",
@@ -316,10 +315,13 @@
     "batch_size = 100\n",
     "epochs = 10\n",
     "\n",
-    "saved_weights_fname = \"./psMNIST-weights.hdf5\"\n",
+    "saved_model_fname = \"./psMNIST.keras\"\n",
     "callbacks = [\n",
-    "    tf.keras.callbacks.ModelCheckpoint(\n",
-    "        filepath=saved_weights_fname, monitor=\"val_loss\", verbose=1, save_best_only=True\n",
+    "    keras.callbacks.ModelCheckpoint(\n",
+    "        filepath=saved_model_fname,\n",
+    "        monitor=\"val_accuracy\",\n",
+    "        verbose=1,\n",
+    "        save_best_only=True,\n",
     "    ),\n",
     "]\n",
     "\n",
@@ -393,8 +395,8 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "model.load_weights(saved_weights_fname)\n",
-    "accuracy = model.evaluate(X_test, Y_test)[1] * 100\n",
+    "model.load_weights(saved_model_fname)\n",
+    "accuracy = model.evaluate(X_test, Y_test, verbose=0)[1] * 100\n",
     "print(f\"Test accuracy: {round(accuracy, 2):0.2f}%\")"
    ]
   },

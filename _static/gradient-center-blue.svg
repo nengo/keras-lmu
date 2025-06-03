@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1366px" height="474px" viewBox="0 0 1366 474" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>gradient-center-blue</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50.9324789%" y1="41.3463521%" x2="50.9324789%" y2="90.8389281%" id="linearGradient-1">
+            <stop stop-color="#67A4B2" stop-opacity="0" offset="0%"></stop>
+            <stop stop-color="#679FB2" stop-opacity="0.167750219" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="gradient-center-" fill="url(#linearGradient-1)">
+            <path d="M1366,374 C1366,374 1049,474 683,474 C317,474 0,374 0,374 L0,0 L1366,0 L1366,374 Z" id="Shape"></path>
+        </g>
+    </g>
+</svg>
