@@ -76,4 +76,4 @@ Patent Notice
 -------------
 
 This software is covered by one or more patents. For a full list, please visit:
-`https://www.appliedbrainresearch.com/leading-ai-chip-innovators-explore-our-patents-at-abr`
+`https://www.appliedbrainresearch.com/patents
