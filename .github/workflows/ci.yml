@@ -41,7 +41,7 @@ jobs:
         include:
           - script: test
             coverage-name: gpu
-            tf-version: tensorflow[and-cuda]
+            tf-version: tensorflow[and-cuda]<2.20.0
             runs-on: [self-hosted, standard-gpu-16g]
           - script: test
             python-version: "3.11"
