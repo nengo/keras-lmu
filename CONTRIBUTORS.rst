@@ -7,6 +7,3 @@ KerasLMU contributors
 See https://github.com/nengo/keras-lmu/graphs/contributors
 for a list of the people who have committed to KerasLMU.
 Thank you for your contributions!
-
-For the full list of the many contributors to the Nengo ecosystem,
-see https://www.nengo.ai/people/.

@@ -2,12 +2,9 @@ project_name: KerasLMU
 pkg_name: keras_lmu
 repo_name: nengo/keras-lmu
 description: Keras implementation of Legendre Memory Units
-license: abr-free
 main_branch: main
 
 copyright_start: 2019
-
-license_rst: {}
 
 contributing_rst: {}
 

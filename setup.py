@@ -55,7 +55,7 @@ setup(
     packages=find_packages(),
     url="https://www.nengo.ai/keras-lmu",
     include_package_data=False,
-    license="Free for non-commercial use",
+    license="Proprietary",
     description="Keras implementation of Legendre Memory Units",
     long_description=read("README.rst", "CHANGES.rst"),
     zip_safe=False,
@@ -70,7 +70,7 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
-        "License :: Free for non-commercial use",
+        "License :: Other/Proprietary License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.10",
