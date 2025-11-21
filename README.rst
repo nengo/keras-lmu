@@ -76,4 +76,4 @@ Patent Notice
 -------------
 
 This software is covered by one or more patents. For a full list, please visit:
-`https://www.appliedbrainresearch.com/patents
+`https://www.appliedbrainresearch.com/patents`

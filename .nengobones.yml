@@ -85,6 +85,6 @@ pyproject_toml: {}
 version_py:
   type: semver
   major: 0
-  minor: 8
-  patch: 1
-  release: false
+  minor: 9
+  patch: 0
+  release: true
