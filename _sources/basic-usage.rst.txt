@@ -11,13 +11,14 @@ a new LMU layer:
 
 .. testcode::
 
+   import keras
    import keras_lmu
 
    lmu_layer = keras_lmu.LMU(
        memory_d=1,
        order=256,
        theta=784,
-       hidden_cell=tf.keras.layers.SimpleRNNCell(units=10),
+       hidden_cell=keras.layers.SimpleRNNCell(units=10),
    )
 
 Note that the values used above for ``memory_d``, ``order``,
@@ -40,14 +41,11 @@ a 10-dimensional input and a 20-dimensional output.
 
 .. testcode::
 
-   from tensorflow.keras import Input, Model
-   from tensorflow.keras.layers import Dense
-
-   inputs = Input((None, 10))
+   inputs = keras.Input((None, 10))
    lmus = lmu_layer(inputs)
-   outputs = Dense(20)(lmus)
+   outputs = keras.layers.Dense(20)(lmus)
 
-   model = Model(inputs=inputs, outputs=outputs)
+   model = keras.Model(inputs=inputs, outputs=outputs)
 
 
 Other parameters

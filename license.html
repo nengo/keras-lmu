@@ -1,19 +1,18 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KerasLMU license &#8212; KerasLMU 0.7.0 docs</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>KerasLMU license &#8212; KerasLMU 0.9.1.dev0 docs</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=5c69cfe2" />
+    <link rel="stylesheet" type="text/css" href="_static/nengo.css?v=1e9b7ed3" />
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
-<link rel="stylesheet" href="https://www.nengo.ai/css/bootstrap.css" type="text/css">
 <style>
  body .title-bar,
  body .documentation-source h1:after {
@@ -28,11 +27,13 @@
 <!-- From basic/layout.html -->
 <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
 
+<script src="_static/documentation_options.js?v=599a6050"></script>
 
-<script src="_static/underscore.js"></script>
+
+<script src="_static/doctools.js?v=9bcbadda"></script>
 
 
-<script src="_static/doctools.js"></script>
+<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
 
 
 <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -51,7 +52,7 @@
          var _paq = window._paq = window._paq || [];
          _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
          _paq.push(["setCookieDomain", "*.appliedbrainresearch.com"]);
-         _paq.push(["setDomains", ["*.appliedbrainresearch.com","*.edge.nengo.ai","*.forum.nengo.ai","*.labs.nengo.ai","*.nengo.ai"]]);
+         _paq.push(["setDomains", ["*.appliedbrainresearch.com","*.edge.nengo.ai","*.forum.nengo.ai","*.nengo.ai"]]);
          _paq.push(["enableCrossDomainLinking"]);
          _paq.push(["setDoNotTrack", true]);
          _paq.push(['trackPageView']);
@@ -66,32 +67,22 @@
         </script>
         <!-- End Matomo Code -->
     
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Citation" href="citation.html" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  </head><body class="bg-dark">
+  </head><body class="bg-dark"><!-- prettier-ignore -->
+
 
 <header class="fixed-top header-top shadow-sm">
   <nav class="navbar navbar-expand-md navbar-light bg-white">
     <a class="navbar-brand" href="https://www.nengo.ai/">
-      <img
-        src="https://www.nengo.ai/design/_images/general-full-light.svg"
-        alt="Nengo"
-        class="logo"
-      />
+      <img src="https://www.nengo.ai/design/_images/general-full-light.svg" alt="Nengo" class="logo" />
     </a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbar-collapse"
-      aria-controls="navbar-collapse"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse"
+      aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -103,19 +94,9 @@
           <a class="nav-link" href="https://www.nengo.ai/examples/">Examples</a>
         </li>
         <li class="nav-item dropdown active">
-          <a
-            class="nav-link dropdown-toggle text-nowrap"
-            id="navbar-dropdown-docs"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-            href="#"
-            >Documentation</a
-          >
-          <div
-            class="dropdown-menu shadow-lg border-0"
-            aria-labelledby="navbar-dropdown-docs"
-          >
+          <a class="nav-link dropdown-toggle text-nowrap" id="navbar-dropdown-docs" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" href="#">Documentation</a>
+          <div class="dropdown-menu shadow-lg border-0" aria-labelledby="navbar-dropdown-docs">
             
             <a class="dropdown-item" href="https://www.nengo.ai/nengo/">Nengo core</a>
             <a class="dropdown-item" href="https://github.com/nengo/nengo-gui/">NengoGUI</a>
@@ -129,67 +110,33 @@
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="https://www.nengo.ai/nengo-fpga/">NengoFPGA</a>
             <a class="dropdown-item" href="https://www.nengo.ai/nengo-loihi/">NengoLoihi</a>
-            <a class="dropdown-item" href="https://labs.nengo.ai/nengo-ocl/">NengoOCL</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/nengo-ocl/">NengoOCL</a>
             <a class="dropdown-item" href="https://github.com/project-rig/nengo_spinnaker">NengoSpiNNaker</a>
-            <a class="dropdown-item" href="https://github.com/nengo-labs/nengo-mpi">NengoMPI</a>
+            <a class="dropdown-item" href="https://github.com/nengo/nengo-mpi">NengoMPI</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="https://www.nengo.ai/documentation/"
-              >All documentation</a
-            >
+            <a class="dropdown-item" href="https://www.nengo.ai/documentation/">All documentation</a>
           </div>
         </li>
         <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle text-nowrap"
-            id="navbar-dropdown-community"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-            href="#"
-            >Community</a
-          >
-          <div
-            class="dropdown-menu shadow-lg border-0"
-            aria-labelledby="navbar-dropdown-community"
-          >
+          <a class="nav-link dropdown-toggle text-nowrap" id="navbar-dropdown-community" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" href="#">Community</a>
+          <div class="dropdown-menu shadow-lg border-0" aria-labelledby="navbar-dropdown-community">
             <a class="dropdown-item" href="https://forum.nengo.ai">Forum</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="https://www.nengo.ai/people/"
-              >People</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/summer-school/"
-              >Summer school</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/contributing/"
-              >Contributing</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/publications/"
-              >Publications</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/videos/"
-              >Videos</a
-            >
-            <a class="dropdown-item" href="https://www.nengo.ai/conduct/"
-              >Code of conduct</a
-            >
+            <a class="dropdown-item" href="https://www.nengo.ai/people/">People</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/summer-school/">Summer school</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/contributing/">Contributing</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/publications/">Publications</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/videos/">Videos</a>
+            <a class="dropdown-item" href="https://www.nengo.ai/conduct/">Code of conduct</a>
             <a class="dropdown-item" href="https://www.nengo.ai/caa/">CAA</a>
           </div>
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a
-            class="nav-link btn btn-success btn-sm text-white"
-            href="https://www.nengo.ai/getting-started/"
-          >Getting started</a
-        >
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link btn btn-success btn-sm text-white"
-            href="https://www.nengo.ai/store/"
-          >Store</a
-        >
+          <a class="nav-link btn btn-success btn-sm text-white" href="https://www.nengo.ai/getting-started/">Getting
+            started</a>
         </li>
       </ul>
     </div>
@@ -231,7 +178,10 @@
 <li class="toctree-l2"><a class="reference internal" href="changelog.html">Release history</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contributing.html">Contributing to KerasLMU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="citation.html">Citation</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">KerasLMU license</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">KerasLMU license</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#applied-brain-research-open-license">Applied Brain Research Open License</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -247,6 +197,18 @@
         
         <option selected>latest</option>
         
+        
+          
+        <option value="v0.9.0/license.html">
+          v0.9.0
+        </option>
+          
+        
+          
+        <option value="v0.8.0/license.html">
+          v0.8.0
+        </option>
+          
         
           
         <option value="v0.4.2/license.html">
@@ -301,34 +263,79 @@
                   <p class="admonition-title">Note</p>
                   <p>
                   This documentation is for a development version.
-                  <a href="v0.4.2/license.html">
-                  Click here for the latest stable release (v0.4.2).
+                  <a href="v0.9.0/license.html">
+                  Click here for the latest stable release (v0.9.0).
                   </a>
                   </p>
               </div>
               
               
-  <div class="section" id="keraslmu-license">
-<h1>KerasLMU license<a class="headerlink" href="#keraslmu-license" title="Permalink to this headline">¶</a></h1>
-<p>Copyright (c) 2019-2023 Applied Brain Research</p>
-<p><strong>ABR License</strong></p>
-<p>KerasLMU is made available under a proprietary license, the
-“ABR TECHNOLOGY LICENSE AND USE AGREEMENT” (the “ABR License”).
-The main ABR License file is available for download at
-<a class="reference external" href="https://www.appliedbrainresearch.com/license">https://www.appliedbrainresearch.com/license</a>.
-The entire contents of this <code class="docutils literal notranslate"><span class="pre">LICENSE.rst</span></code> file, including any
-terms and conditions herein, form part of the ABR License.</p>
-<p>Commercial Use Licenses are available to purchase for a yearly fee.
-Academic and Personal Use Licenses for KerasLMU are available at
-no cost.
-Both types of licences can be obtained from the
-ABR store at <a class="reference external" href="https://www.appliedbrainresearch.com/store">https://www.appliedbrainresearch.com/store</a>.</p>
-<p>If you have any sales questions,
-please contact <a class="reference external" href="mailto:sales&#37;&#52;&#48;appliedbrainresearch&#46;com">mailto:sales<span>&#64;</span>appliedbrainresearch<span>&#46;</span>com</a>.
-If you have any technical support questions, please post them on the ABR
-community forums at <a class="reference external" href="https://forum.nengo.ai/">https://forum.nengo.ai/</a> or contact
-<a class="reference external" href="mailto:support&#37;&#52;&#48;appliedbrainresearch&#46;com">mailto:support<span>&#64;</span>appliedbrainresearch<span>&#46;</span>com</a>.</p>
-</div>
+  <section id="keraslmu-license">
+<h1>KerasLMU license<a class="headerlink" href="#keraslmu-license" title="Link to this heading">¶</a></h1>
+<p>Copyright (c) 2019-2025 Applied Brain Research</p>
+<section id="applied-brain-research-open-license">
+<h2>Applied Brain Research Open License<a class="headerlink" href="#applied-brain-research-open-license" title="Link to this heading">¶</a></h2>
+<section id="license">
+<h3>License<a class="headerlink" href="#license" title="Link to this heading">¶</a></h3>
+<p>The licensor grants You the rights to use the Licensed Elements, only for the permitted
+purpose described below, where “use” means any action including those which would
+otherwise infringe that contributor’s intellectual property rights, including without
+limitation copyright, patent rights, and trade secret rights, but excluding trademark,
+service mark, or publicity rights. You may not sublicense or transfer Your license to
+any other person or legal entity. The terms of this license do not imply any other
+licenses.</p>
+</section>
+<section id="permitted-purposes-non-commercial-and-small-business">
+<h3>Permitted Purposes: Non-Commercial and Small Business<a class="headerlink" href="#permitted-purposes-non-commercial-and-small-business" title="Link to this heading">¶</a></h3>
+<p>Subject to the terms and conditions of this license, You may only use the
+Licensed Materials for the following purposes:
+1. Non-commercial research purposes. Non-commercial research purposes do not include
+use to develop commercial products or services.
+2. Any purpose. If you have an annual income of less than one million US dollars.
+Annual income is measured by You and Your affiliates’ collective worldwide income for
+the fiscal year preceding Your use of Licensed Materials, in 2025 dollars. To the
+extent that You and Your affiliates annual worldwide income ever exceeds one million
+US dollar, Your use of Licensed Materials shall thereafter be limited to non-commercial
+research purposes as set forth above.</p>
+</section>
+<section id="notices">
+<h3>Notices<a class="headerlink" href="#notices" title="Link to this heading">¶</a></h3>
+<p>If You modify the Licensed Elements and provide them to others, You may apply terms of
+Your choice to Your own modifications; however, if You provide any of the
+Licensed Elements to others, You must inform the recipient that the Licensed Elements
+are available only under this license, either by providing a copy of this license,
+or a reference to <a class="reference external" href="https://www.appliedbrainresearch.com/license">https://www.appliedbrainresearch.com/license</a>.</p>
+</section>
+<section id="termination">
+<h3>Termination<a class="headerlink" href="#termination" title="Link to this heading">¶</a></h3>
+<p>This license ends immediately and automatically if You violate any of its terms. If
+You claim in writing that any Licensed Element infringes or contributes to infringement
+of any patent, Your license ends immediately.</p>
+</section>
+<section id="no-liability">
+<h3>No Liability<a class="headerlink" href="#no-liability" title="Link to this heading">¶</a></h3>
+<p>As far as the law allows, each Licensed Element is provided as is, without any warranty
+or condition, and the licensor will not be liable to anyone for any damages related to
+any Licensed Element or this license, under any kind of legal claim. If the law
+applicable to You prohibits this limitation of liability, or disclaimer of warranty or
+condition, Your license will be null and void.</p>
+</section>
+<section id="definitions">
+<h3>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">¶</a></h3>
+<p>“Licensed Elements” includes neural networks or any other type of machine learning
+model, deep learning model, artificial intelligence model, software, data,
+documentation, or other material that is designated as being available under this
+license, and any portion of any of them.</p>
+<p>“You” or “Your” refers to the individual or legal entity exercising permissions granted
+by this License, including any legal entity, sole proprietorship, or other kind of
+organization for which uses the Licensed Elements, plus all of its affiliates, plus all
+organizations that have control over, are under the control of, or are under common
+control with that organization. Control means ownership of substantially all the assets
+of an organization, or the power to direct its management and policies by vote,
+contract, or otherwise. Control can be direct or indirect.</p>
+</section>
+</section>
+</section>
 
 
             </div>
@@ -341,16 +348,11 @@ community forums at <a class="reference external" href="https://forum.nengo.ai/"
 </div><footer class="text-light footer-main gradient-bottom-center">
   <p class="text-center">
     <a class="no-hover-line" href="https://appliedbrainresearch.com">
-      <img
-        class="abr-logo"
-        src="https://www.nengo.ai/img/abr-logo.svg"
-        height="32"
-      />
+      <img class="abr-logo" src="https://www.nengo.ai/img/abr-logo.svg" height="32" />
     </a>
     <a href="https://www.nengo.ai/">What is Nengo?</a>
     <a href="https://www.nengo.ai/examples/">Examples</a>
     <a href="https://www.nengo.ai/documentation/">Documentation</a>
-    <a href="https://www.nengo.ai/store/">Store</a>
     <a href="https://www.nengo.ai/getting-started/">Getting started</a>
     <a href="https://www.nengo.ai/privacy/">Privacy</a>
   </p>
